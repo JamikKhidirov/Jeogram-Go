@@ -163,12 +163,42 @@ APNS_PRODUCTION=false
 
 ## Быстрый старт (Docker)
 
+Проект поставляется двумя compose-файлами:
+
+- **`docker-compose.yml`** — **полный стек**: PostgreSQL + Redis + Zookeeper + Kafka
+  + Prometheus + Grafana + само приложение. Realtime-доставка идёт через Kafka.
+- **`docker-compose.lite.yml`** — **облегчённый стек**: только PostgreSQL + Redis +
+  приложение (Kafka/Prometheus/Grafana отключены; realtime работает напрямую
+  через WebSocket, так как `KAFKA_ENABLED=false`).
+
+### Полный стек (PostgreSQL + Redis + Kafka + мониторинг)
+
 ```bash
-cp .env.example .env          # заполните JWT-секреты (см. выше)
-docker compose up --build -d
+cp .env.example .env          # обязательно заполните JWT_ACCESS_SECRET / JWT_REFRESH_SECRET
+docker compose up --build -d  # собирает и поднимает ВСЕ сервисы
 ```
 
-Посмотреть логи: `docker compose logs -f app`. Остановить: `docker compose down`.
+Дождитесь, пока все зависимости станут healthy (Postgres/Redis/Kafka), и приложение
+само поднимется после них (`depends_on: condition: service_healthy`).
+
+```bash
+docker compose ps             # статус сервисов (все должны быть healthy/running)
+docker compose logs -f app    # логи приложения
+curl http://localhost:8080/health   # {"status":"ok"}
+```
+
+### Облегчённый стек (без Kafka)
+
+```bash
+docker compose -f docker-compose.lite.yml up --build -d
+```
+
+Остановка и очистка (удаляет тома с данными):
+
+```bash
+docker compose down           # либо: docker compose -f docker-compose.lite.yml down
+docker compose down -v        # + удалить volumes (БД, uploads, grafana)
+```
 
 Сервисы:
 
@@ -190,13 +220,13 @@ docker compose up --build -d
 # вариант А: поднять только инфраструктуру в Docker
 docker compose up -d postgres redis kafka
 cp .env.example .env
-go run ./cmd/server
+go run ./cmd
 
 # вариант Б: вообще без внешней инфраструктуры (SQLite)
 DB_DRIVER=sqlite SQLITE_PATH=./jeogram.db \
 REDIS_ENABLED=false KAFKA_ENABLED=false \
 JWT_ACCESS_SECRET=dev-secret JWT_REFRESH_SECRET=dev-secret \
-HTTP_PORT=8080 go run ./cmd/server
+HTTP_PORT=8080 go run ./cmd
 ```
 
 ## Запуск в Kubernetes
@@ -284,10 +314,19 @@ GET  /user/search?q=
 POST /user/block           { "user_id": "..." }
 GET  /user/blocks
 DELETE /user/block/{user_id}
+GET  /user/presence?ids=id1,id2     # онлайн-статус (через WebSocket-хаб)
+DELETE /user/account                # удалить свой аккаунт (каскадно)
+
+GET  /contacts                     # список контактов (подтверждённых)
+GET  /contacts/requests            # входящие запросы в контакты
+POST /contacts            { "user_id": "..." }            # отправить запрос
+POST /contacts/{user_id}/accept   # принять входящий запрос
+DELETE /contacts/{user_id}         # удалить из контактов
 
 GET  /chats
 POST /chats/private        { "user_id": "..." }
 POST /chats/group          { "title": "...", "participant_ids": [...] }
+GET  /chats/{id}           # информация о чате (доступ только участникам)
 PUT  /chats/{id}           { "title": "...", "avatar_url": "..." }   # admin/owner
 POST /chats/{id}/participants            { "user_id": "..." }
 GET  /chats/{id}/participants
@@ -383,3 +422,33 @@ make swagger   # устанавливает swag и перегенерирует
 - `/metrics` отдаёт Prometheus-метрики (количество запросов, латентность по методам/пути).
 - Prometheus настроен на сбор с `app:8080` (см. `prometheus.yml`).
 - Grafana подключена к Prometheus; добавьте дашборд и используйте `admin/admin`.
+
+## Документация и ссылки
+
+| Что                          | Где смотреть |
+|------------------------------|--------------|
+| Полный стек (Postgres+Redis+Kafka+Prometheus+Grafana) | [`docker-compose.yml`](docker-compose.yml) |
+| Облегчённый стек (Postgres+Redis, без Kafka)          | [`docker-compose.lite.yml`](docker-compose.lite.yml) |
+| Переменные окружения (шаблон)                          | [`.env.example`](.env.example) |
+| Сборка образа                                               | [`Dockerfile`](Dockerfile) |
+| Kubernetes-манифесты (namespace, Postgres, Redis, Kafka, app, ingress) | [`k8s/`](k8s/) · [`k8s/README.md`](k8s/README.md) |
+| Postman-коллекция эндпоинтов                                | [`postman/jeogram.postman_collection.json`](postman/jeogram.postman_collection.json) |
+| Сквозной e2e-прогон всех эндпоинтов (PowerShell)           | [`e2e_test.ps1`](e2e_test.ps1) |
+| Swagger-спецификация (сгенерировано)                       | [`docs/swagger.json`](docs/swagger.json) · UI: `/swagger/index.html` |
+| Prometheus-конфиг                                            | [`prometheus.yml`](prometheus.yml) |
+| Полезные команды (build/run/test/swagger/docker)            | [`Makefile`](Makefile) |
+
+> Все защищённые эндпоинты требуют заголовок `Authorization: Bearer <access_token>`.
+> Полный список эндпоинтов с параметрами — в Swagger UI (`/swagger/index.html`) и в
+> разделе «Основные эндпоинты» выше.
+
+## Полезные команды (Makefile)
+
+```bash
+make build      # go build -o bin/server ./cmd
+make run        # go run ./cmd
+make test       # go test ./... -race -count=1
+make swagger    # перегенерация docs/ из аннотаций (swag init)
+make docker-up  # docker compose up --build -d
+make docker-down
+```
