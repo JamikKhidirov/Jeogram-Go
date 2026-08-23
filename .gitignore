@@ -1,0 +1,23 @@
+# Binaries
+/bin/
+*.exe
+
+# Runtime databases
+*.db
+*.db-journal
+
+# Uploaded media
+/uploads/
+
+# Logs
+*.out
+*.err
+server_*
+
+# Local environment
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp

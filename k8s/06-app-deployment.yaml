@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jeogram-app
+  namespace: jeogram
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jeogram-app
+  template:
+    metadata:
+      labels:
+        app: jeogram-app
+    spec:
+      containers:
+        - name: app
+          image: jeogram/messenger:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: jeogram-config
+            - secretRef:
+                name: jeogram-secrets
+          # JWT-секреты явно берём из секрета (stringData -> env).
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jeogram-secrets
+                  key: postgres-password
+            - name: JWT_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jeogram-secrets
+                  key: jwt-access-secret
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jeogram-secrets
+                  key: jwt-refresh-secret
+            - name: FCM_SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jeogram-secrets
+                  key: fcm-server-key
+            - name: APNS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jeogram-secrets
+                  key: apns-key
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: jeogram-uploads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jeogram-uploads
+  namespace: jeogram
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi

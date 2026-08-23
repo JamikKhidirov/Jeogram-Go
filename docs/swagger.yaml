@@ -1,0 +1,1349 @@
+definitions:
+  github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest:
+    properties:
+      avatar_url:
+        maxLength: 512
+        type: string
+      participant_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      title:
+        maxLength: 128
+        type: string
+    required:
+    - participant_ids
+    - title
+    type: object
+  github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest:
+    properties:
+      text:
+        type: string
+    required:
+    - text
+    type: object
+  github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest:
+    properties:
+      chat_id:
+        type: string
+    required:
+    - chat_id
+    type: object
+  github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest:
+    properties:
+      message_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - message_ids
+    type: object
+  github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest:
+    properties:
+      emoji:
+        type: string
+    required:
+    - emoji
+    type: object
+  github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest:
+    properties:
+      chat_id:
+        type: string
+      media_url:
+        type: string
+      reply_to:
+        type: string
+      text:
+        type: string
+      type:
+        enum:
+        - text
+        - voice
+        - image
+        type: string
+    required:
+    - chat_id
+    - type
+    type: object
+  github_com_jeogram_messenger_internal_modules_notification_domain.Platform:
+    enum:
+    - ios
+    - android
+    - web
+    type: string
+    x-enum-varnames:
+    - PlatformIOS
+    - PlatformAndroid
+    - PlatformWeb
+  github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest:
+    properties:
+      platform:
+        allOf:
+        - $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.Platform'
+        enum:
+        - ios
+        - android
+        - web
+      token:
+        type: string
+    required:
+    - platform
+    - token
+    type: object
+  github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        maxLength: 512
+        type: string
+      display_name:
+        maxLength: 128
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest:
+    properties:
+      language:
+        type: string
+      notifications_enabled:
+        type: boolean
+      online_visible:
+        type: boolean
+      theme:
+        enum:
+        - system
+        - light
+        - dark
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_pkg_response.APIError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_pkg_response.APIResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIError'
+      meta:
+        $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.Meta'
+      success:
+        type: boolean
+    type: object
+  github_com_jeogram_messenger_internal_pkg_response.Meta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  modules_calls_handler.startCallRequest:
+    properties:
+      chat_id:
+        type: string
+      type:
+        enum:
+        - audio
+        - video
+        type: string
+    required:
+    - chat_id
+    - type
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: учётные данные
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Вход в систему
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Выход
+      tags:
+      - auth
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Профиль текущего пользователя
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: refresh-токен
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Обновление токена
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Register a new account
+      tags:
+      - auth
+  /calls:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: чат и тип звонка
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/modules_calls_handler.startCallRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Начать звонок
+      tags:
+      - calls
+  /calls/{id}/end:
+    post:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Завершить звонок
+      tags:
+      - calls
+  /calls/ws:
+    get:
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching Protocols
+      security:
+      - BearerAuth: []
+      summary: WebRTC-сигналинг (WebSocket)
+      tags:
+      - calls
+  /chats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Список моих чатов
+      tags:
+      - chat
+  /chats/{chat_id}:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Информация о чате
+      tags:
+      - chat
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: поля title, avatar_url
+        in: body
+        name: body
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить чат
+      tags:
+      - chat
+  /chats/{chat_id}/messages:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: лимит (по умолчанию 50)
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Список сообщений чата
+      tags:
+      - messages
+  /chats/{chat_id}/messages/{id}/admin:
+    delete:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить для всех (админ)
+      tags:
+      - messages
+  /chats/{chat_id}/messages/search:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: строка поиска
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Поиск в чате
+      tags:
+      - messages
+  /chats/{chat_id}/participants:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Участники чата
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: поле user_id
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Добавить участника
+      tags:
+      - chat
+  /chats/{chat_id}/participants/{user_id}:
+    delete:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id участника
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить участника
+      tags:
+      - chat
+  /chats/{chat_id}/participants/{user_id}/demote:
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id участника
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Снять админа
+      tags:
+      - chat
+  /chats/{chat_id}/participants/{user_id}/promote:
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id участника
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Назначить админа
+      tags:
+      - chat
+  /chats/{chat_id}/pin/{message_id}:
+    delete:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id сообщения
+        in: path
+        name: message_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Открепить сообщение
+      tags:
+      - messages
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id сообщения
+        in: path
+        name: message_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Закрепить сообщение
+      tags:
+      - messages
+  /chats/{chat_id}/read:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: id сообщений
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отметить прочитанным
+      tags:
+      - messages
+  /chats/{chat_id}/typing:
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Индикатор печати
+      tags:
+      - messages
+  /chats/{chat_id}/unread:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Непрочитанные (счётчик)
+      tags:
+      - messages
+  /chats/group:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: название и участники
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать групповой чат
+      tags:
+      - chat
+  /chats/private:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id собеседника
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать приватный чат
+      tags:
+      - chat
+  /contacts:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Список контактов
+      tags:
+      - contacts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить запрос в контакты
+      tags:
+      - contacts
+  /contacts/{user_id}:
+    delete:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить из контактов
+      tags:
+      - contacts
+  /contacts/{user_id}/accept:
+    post:
+      parameters:
+      - description: id отправителя запроса
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Принять запрос в контакты
+      tags:
+      - contacts
+  /contacts/requests:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Входящие запросы
+      tags:
+      - contacts
+  /media/{type}/{file}:
+    get:
+      parameters:
+      - description: image or voice
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: имя файла
+        in: path
+        name: file
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+      summary: Отдать медиафайл
+      tags:
+      - media
+  /media/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: image or voice
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: файл
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Загрузить медиа
+      tags:
+      - media
+  /messages:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: message payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить сообщение
+      tags:
+      - messages
+  /messages/{id}:
+    delete:
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить сообщение
+      tags:
+      - messages
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: новый текст
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Редактировать сообщение
+      tags:
+      - messages
+  /messages/{id}/forward:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: id целевого чата
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Переслать сообщение
+      tags:
+      - messages
+  /messages/{id}/reactions:
+    delete:
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: emoji
+        in: query
+        name: emoji
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Убрать реакцию
+      tags:
+      - messages
+    get:
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Список реакций
+      tags:
+      - messages
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: emoji
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Реакция на сообщение
+      tags:
+      - messages
+  /messages/search:
+    get:
+      parameters:
+      - description: строка поиска
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Глобальный поиск сообщений
+      tags:
+      - messages
+  /notifications:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Лента уведомлений
+      tags:
+      - notifications
+  /notifications/device:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: платформа и токен
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Регистрация устройства (push)
+      tags:
+      - notifications
+  /notifications/read:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Прочитать уведомления
+      tags:
+      - notifications
+  /user/account:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить аккаунт
+      tags:
+      - user
+  /user/block:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Заблокировать пользователя
+      tags:
+      - user
+  /user/block/{user_id}:
+    delete:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Разблокировать пользователя
+      tags:
+      - user
+  /user/blocks:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Список заблокированных
+      tags:
+      - user
+  /user/presence:
+    get:
+      parameters:
+      - description: список id через запятую (если пусто — все онлайн)
+        in: query
+        name: ids
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Онлайн-статус пользователей
+      tags:
+      - user
+  /user/profile:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Профиль пользователя
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: поля профиля
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить профиль
+      tags:
+      - user
+  /user/search:
+    get:
+      parameters:
+      - description: строка поиска
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Поиск пользователей
+      tags:
+      - user
+  /user/settings:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Настройки пользователя
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: настройки
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить настройки
+      tags:
+      - user
+swagger: "2.0"

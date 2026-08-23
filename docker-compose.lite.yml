@@ -1,0 +1,80 @@
+# Облегчённый стек: только PostgreSQL + Redis + приложение.
+# Kafka/Prometheus/Grafana убраны, чтобы максимально упростить запуск.
+# Realtime-доставка при этом работает напрямую через WebSocket (KAFKA_ENABLED=false).
+#
+# Запуск:
+#   docker compose -f docker-compose.lite.yml up --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jeogram-postgres
+    environment:
+      POSTGRES_USER: jeogram
+      POSTGRES_PASSWORD: jeogram
+      POSTGRES_DB: jeogram
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jeogram"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: jeogram-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jeogram-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      APP_ENV: production
+      APP_VERSION: "1.0.0"
+      HTTP_HOST: "0.0.0.0"
+      HTTP_PORT: "8080"
+      DB_DRIVER: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: jeogram
+      POSTGRES_PASSWORD: jeogram
+      POSTGRES_DB: jeogram
+      POSTGRES_SSLMODE: disable
+      REDIS_ENABLED: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      KAFKA_ENABLED: "false"
+      JWT_ACCESS_SECRET: change-me-access-production
+      JWT_REFRESH_SECRET: change-me-refresh-production
+      JWT_ACCESS_TTL: 1h
+      JWT_REFRESH_TTL: 168h
+      JWT_ISSUER: jeogram
+      MEDIA_UPLOAD_DIR: /data/uploads
+      MEDIA_MAX_FILE_SIZE: "26214400"
+      MEDIA_BASE_URL: http://localhost:8080/media
+      METRICS_ENABLED: "true"
+      METRICS_PATH: /metrics
+      PUSH_ENABLED: "false"
+    volumes:
+      - uploads-data:/data/uploads
+
+volumes:
+  postgres-data:
+  uploads-data:

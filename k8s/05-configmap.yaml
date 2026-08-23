@@ -1,0 +1,43 @@
+# Настройки приложения Jeogram (без секретов — секреты в jeogram-secrets).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jeogram-config
+  namespace: jeogram
+data:
+  APP_NAME: "jeogram"
+  APP_ENV: "production"
+  APP_VERSION: "1.0.0"
+  HTTP_HOST: "0.0.0.0"
+  HTTP_PORT: "8080"
+  DB_DRIVER: "postgres"
+  SQLITE_PATH: "./jeogram.db"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: "jeogram"
+  POSTGRES_DB: "jeogram"
+  POSTGRES_SSLMODE: "disable"
+  REDIS_ENABLED: "true"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  KAFKA_ENABLED: "true"
+  KAFKA_BROKERS: "kafka:9092"
+  KAFKA_CONSUMER_GROUP: "jeogram-notifications"
+  KAFKA_MESSAGE_TOPIC: "message.created"
+  KAFKA_NOTIFY_TOPIC: "user.notifications"
+  JWT_ISSUER: "jeogram"
+  JWT_ACCESS_TTL: "1h"
+  JWT_REFRESH_TTL: "168h"
+  MEDIA_UPLOAD_DIR: "/data/uploads"
+  MEDIA_MAX_FILE_SIZE: "26214400"
+  MEDIA_BASE_URL: "http://jeogram.local/media"
+  METRICS_ENABLED: "true"
+  METRICS_PATH: "/metrics"
+  PUSH_ENABLED: "false"
+  FCM_OAUTH_TOKEN: ""
+  APNS_KEY_ID: ""
+  APNS_TEAM_ID: ""
+  APNS_KEY_PATH: "/data/apns/authkey.p8"
+  APNS_BUNDLE_ID: ""
+  APNS_PRODUCTION: "false"

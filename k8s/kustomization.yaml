@@ -1,0 +1,26 @@
+# Kustomization для деплоя Jeogram в Kubernetes.
+# Применение:
+#   kubectl apply -k k8s/
+# Или по файлам (секреты создайте отдельно!):
+#   kubectl apply -f k8s/00-namespace.yaml
+#   kubectl apply -f k8s/01-secrets.yaml
+#   kubectl apply -f k8s/02-postgres.yaml
+#   kubectl apply -f k8s/03-redis.yaml
+#   kubectl apply -f k8s/04-kafka.yaml        # опционально (KAFKA_ENABLED)
+#   kubectl apply -f k8s/05-configmap.yaml
+#   kubectl apply -f k8s/06-app-deployment.yaml
+#   kubectl apply -f k8s/07-app-service.yaml
+#   kubectl apply -f k8s/08-ingress.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: jeogram
+resources:
+  - 00-namespace.yaml
+  - 01-secrets.yaml
+  - 02-postgres.yaml
+  - 03-redis.yaml
+  - 04-kafka.yaml
+  - 05-configmap.yaml
+  - 06-app-deployment.yaml
+  - 07-app-service.yaml
+  - 08-ingress.yaml
