@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+
 	"github.com/jeogram/messenger/docs"
 	"github.com/jeogram/messenger/internal/config"
 	authrepo "github.com/jeogram/messenger/internal/modules/auth/repository"
@@ -32,8 +33,6 @@ func openDB(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
 	log.Info().Msg("используется PostgreSQL")
 	return database.NewPostgres(ctx, cfg.Postgres, cfg.App.Env == "development")
 }
-
-// Импорт docs необходим, чтобы httpSwagger отдавал сгенерированную спецификацию.
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
