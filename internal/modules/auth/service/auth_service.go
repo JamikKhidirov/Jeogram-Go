@@ -17,10 +17,9 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 
 // AuthService implements authentication use cases.
 type AuthService struct {
-	repo   *repository.UserRepository
-	jwt    *auth.JWT
-	cache  *cache.Redis
-	issuer string
+	repo  *repository.UserRepository
+	jwt   *auth.JWT
+	cache *cache.Redis
 }
 
 func NewAuthService(repo *repository.UserRepository, jwt *auth.JWT, c *cache.Redis) *AuthService {

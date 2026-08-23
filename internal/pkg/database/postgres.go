@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/glebarez/sqlite"
-	"github.com/jeogram/messenger/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -34,9 +33,9 @@ func NewPostgres(ctx context.Context, cfg config.PostgresConfig, debug bool) (*g
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	pingCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	if err := sqlDB.PingContext(ctx); err != nil {
+	if err := sqlDB.PingContext(pingCtx); err != nil {
 		return nil, err
 	}
 	return db, nil
