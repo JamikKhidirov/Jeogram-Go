@@ -15,6 +15,294 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/chats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: список всех чатов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "смещение",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/chats/{id}/messages": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: сообщения чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "смещение",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/devices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: все устройства (IP, модель, ОС)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "смещение",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/messages/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: поиск сообщений по тексту",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "поисковый запрос",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: aggregate stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: list users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "смещение",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: получить пользователя по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/devices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: устройства пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "consumes": [
@@ -200,6 +488,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/calls/history": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "История звонков",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "смещение",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/calls/ws": {
             "get": {
                 "security": [
@@ -217,6 +543,39 @@ const docTemplate = `{
                 "responses": {
                     "101": {
                         "description": "Switching Protocols"
+                    }
+                }
+            }
+        },
+        "/calls/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Получить звонок по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id звонка",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
                     }
                 }
             }
@@ -354,6 +713,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/chats/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Поиск чатов",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "строка поиска",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/chats/{chat_id}": {
             "get": {
                 "security": [
@@ -429,6 +821,78 @@ const docTemplate = `{
                 }
             }
         },
+        "/chats/{chat_id}/leave": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Покинуть чат",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/chats/{chat_id}/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Медиа сообщения чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/chats/{chat_id}/messages": {
             "get": {
                 "security": [
@@ -462,6 +926,37 @@ const docTemplate = `{
                         "description": "смещение",
                         "name": "offset",
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Очистить историю сообщений чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -540,6 +1035,70 @@ const docTemplate = `{
                         "type": "string",
                         "description": "id сообщения",
                         "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/chats/{chat_id}/mute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Заглушить уведомления чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Включить уведомления чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
                         "in": "path",
                         "required": true
                     }
@@ -828,6 +1387,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/chats/{chat_id}/pinned": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Закреплённые сообщения чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/chats/{chat_id}/read": {
             "post": {
                 "security": [
@@ -1024,6 +1622,37 @@ const docTemplate = `{
             }
         },
         "/contacts/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Получить контакт по id пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -1470,6 +2099,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/messages/{id}/read": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Отметить сообщение прочитанным",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id сообщения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notifications": {
             "get": {
                 "security": [
@@ -1546,6 +2208,30 @@ const docTemplate = `{
                     "notifications"
                 ],
                 "summary": "Прочитать уведомления",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/unread-count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Число непрочитанных уведомлений",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1665,6 +2351,30 @@ const docTemplate = `{
                     "user"
                 ],
                 "summary": "Список заблокированных",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/export": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Экспорт данных аккаунта",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2054,6 +2764,18 @@ const docTemplate = `{
                 "token"
             ],
             "properties": {
+                "app_version": {
+                    "type": "string"
+                },
+                "device_model": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
                 "platform": {
                     "enum": [
                         "ios",
@@ -2065,6 +2787,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.Platform"
                         }
                     ]
+                },
+                "timezone": {
+                    "type": "string"
                 },
                 "token": {
                     "type": "string"
@@ -2180,6 +2905,14 @@ const docTemplate = `{
                     ]
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Введите токен в формате: Bearer \u003ctoken\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

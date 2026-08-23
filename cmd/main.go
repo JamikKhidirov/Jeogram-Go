@@ -34,6 +34,11 @@ func openDB(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
 }
 
 // Импорт docs необходим, чтобы httpSwagger отдавал сгенерированную спецификацию.
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Введите токен в формате: Bearer <token>
 func init() {
 	docs.SwaggerInfo.Title = "Jeogram Messenger API"
 	docs.SwaggerInfo.Description = "Профессиональный бэкенд мессенджера на Go (модульный монолит)."

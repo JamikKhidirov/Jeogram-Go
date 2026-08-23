@@ -131,3 +131,34 @@ func (s *UserService) DeleteAccount(ctx context.Context, userID string) error {
 	}
 	return s.users.Delete(ctx, userID)
 }
+
+// Export возвращает полную выгрузку данных аккаунта (GDPR-экспорт):
+// профиль, настройки, контакты и список чатов.
+func (s *UserService) Export(ctx context.Context, userID string) (map[string]interface{}, error) {
+	profile, err := s.GetProfile(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	settings, err := s.GetSettings(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	contacts, err := s.contacts.ListAccepted(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	chats, err := s.chats.ListForUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	chatIDs := make([]string, 0, len(chats))
+	for i := range chats {
+		chatIDs = append(chatIDs, chats[i].ID)
+	}
+	return map[string]interface{}{
+		"profile":  profile,
+		"settings": settings,
+		"contacts": contacts,
+		"chat_ids": chatIDs,
+	}, nil
+}

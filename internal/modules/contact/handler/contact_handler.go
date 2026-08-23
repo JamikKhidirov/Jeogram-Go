@@ -39,6 +39,7 @@ func (h *ContactHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/contacts/requests", h.ListRequests)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/contacts/{user_id}/accept", h.Accept)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/contacts/{user_id}", h.Remove)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/contacts/{user_id}", h.Get)
 }
 
 // Add отправляет запрос в контакты.
@@ -67,6 +68,26 @@ func (h *ContactHandler) Add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteCreated(w, c)
+}
+
+// Get возвращает запись контакта с конкретным пользователем.
+//
+//	@Summary	Получить контакт по id пользователя
+//	@Tags		contacts
+//	@Produce	json
+//	@Param		user_id	path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/contacts/{user_id} [get]
+//	@Security	BearerAuth
+func (h *ContactHandler) Get(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	target := chi.URLParam(r, "user_id")
+	c, err := h.svc.Get(r.Context(), userID, target)
+	if err != nil {
+		writeContactError(w, err)
+		return
+	}
+	response.WriteOK(w, c)
 }
 
 // List возвращает список контактов (подтверждённых).

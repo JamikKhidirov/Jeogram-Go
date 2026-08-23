@@ -80,6 +80,19 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: jeogram-pgadmin
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@jeogram.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
   app:
     build:
       context: .
@@ -125,6 +138,9 @@ services:
       METRICS_ENABLED: "true"
       METRICS_PATH: /metrics
       PUSH_ENABLED: "false"
+      # Личный/self-hosted доступ: "*" = админ для любого авторизованного.
+      # В продакшене замените на свой ID: ADMIN_USER_IDS: "ваш-uuid"
+      ADMIN_USER_IDS: "*"
     volumes:
       - uploads-data:/data/uploads
 
@@ -132,3 +148,4 @@ volumes:
   postgres-data:
   grafana-data:
   uploads-data:
+  pgadmin-data:

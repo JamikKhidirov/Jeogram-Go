@@ -11,20 +11,44 @@ const (
 	PlatformWeb     Platform = "web"
 )
 
-// DeviceToken stores a push registration for a user on a specific device.
+// DeviceMeta carries client/device telemetry captured at registration time.
+type DeviceMeta struct {
+	DeviceModel string
+	OSVersion   string
+	AppVersion  string
+	Locale      string
+	Timezone    string
+	IP          string
+	UserAgent   string
+}
+
+// DeviceToken stores a push registration and telemetry for a user's device.
 type DeviceToken struct {
-	UserID    string    `gorm:"type:uuid;primaryKey" json:"user_id"`
-	Platform  Platform  `gorm:"size:16;primaryKey" json:"platform"`
-	Token     string    `gorm:"size:512" json:"-"`
-	CreatedAt time.Time `json:"created_at"`
+	UserID      string    `gorm:"type:uuid;primaryKey" json:"user_id"`
+	Platform    Platform  `gorm:"size:16;primaryKey" json:"platform"`
+	Token       string    `gorm:"size:512" json:"-"`
+	DeviceModel string    `gorm:"size:128" json:"device_model,omitempty"`
+	OSVersion   string    `gorm:"size:64" json:"os_version,omitempty"`
+	AppVersion  string    `gorm:"size:64" json:"app_version,omitempty"`
+	Locale      string    `gorm:"size:16" json:"locale,omitempty"`
+	Timezone    string    `gorm:"size:64" json:"timezone,omitempty"`
+	LastIP      string    `gorm:"size:64" json:"last_ip,omitempty"`
+	UserAgent   string    `gorm:"size:256" json:"user_agent,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 func (DeviceToken) TableName() string { return "device_tokens" }
 
 // RegisterDeviceRequest is the payload for registering a push token.
 type RegisterDeviceRequest struct {
-	Platform Platform `json:"platform" validate:"required,oneof=ios android web"`
-	Token    string   `json:"token" validate:"required"`
+	Platform    Platform `json:"platform" validate:"required,oneof=ios android web"`
+	Token       string   `json:"token" validate:"required"`
+	DeviceModel string   `json:"device_model,omitempty"`
+	OSVersion   string   `json:"os_version,omitempty"`
+	AppVersion  string   `json:"app_version,omitempty"`
+	Locale      string   `json:"locale,omitempty"`
+	Timezone    string   `json:"timezone,omitempty"`
 }
 
 // PushPayload is the notification content sent to devices.

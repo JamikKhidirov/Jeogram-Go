@@ -54,3 +54,15 @@ func (r *CallRepository) Get(ctx context.Context, id string) (*domain.Call, erro
 	}
 	return &c, nil
 }
+
+// ListByUser возвращает историю звонков пользователя (инициатор или участник чата).
+func (r *CallRepository) ListByUser(ctx context.Context, userID string, limit, offset int) ([]domain.Call, error) {
+	var calls []domain.Call
+	err := r.db.WithContext(ctx).
+		Joins("JOIN chat_participants cp ON cp.chat_id = calls.chat_id").
+		Where("cp.user_id = ?", userID).
+		Order("calls.started_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&calls).Error
+	return calls, err
+}

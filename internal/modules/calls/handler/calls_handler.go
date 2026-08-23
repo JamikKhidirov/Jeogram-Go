@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
@@ -11,6 +12,7 @@ import (
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/response"
 	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
@@ -20,11 +22,11 @@ import (
 type CallsHandler struct {
 	svc   *service.CallService
 	chats *chatrepo.ChatRepository
-	hub   *ws.Hub
+	hub   realtime.Broadcaster
 	jwt   *auth.JWT
 }
 
-func NewCallsHandler(svc *service.CallService, chats *chatrepo.ChatRepository, hub *ws.Hub, jwt *auth.JWT) *CallsHandler {
+func NewCallsHandler(svc *service.CallService, chats *chatrepo.ChatRepository, hub realtime.Broadcaster, jwt *auth.JWT) *CallsHandler {
 	return &CallsHandler{svc: svc, chats: chats, hub: hub, jwt: jwt}
 }
 
@@ -42,6 +44,8 @@ func (h *CallsHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/calls", h.Start)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/end", h.End)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/ws", h.Signaling)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/{id}", h.Get)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/history", h.History)
 }
 
 type startCallRequest struct {
@@ -167,4 +171,45 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin:     func(r *http.Request) bool { return true },
+}
+
+// Get возвращает запись звонка по id.
+//
+//	@Summary	Получить звонок по id
+//	@Tags		calls
+//	@Produce	json
+//	@Param		id		path		string	true	"id звонка"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/calls/{id} [get]
+//	@Security	BearerAuth
+func (h *CallsHandler) Get(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	call, err := h.svc.Get(r.Context(), id)
+	if err != nil {
+		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
+		return
+	}
+	response.WriteOK(w, call)
+}
+
+// History возвращает историю звонков пользователя.
+//
+//	@Summary	История звонков
+//	@Tags		calls
+//	@Produce	json
+//	@Param		limit	query		int		false	"лимит"
+//	@Param		offset	query		int		false	"смещение"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/calls/history [get]
+//	@Security	BearerAuth
+func (h *CallsHandler) History(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	calls, err := h.svc.History(r.Context(), userID, limit, offset)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, calls)
 }

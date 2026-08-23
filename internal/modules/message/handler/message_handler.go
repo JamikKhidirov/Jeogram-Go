@@ -42,6 +42,12 @@ func (h *MessageHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/messages/{id}", h.Delete)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/read", h.MarkRead)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/unread", h.Unread)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/messages/{id}/read", h.MarkReadOne)
+
+	// Закреплённые / медиа / очистка истории.
+	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/pinned", h.ListPinned)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/media", h.ListMedia)
+	r.With(middleware.JWTAuth(h.jwt)).Delete("/chats/{chat_id}/messages", h.ClearHistory)
 
 	// Реакции.
 	r.With(middleware.JWTAuth(h.jwt)).Post("/messages/{id}/reactions", h.React)
@@ -211,6 +217,93 @@ func (h *MessageHandler) Unread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]int64{"unread": n})
+}
+
+// MarkReadOne помечает одно сообщение прочитанным (отправляет receipt по WebSocket).
+// @Summary Отметить сообщение прочитанным
+// @Tags messages
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id сообщения"
+// @Success 200 {object} response.APIResponse
+// @Router /messages/{id}/read [post]
+func (h *MessageHandler) MarkReadOne(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	messageID := chi.URLParam(r, "id")
+	if err := h.svc.MarkReadOne(r.Context(), userID, messageID); err != nil {
+		writeMsgError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "read"})
+}
+
+// ListPinned возвращает закреплённые сообщения чата.
+//
+//	@Summary	Закреплённые сообщения чата
+//	@Tags		messages
+//	@Produce	json
+//	@Param		chat_id	path		string	true	"id чата"
+//	@Param		limit	query		int		false	"лимит"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/chats/{chat_id}/pinned [get]
+//	@Security	BearerAuth
+func (h *MessageHandler) ListPinned(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	msgs, err := h.svc.ListPinned(r.Context(), userID, chatID, limit)
+	if err != nil {
+		writeMsgError(w, err)
+		return
+	}
+	response.WriteOK(w, msgs)
+}
+
+// ListMedia возвращает медиа-сообщения чата (изображения и голосовые).
+//
+//	@Summary	Медиа сообщения чата
+//	@Tags		messages
+//	@Produce	json
+//	@Param		chat_id	path		string	true	"id чата"
+//	@Param		limit	query		int		false	"лимит"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/chats/{chat_id}/media [get]
+//	@Security	BearerAuth
+func (h *MessageHandler) ListMedia(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	msgs, err := h.svc.ListMedia(r.Context(), userID, chatID, limit)
+	if err != nil {
+		writeMsgError(w, err)
+		return
+	}
+	response.WriteOK(w, msgs)
+}
+
+// ClearHistory мягко удаляет всю историю сообщений чата.
+//
+//	@Summary	Очистить историю сообщений чата
+//	@Tags		messages
+//	@Produce	json
+//	@Param		chat_id	path		string	true	"id чата"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/chats/{chat_id}/messages [delete]
+//	@Security	BearerAuth
+func (h *MessageHandler) ClearHistory(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	if err := h.svc.ClearHistory(r.Context(), userID, chatID); err != nil {
+		writeMsgError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "cleared"})
 }
 
 // --- Реакции ---

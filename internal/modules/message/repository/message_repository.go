@@ -169,6 +169,51 @@ func (r *MessageRepository) SearchGlobal(ctx context.Context, userID, query stri
 	return msgs, err
 }
 
+// ListPinned возвращает закреплённые сообщения чата.
+func (r *MessageRepository) ListPinned(ctx context.Context, chatID string, limit int) ([]domain.Message, error) {
+	var pins []domain.PinnedMessage
+	if err := r.db.WithContext(ctx).
+		Where("chat_id = ?", chatID).
+		Order("created_at DESC").Limit(limit).
+		Find(&pins).Error; err != nil {
+		return nil, err
+	}
+	ids := make([]string, 0, len(pins))
+	for _, p := range pins {
+		ids = append(ids, p.MessageID)
+	}
+	if len(ids) == 0 {
+		return []domain.Message{}, nil
+	}
+	byID, err := r.MessagesByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]domain.Message, 0, len(ids))
+	for _, id := range ids {
+		if m, ok := byID[id]; ok {
+			out = append(out, m)
+		}
+	}
+	return out, nil
+}
+
+// DeleteAll мягко удаляет все сообщения чата (очистка истории).
+func (r *MessageRepository) DeleteAll(ctx context.Context, chatID string) error {
+	return r.db.WithContext(ctx).
+		Where("chat_id = ? AND deleted_at IS NULL", chatID).
+		Delete(&domain.Message{}).Error
+}
+
+// ListMedia возвращает медиа-сообщения чата (изображения и голосовые).
+func (r *MessageRepository) ListMedia(ctx context.Context, chatID string, limit int) ([]domain.Message, error) {
+	var msgs []domain.Message
+	err := r.db.WithContext(ctx).
+		Where("chat_id = ? AND deleted_at IS NULL AND type IN ?", chatID, []string{string(domain.TypeImage), string(domain.TypeVoice)}).
+		Order("created_at DESC").Limit(limit).Find(&msgs).Error
+	return msgs, err
+}
+
 // ReplyPreview возвращает краткий текст сообщения, на которое идёт ответ.
 func (r *MessageRepository) ReplyPreview(ctx context.Context, replyToID string) (string, error) {
 	var m domain.Message

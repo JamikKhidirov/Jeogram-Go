@@ -21,6 +21,12 @@ type Config struct {
 	Media    MediaConfig
 	Push     PushConfig
 	Metrics  MetricsConfig
+	Admin    AdminConfig
+}
+
+// AdminConfig holds the list of user IDs that are granted admin access.
+type AdminConfig struct {
+	UserIDs []string
 }
 
 type AppConfig struct {
@@ -161,15 +167,8 @@ func Load() (*Config, error) {
 			Enabled: getEnvBool("METRICS_ENABLED", true),
 			Path:    getEnv("METRICS_PATH", "/metrics"),
 		},
-		Push: PushConfig{
-			Enabled:        getEnvBool("PUSH_ENABLED", false),
-			FCMServerKey:   getEnv("FCM_SERVER_KEY", ""),
-			FCMOAuthToken:  getEnv("FCM_OAUTH_TOKEN", ""),
-			APNsKeyID:      getEnv("APNS_KEY_ID", ""),
-			APNsTeamID:     getEnv("APNS_TEAM_ID", ""),
-			APNsKeyPath:    getEnv("APNS_KEY_PATH", ""),
-			APNsBundleID:   getEnv("APNS_BUNDLE_ID", ""),
-			APNsProduction: getEnvBool("APNS_PRODUCTION", false),
+		Admin: AdminConfig{
+			UserIDs: getEnvSlice("ADMIN_USER_IDS", nil),
 		},
 	}
 

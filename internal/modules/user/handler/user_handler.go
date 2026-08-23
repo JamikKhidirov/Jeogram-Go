@@ -36,7 +36,9 @@ func NewUserHandler(svc *service.UserService, jwt *auth.JWT, hub *ws.Hub) *UserH
 //	@Security	BearerAuth
 func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/profile", h.GetProfile)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/user/me", h.GetProfile)
 	r.With(middleware.JWTAuth(h.jwt)).Put("/user/profile", h.UpdateProfile)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/user/avatar", h.UpdateProfile)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/settings", h.GetSettings)
 	r.With(middleware.JWTAuth(h.jwt)).Put("/user/settings", h.UpdateSettings)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/search", h.Search)
@@ -45,6 +47,7 @@ func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/blocks", h.ListBlocks)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/presence", h.Presence)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/user/account", h.DeleteAccount)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/user/export", h.Export)
 }
 
 // GetProfile возвращает профиль текущего пользователя.
@@ -262,6 +265,23 @@ func (h *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "deleted"})
+}
+
+// Export возвращает выгрузку данных аккаунта (GDPR-экспорт).
+// @Summary Экспорт данных аккаунта
+// @Tags user
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /user/export [get]
+func (h *UserHandler) Export(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	data, err := h.svc.Export(r.Context(), userID)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, data)
 }
 
 func firstErr(errs map[string]string) string {

@@ -1,0 +1,170 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  GO_VERSION: "1.26"
+  IMAGE_NAME: ghcr.io/jamikkhidirov/jeogram-go
+  REGISTRY: ghcr.io
+
+jobs:
+  # ----------------------------------------------------------------
+  # 1. Lint — статический анализ и проверка форматирования
+  # ----------------------------------------------------------------
+  lint:
+    name: Lint (go vet + gofmt)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: gofmt check
+        run: |
+          fmt_out=$(gofmt -l $(find . -name '*.go' -not -path './vendor/*'))
+          if [ -n "$fmt_out" ]; then
+            echo "Следующие файлы не отформатированы gofmt:"
+            echo "$fmt_out"
+            exit 1
+          fi
+
+      - name: golangci-lint (опционально, не падает сборка при его отсутствии)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout=5m
+        continue-on-error: true
+
+  # ----------------------------------------------------------------
+  # 2. Test — юнит- и интеграционные тесты (SQLite in-memory)
+  # ----------------------------------------------------------------
+  test:
+    name: Test (go test -race)
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./... -race -count=1 -timeout=300s
+
+  # ----------------------------------------------------------------
+  # 3. Build — сборка бинарника и проверка Swagger
+  # ----------------------------------------------------------------
+  build:
+    name: Build + Swagger check
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build
+        run: CGO_ENABLED=0 go build -o bin/server ./cmd
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Regenerate Swagger and fail if changed
+        run: |
+          swag init --dir ./cmd,./internal --output ./docs --parseDependency --parseInternal
+          if [ -n "$(git status --porcelain docs/)" ]; then
+            echo "Swagger out of date — закоммитьте docs/ после 'make swagger'."
+            git --no-pager diff --stat docs/
+            exit 1
+          fi
+
+  # ----------------------------------------------------------------
+  # 4. Docker build — собираем образ (только на main)
+  # ----------------------------------------------------------------
+  docker-build:
+    name: Docker build & push
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (для multi-arch)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ----------------------------------------------------------------
+  # 5. Deploy — пример раскатки на VPS по SSH (опционально)
+  # ----------------------------------------------------------------
+  deploy:
+    name: Deploy to VPS (SSH)
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd Jeogram-Go/messenger
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f

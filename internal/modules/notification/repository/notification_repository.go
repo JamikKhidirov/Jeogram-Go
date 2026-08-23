@@ -35,3 +35,12 @@ func (r *NotificationRepository) MarkAllRead(ctx context.Context, userID string)
 		Where("user_id = ? AND read = ?", userID, false).
 		Update("read", true).Error
 }
+
+// UnreadCount возвращает число непрочитанных уведомлений пользователя.
+func (r *NotificationRepository) UnreadCount(ctx context.Context, userID string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&domain.Notification{}).
+		Where("user_id = ? AND read = ?", userID, false).
+		Count(&count).Error
+	return count, err
+}

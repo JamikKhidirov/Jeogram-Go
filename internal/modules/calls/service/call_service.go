@@ -49,3 +49,16 @@ func (s *CallService) End(ctx context.Context, id, userID string) error {
 	}
 	return s.repo.End(ctx, id)
 }
+
+// Get возвращает запись звонка по id.
+func (s *CallService) Get(ctx context.Context, id string) (*domain.Call, error) {
+	return s.repo.Get(ctx, id)
+}
+
+// History возвращает историю звонков пользователя.
+func (s *CallService) History(ctx context.Context, userID string, limit, offset int) ([]domain.Call, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	return s.repo.ListByUser(ctx, userID, limit, offset)
+}

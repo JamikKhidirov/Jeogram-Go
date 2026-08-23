@@ -1,0 +1,236 @@
+package handler
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
+	authdomain "github.com/jeogram/messenger/internal/modules/auth/domain"
+	calldomain "github.com/jeogram/messenger/internal/modules/calls/domain"
+	chatdomain "github.com/jeogram/messenger/internal/modules/chat/domain"
+	msgdomain "github.com/jeogram/messenger/internal/modules/message/domain"
+	notifdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
+	"github.com/jeogram/messenger/internal/pkg/auth"
+	"github.com/jeogram/messenger/internal/pkg/middleware"
+	"github.com/jeogram/messenger/internal/pkg/response"
+	"gorm.io/gorm"
+)
+
+// AdminHandler exposes administrative endpoints available only to configured
+// admin users. It reads data directly from the database for full visibility
+// (users, their devices/IPs, chats, messages, calls and aggregate stats).
+type AdminHandler struct {
+	db        *gorm.DB
+	jwt       *auth.JWT
+	adminIDs  []string
+}
+
+func NewAdminHandler(db *gorm.DB, jwt *auth.JWT, adminIDs []string) *AdminHandler {
+	return &AdminHandler{db: db, jwt: jwt, adminIDs: adminIDs}
+}
+
+// RegisterRoutes mounts admin endpoints, each guarded by RequireAdmin.
+//
+//	@Summary	Admin: list users
+//	@Tags		admin
+//	@Produce	json
+//	@Param		limit	query		int		false	"лимит"
+//	@Param		offset	query		int		false	"смещение"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) RegisterRoutes(r chi.Router) {
+	guard := middleware.RequireAdmin(h.adminIDs)
+	withAdmin := func(handler http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			middleware.JWTAuth(h.jwt)(guard(handler)).ServeHTTP(w, r)
+		}
+	}
+	r.Get("/admin/users", withAdmin(h.ListUsers))
+	r.Get("/admin/users/{id}", withAdmin(h.GetUser))
+	r.Get("/admin/users/{id}/devices", withAdmin(h.UserDevices))
+	r.Get("/admin/chats", withAdmin(h.ListChats))
+	r.Get("/admin/chats/{id}/messages", withAdmin(h.ChatMessages))
+	r.Get("/admin/messages/search", withAdmin(h.SearchMessages))
+	r.Get("/admin/devices", withAdmin(h.ListDevices))
+	r.Get("/admin/stats", withAdmin(h.Stats))
+}
+
+func page(r *http.Request) (limit, offset int) {
+	limit, _ = strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ = strconv.Atoi(r.URL.Query().Get("offset"))
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return
+}
+
+// ListUsers возвращает список пользователей с последним IP/User-Agent.
+func (h *AdminHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	limit, offset := page(r)
+	var users []authdomain.User
+	if err := h.db.WithContext(r.Context()).Order("created_at DESC").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, users)
+}
+
+// GetUser возвращает полную информацию о пользователе.
+//
+//	@Summary	Admin: получить пользователя по id
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id} [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	var u authdomain.User
+	if err := h.db.WithContext(r.Context()).Where("id = ?", id).First(&u).Error; err != nil {
+		response.WriteError(w, http.StatusNotFound, "not_found", "user not found")
+		return
+	}
+	response.WriteOK(w, u)
+}
+
+// UserDevices возвращает устройства пользователя (модель, ОС, IP, локаль и т.п.).
+//
+//	@Summary	Admin: устройства пользователя
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id}/devices [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) UserDevices(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	var devices []notifdomain.DeviceToken
+	if err := h.db.WithContext(r.Context()).Where("user_id = ?", id).Find(&devices).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, devices)
+}
+
+// ListChats возвращает все чаты системы.
+//
+//	@Summary	Admin: список всех чатов
+//	@Tags		admin
+//	@Produce	json
+//	@Param		limit	query		int		false	"лимит"
+//	@Param		offset	query		int		false	"смещение"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/chats [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) ListChats(w http.ResponseWriter, r *http.Request) {
+	limit, offset := page(r)
+	var chats []chatdomain.Chat
+	if err := h.db.WithContext(r.Context()).Order("created_at DESC").Limit(limit).Offset(offset).Find(&chats).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, chats)
+}
+
+// ChatMessages возвращает сообщения конкретного чата.
+//
+//	@Summary	Admin: сообщения чата
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id чата"
+//	@Param		limit	query		int		false	"лимит"
+//	@Param		offset	query		int		false	"смещение"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/chats/{id}/messages [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) ChatMessages(w http.ResponseWriter, r *http.Request) {
+	chatID := chi.URLParam(r, "id")
+	limit, offset := page(r)
+	var msgs []msgdomain.Message
+	if err := h.db.WithContext(r.Context()).
+		Where("chat_id = ? AND deleted_at IS NULL", chatID).
+		Order("created_at DESC").Limit(limit).Offset(offset).
+		Find(&msgs).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, msgs)
+}
+
+// SearchMessages ищет сообщения по тексту по всей системе.
+//
+//	@Summary	Admin: поиск сообщений по тексту
+//	@Tags		admin
+//	@Produce	json
+//	@Param		q		query		string	true	"поисковый запрос"
+//	@Param		limit	query		int		false	"лимит"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/messages/search [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) SearchMessages(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	if q == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "query parameter 'q' is required")
+		return
+	}
+	limit, _ := page(r)
+	var msgs []msgdomain.Message
+	if err := h.db.WithContext(r.Context()).
+		Where("text LIKE ? AND deleted_at IS NULL", "%"+q+"%").
+		Order("created_at DESC").Limit(limit).
+		Find(&msgs).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, msgs)
+}
+
+// ListDevices возвращает все зарегистрированные устройства (IP, модель, ОС).
+//
+//	@Summary	Admin: все устройства (IP, модель, ОС)
+//	@Tags		admin
+//	@Produce	json
+//	@Param		limit	query		int		false	"лимит"
+//	@Param		offset	query		int		false	"смещение"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/devices [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) ListDevices(w http.ResponseWriter, r *http.Request) {
+	limit, offset := page(r)
+	var devices []notifdomain.DeviceToken
+	if err := h.db.WithContext(r.Context()).Order("updated_at DESC").Limit(limit).Offset(offset).Find(&devices).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, devices)
+}
+
+// Stats возвращает агрегированную статистику системы.
+//
+//	@Summary	Admin: aggregate stats
+//	@Tags		admin
+//	@Produce	json
+//	@Success	200	{object}	response.APIResponse
+//	@Router		/admin/stats [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) Stats(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	count := func(model interface{}) int64 {
+		var n int64
+		h.db.WithContext(ctx).Model(model).Count(&n)
+		return n
+	}
+	stats := map[string]int64{
+		"users":      count(&authdomain.User{}),
+		"chats":      count(&chatdomain.Chat{}),
+		"messages":   count(&msgdomain.Message{}),
+		"calls":      count(&calldomain.Call{}),
+		"devices":    count(&notifdomain.DeviceToken{}),
+	}
+	response.WriteOK(w, stats)
+}

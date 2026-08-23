@@ -34,6 +34,7 @@ type ChatParticipant struct {
 	ChatID   string    `gorm:"type:uuid;primaryKey" json:"chat_id"`
 	UserID   string    `gorm:"type:uuid;primaryKey;index:idx_cp_user_id" json:"user_id"`
 	Role     string    `gorm:"size:16;default:'member'" json:"role"`
+	Muted    bool      `gorm:"not null;default:false" json:"muted"`
 	JoinedAt time.Time `json:"joined_at"`
 }
 

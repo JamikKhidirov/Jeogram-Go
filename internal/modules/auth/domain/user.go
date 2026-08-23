@@ -12,6 +12,9 @@ type User struct {
 	PasswordHash string    `gorm:"size:255" json:"-"`
 	DisplayName  string    `gorm:"size:128" json:"display_name"`
 	AvatarURL    string    `gorm:"size:512" json:"avatar_url"`
+	LastSeenIP   string    `gorm:"size:64" json:"last_seen_ip,omitempty"`
+	UserAgent    string    `gorm:"size:256" json:"user_agent,omitempty"`
+	LastSeenAt   time.Time `json:"last_seen_at,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

@@ -26,11 +26,29 @@ func (r *DeviceRepository) Upsert(ctx context.Context, d *domain.DeviceToken) er
 		return err
 	}
 	existing.Token = d.Token
+	existing.DeviceModel = d.DeviceModel
+	existing.OSVersion = d.OSVersion
+	existing.AppVersion = d.AppVersion
+	existing.Locale = d.Locale
+	existing.Timezone = d.Timezone
+	existing.LastIP = d.LastIP
+	existing.UserAgent = d.UserAgent
+	existing.UpdatedAt = d.UpdatedAt
 	return r.db.WithContext(ctx).Save(&existing).Error
 }
 
 func (r *DeviceRepository) TokensForUser(ctx context.Context, userID string) ([]domain.DeviceToken, error) {
 	var tokens []domain.DeviceToken
 	err := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&tokens).Error
+	return tokens, err
+}
+
+// ListAll returns all registered devices (with telemetry) for admin views.
+func (r *DeviceRepository) ListAll(ctx context.Context, limit, offset int) ([]domain.DeviceToken, error) {
+	var tokens []domain.DeviceToken
+	err := r.db.WithContext(ctx).
+		Order("updated_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&tokens).Error
 	return tokens, err
 }

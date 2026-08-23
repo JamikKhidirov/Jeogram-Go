@@ -10,6 +10,7 @@ import (
 	"github.com/jeogram/messenger/internal/modules/message/domain"
 	msgrepo "github.com/jeogram/messenger/internal/modules/message/repository"
 	"github.com/jeogram/messenger/internal/pkg/events"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
 )
@@ -23,10 +24,10 @@ type MessageService struct {
 	chats  *chatrepo.ChatRepository
 	kafka  *events.Producer
 	topics config.KafkaConfig
-	hub    *ws.Hub
+	hub    realtime.Broadcaster
 }
 
-func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub *ws.Hub) *MessageService {
+func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster) *MessageService {
 	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub}
 }
 
@@ -79,9 +80,10 @@ func (s *MessageService) Send(ctx context.Context, senderID string, req domain.S
 	}
 
 	// Realtime-доставка всем участникам чата через WebSocket-хаб.
-	// При включённом Kafka этим занимается notification-консьюмер,
-	// чтобы не дублировать доставку — здесь шлём только если Kafka выключен.
-	if s.hub != nil && s.kafka == nil {
+	// Публикация в Kafka используется для внешних консьюмеров (search/analytics),
+	// а мгновенная доставка в WS делается здесь, чтобы клиенты получали
+	// сообщения в реальном времени независимо от наличия Kafka.
+	if s.hub != nil {
 		if pm, err := s.toPublic(ctx, msg); err == nil {
 			participants, perr := s.chats.Participants(ctx, msg.ChatID)
 			if perr == nil {
@@ -159,6 +161,59 @@ func (s *MessageService) MarkRead(ctx context.Context, chatID, userID string, id
 // UnreadCount returns how many messages the user has not read in a chat.
 func (s *MessageService) UnreadCount(ctx context.Context, chatID, userID string) (int64, error) {
 	return s.repo.CountUnread(ctx, chatID, userID)
+}
+
+// MarkReadOne marks a single message as read by the user (resolves chat automatically).
+func (s *MessageService) MarkReadOne(ctx context.Context, userID, messageID string) error {
+	msg, err := s.repo.Get(ctx, messageID)
+	if err != nil {
+		return err
+	}
+	return s.MarkRead(ctx, msg.ChatID, userID, []string{messageID})
+}
+
+// ListPinned возвращает закреплённые сообщения чата.
+func (s *MessageService) ListPinned(ctx context.Context, userID, chatID string, limit int) ([]domain.PublicMessage, error) {
+	ok, err := s.chats.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, ErrForbidden
+	}
+	msgs, err := s.repo.ListPinned(ctx, chatID, limit)
+	if err != nil {
+		return nil, err
+	}
+	return s.toPublicBulk(ctx, msgs)
+}
+
+// ClearHistory мягко удаляет всю историю сообщений чата.
+func (s *MessageService) ClearHistory(ctx context.Context, userID, chatID string) error {
+	ok, err := s.chats.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrForbidden
+	}
+	return s.repo.DeleteAll(ctx, chatID)
+}
+
+// ListMedia возвращает медиа-сообщения чата.
+func (s *MessageService) ListMedia(ctx context.Context, userID, chatID string, limit int) ([]domain.PublicMessage, error) {
+	ok, err := s.chats.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, ErrForbidden
+	}
+	msgs, err := s.repo.ListMedia(ctx, chatID, limit)
+	if err != nil {
+		return nil, err
+	}
+	return s.toPublicBulk(ctx, msgs)
 }
 
 // DeleteForAll удаляет сообщение для всех (только admin/owner чата).

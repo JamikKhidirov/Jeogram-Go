@@ -146,6 +146,38 @@ func (s *ChatService) ListChats(ctx context.Context, userID string) ([]domain.Pu
 	return out, nil
 }
 
+// SearchChats ищет чаты пользователя по названию.
+func (s *ChatService) SearchChats(ctx context.Context, userID, query string, limit int) ([]domain.PublicChat, error) {
+	if limit <= 0 || limit > 50 {
+		limit = 20
+	}
+	chats, err := s.repo.Search(ctx, userID, query, limit)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]domain.PublicChat, 0, len(chats))
+	for i := range chats {
+		p, err := s.toPublic(ctx, &chats[i])
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, *p)
+	}
+	return out, nil
+}
+
+// LeaveChat удаляет пользователя из чата (покидает чат).
+func (s *ChatService) LeaveChat(ctx context.Context, userID, chatID string) error {
+	ok, err := s.repo.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return repository.ErrNotParticipant
+	}
+	return s.repo.RemoveParticipant(ctx, chatID, userID)
+}
+
 // AddParticipant adds a user to a group chat.
 func (s *ChatService) AddParticipant(ctx context.Context, chatID, userID, requester string) (*domain.PublicChat, error) {
 	ok, err := s.repo.IsParticipant(ctx, chatID, requester)
@@ -182,6 +214,18 @@ func (s *ChatService) GetChat(ctx context.Context, chatID, requester string) (*d
 }
 
 // Participants returns the user ids in a chat (access-checked).
+// MuteChat toggles the mute flag for the requester in the given chat.
+func (s *ChatService) MuteChat(ctx context.Context, userID, chatID string, muted bool) error {
+	isParticipant, err := s.repo.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return err
+	}
+	if !isParticipant {
+		return errors.New("not a participant of this chat")
+	}
+	return s.repo.SetMuted(ctx, chatID, userID, muted)
+}
+
 func (s *ChatService) Participants(ctx context.Context, chatID, requester string) ([]string, error) {
 	ok, err := s.repo.IsParticipant(ctx, chatID, requester)
 	if err != nil {

@@ -21,8 +21,11 @@
   - сохраняет in-app уведомление,
   - отправляет **push** (iOS/APNs и Android/FCM) в зависимости от платформы устройства,
   - доставляет событие в реальном времени через **WebSocket**.
-- **Реалтайм**: WebSocket-хаб для мгновенной доставки сообщений, печати и звонков.
-  При отключённом Kafka доставка всё равно работает напрямую через хаб.
+- **Реалтайм (двойной транспорт)**: сервер доставляет события одновременно
+  через **raw WebSocket** (`WS /ws`, удобно тестировать в Postman) и через
+  **Socket.IO** (`/socket.io`, протокол v2) — fan-out идёт через единый
+  интерфейс `realtime.Broadcaster`. При отключённом Kafka доставка всё равно
+  работает напрямую через оба транспорта.
 - **Ответ из уведомления**: пуш содержит `chat_id`; клиент (например, Android) может
   сразу отправить ответ `POST /chats/{chat_id}/messages` с текстом — без доп. экранов.
 - **Звонки**: WebRTC-сигналинг через WebSocket + запись звонков в БД.
@@ -153,6 +156,17 @@ APNS_PRODUCTION=false
 - **По умолчанию `PUSH_ENABLED=false`** — push не отправляется, а логируется.
   Это позволяет тестировать весь поток без реальных ключей.
 
+### 6. Админ-доступ (опционально)
+
+```
+ADMIN_USER_IDS=            # через запятую ID пользователей-админов
+# ADMIN_USER_IDS=*         # для личного запуска: админ — любой авторизованный
+```
+
+- Свой ID узнаётся через `GET /auth/me` (`data.id`); добавьте его в список и
+  перезапустите приложение. Все админ-роуты (`/admin/*`) защищены и недоступны
+  посторонним. Подробнее и про телеметрию устройств — в [ADMIN.md](ADMIN.md).
+
 ### Где брать Access Token для запросов
 1. `POST /auth/register` или `POST /auth/login` — в ответе поле `data.access_token`.
 2. Для всех защищённых эндпоинтов добавьте заголовок:
@@ -213,6 +227,7 @@ docker compose down -v        # + удалить volumes (БД, uploads, grafana
 | Kafka       | localhost:9092            |
 | Prometheus  | http://localhost:9090     |
 | Grafana     | http://localhost:3000 (admin/admin) |
+| pgAdmin     | http://localhost:5050 (admin@jeogram.local / admin) |
 
 ## Локальный запуск без Docker
 
@@ -285,8 +300,20 @@ curl -X POST http://localhost:8080/chats/<chat_id>/participants/<user_id>/promot
 
 ## Реалтайм и ответ из уведомления
 
-- Подключение к реалтайму: `WS /ws` с заголовком `Authorization: Bearer <token>`.
-  Сервер шлёт события `message.new`, `message.typing`, `call.started`, `call.signal`.
+Два независимых транспорта доставляют одни и те же события:
+
+- **Raw WebSocket**: `WS /ws` с заголовком `Authorization: Bearer <token>`
+  (или query-параметром `?token=`). Удобно тестировать в Postman.
+- **Socket.IO (v2)**: `http://localhost:8080` с `path=/socket.io` и
+  query-параметром `?token=`. Клиент строго `socket.io-client@2.x`
+  (v3/v4 **не совместимы**).
+
+События (оба транспорта): `message.new`, `message.read`, `typing`, `presence`,
+`notification`, `call.signal`, `call.started`, `call.ended`. В Socket.IO
+комната пользователя — `u:<userID>`.
+
+Подробные гайды: [WEBSOCKET.md](WEBSOCKET.md) (raw WS + Postman) и
+[SOCKETIO.md](SOCKETIO.md) (v2-клиент + Node-тест).
 - **Ответ из пуш-уведомления (Android)**: пуш содержит поле `chat_id`. Клиент
   сразу отправляет сообщение ответа обычным POST-запросом (без открытия чата):
   ```bash
@@ -308,6 +335,8 @@ GET  /auth/me
 
 GET  /user/profile
 PUT  /user/profile
+GET  /user/me                     # алиас профиля (текущий пользователь)
+POST /user/avatar                 # алиас обновления профиля
 GET  /user/settings
 PUT  /user/settings
 GET  /user/search?q=
@@ -319,6 +348,7 @@ DELETE /user/account                # удалить свой аккаунт (к
 
 GET  /contacts                     # список контактов (подтверждённых)
 GET  /contacts/requests            # входящие запросы в контакты
+GET  /contacts/{user_id}           # запись контакта с пользователем
 POST /contacts            { "user_id": "..." }            # отправить запрос
 POST /contacts/{user_id}/accept   # принять входящий запрос
 DELETE /contacts/{user_id}         # удалить из контактов
@@ -333,6 +363,8 @@ GET  /chats/{id}/participants
 POST /chats/{id}/participants/{uid}/promote     # owner
 POST /chats/{id}/participants/{uid}/demote      # owner
 DELETE /chats/{id}/participants/{uid}           # admin/owner
+POST /chats/{id}/mute                          # заглушить чат (для текущего user)
+DELETE /chats/{id}/mute                        # снять заглушение чата
 
 POST /messages             { "chat_id": "...", "type": "text|voice|image", "text": "...", "media_url": "...", "reply_to": "..." }
 GET  /chats/{id}/messages
@@ -341,11 +373,15 @@ DELETE /messages/{id}
 POST /chats/{id}/messages/{mid}/admin   # удаление "для всех", admin/owner
 POST /chats/{id}/read      { "message_ids": [...] }
 GET  /chats/{id}/unread
+POST /messages/{id}/read                          # отметить одно сообщение прочитанным
 POST /messages/{id}/reactions     { "emoji": "🔥" }
 DELETE /messages/{id}/reactions?emoji=🔥
 GET  /messages/{id}/reactions
 POST /chats/{id}/pin/{mid}
 DELETE /chats/{id}/pin/{mid}
+GET  /chats/{id}/pinned                           # закреплённые сообщения
+GET  /chats/{id}/media                            # медиа (image/voice) чата
+DELETE /chats/{id}/messages                       # очистить историю сообщений чата
 POST /messages/{id}/forward  { "chat_id": "..." }
 GET  /chats/{id}/messages/search?q=
 GET  /messages/search?q=
@@ -360,8 +396,21 @@ POST /notifications/device { "platform": "ios|android|web", "token": "..." }
 
 POST /calls                { "chat_id": "...", "type": "audio|video" }
 POST /calls/{id}/end
+GET  /calls/{id}           # запись звонка по id
+GET  /calls/history        # история звонков пользователя
 WS   /calls/ws             (WebRTC-сигналинг)
-WS   /ws                   (real-time сообщения)
+WS   /ws                   (real-time сообщения, raw WebSocket)
+IO   /socket.io            (real-time сообщения, Socket.IO v2)
+
+# --- Админка (только для ADMIN_USER_IDS, см. ADMIN.md) ---
+GET  /admin/users                  # список пользователей (IP, User-Agent)
+GET  /admin/users/{id}             # профиль пользователя
+GET  /admin/users/{id}/devices     # устройства (модель, ОС, app, локаль, IP)
+GET  /admin/chats                  # все чаты
+GET  /admin/chats/{id}/messages    # сообщения чата
+GET  /admin/messages/search?q=     # глобальный поиск сообщений
+GET  /admin/devices                # все устройства (IP, модель, ОС)
+GET  /admin/stats                  # агрегированная статистика
 ```
 
 Все защищённые эндпоинты требуют заголовок `Authorization: Bearer <access_token>`.
@@ -435,6 +484,11 @@ make swagger   # устанавливает swag и перегенерирует
 | Postman-коллекция эндпоинтов                                | [`postman/jeogram.postman_collection.json`](postman/jeogram.postman_collection.json) |
 | Сквозной e2e-прогон всех эндпоинтов (PowerShell)           | [`e2e_test.ps1`](e2e_test.ps1) |
 | Swagger-спецификация (сгенерировано)                       | [`docs/swagger.json`](docs/swagger.json) · UI: `/swagger/index.html` |
+| Полный каталог эндпоинтов (55 маршрутов)                  | [`ENDPOINTS.md`](ENDPOINTS.md) |
+| Гайд по raw WebSocket + Postman                            | [`WEBSOCKET.md`](WEBSOCKET.md) |
+| Гайд по Socket.IO (v2-клиент)                             | [`SOCKETIO.md`](SOCKETIO.md) |
+| Деплой (VPS, Postgres, pgAdmin, CI/CD)                    | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
+| Админка и телеметрия устройств (Android/iOS)             | [`ADMIN.md`](ADMIN.md) |
 | Prometheus-конфиг                                            | [`prometheus.yml`](prometheus.yml) |
 | Полезные команды (build/run/test/swagger/docker)            | [`Makefile`](Makefile) |
 

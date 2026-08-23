@@ -4,15 +4,18 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/googollee/go-socket.io"
 	"github.com/jeogram/messenger/internal/config"
 	"github.com/jeogram/messenger/internal/modules/auth/domain"
 	"github.com/jeogram/messenger/internal/modules/auth/handler"
 	"github.com/jeogram/messenger/internal/modules/auth/repository"
 	"github.com/jeogram/messenger/internal/modules/auth/service"
+	adminhandler "github.com/jeogram/messenger/internal/modules/admin/handler"
 	calldomain "github.com/jeogram/messenger/internal/modules/calls/domain"
 	callhandler "github.com/jeogram/messenger/internal/modules/calls/handler"
 	callrepo "github.com/jeogram/messenger/internal/modules/calls/repository"
@@ -43,7 +46,9 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/events"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/ws"
+	"github.com/rs/zerolog/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
@@ -119,7 +124,17 @@ func (s *Server) Router() *chi.Mux {
 	// Swagger UI.
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
-	// Realtime websocket.
+	// Realtime: Socket.IO transport (auth via ?token=, one room per user).
+	socketIOServer := s.newSocketIOServer(jwtSvc)
+	r.Handle("/socket.io/*", socketIOServer)
+
+	// Unified broadcaster: fans every event out to raw WS + Socket.IO.
+	broadcaster := &realtime.MultiBroadcaster{Broadcasters: []realtime.Broadcaster{
+		&realtime.WSBroadcaster{Hub: s.hub},
+		&realtime.SocketIOBroadcaster{Server: socketIOServer},
+	}}
+
+	// Realtime websocket (raw, Postman-testable).
 	r.With(middleware.JWTAuth(jwtSvc)).Get("/ws", s.hub.Handler())
 
 	// Module repositories.
@@ -136,13 +151,13 @@ func (s *Server) Router() *chi.Mux {
 	authSvc := service.NewAuthService(userRepo, jwtSvc, s.redis)
 	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo)
 	chatSvc := chatService.NewChatService(chatRepo)
-	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, s.hub)
+	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, broadcaster)
 	mediaSvc, err := mediaservice.NewMediaService(s.cfg.Media)
 	if err != nil {
 		panic(fmt.Sprintf("media service: %v", err))
 	}
 	pushSvc := notificationservice.NewPushService(s.cfg.Push)
-	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, s.hub, s.producer, s.cfg.Kafka.NotifyTopic)
+	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, s.producer, s.cfg.Kafka.NotifyTopic)
 	callSvc := callservice.NewCallService(callRepo, chatRepo)
 	contactSvc := contactservice.NewContactService(contactRepo, userRepo)
 
@@ -153,8 +168,9 @@ func (s *Server) Router() *chi.Mux {
 	msgH := messagehandler.NewMessageHandler(msgSvc, jwtSvc)
 	mediaH := mediahandler.NewMediaHandler(mediaSvc, jwtSvc)
 	notifH := notificationhandler.NewNotificationHandler(notifSvc, jwtSvc)
-	callH := callhandler.NewCallsHandler(callSvc, chatRepo, s.hub, jwtSvc)
+	callH := callhandler.NewCallsHandler(callSvc, chatRepo, broadcaster, jwtSvc)
 	contactH := contacthandler.NewContactHandler(contactSvc, jwtSvc)
+	adminH := adminhandler.NewAdminHandler(s.db, jwtSvc, s.cfg.Admin.UserIDs)
 
 	authH.RegisterRoutes(r)
 	userH.RegisterRoutes(r)
@@ -164,12 +180,40 @@ func (s *Server) Router() *chi.Mux {
 	notifH.RegisterRoutes(r)
 	callH.RegisterRoutes(r)
 	contactH.RegisterRoutes(r)
+	adminH.RegisterRoutes(r)
 
 	if s.cfg.Metrics.Enabled {
 		r.Handle(s.cfg.Metrics.Path, promhttp.Handler())
 	}
 
 	return r
+}
+
+// newSocketIOServer строит Socket.IO-сервер: каждое подключение
+// аутентифицируется по JWT (?token=) и попадает в приватную комнату "u:<userID>".
+func (s *Server) newSocketIOServer(jwtSvc *auth.JWT) *socketio.Server {
+	io := socketio.NewServer(nil)
+
+	io.OnConnect("/", func(c socketio.Conn) error {
+		u := c.URL()
+		token := u.Query().Get("token")
+		if token == "" {
+			token = strings.TrimPrefix(c.RemoteHeader().Get("Authorization"), "Bearer ")
+		}
+		claims, err := jwtSvc.ParseAccess(token)
+		if err != nil {
+			log.Warn().Err(err).Msg("socket.io: rejected unauthorized connection")
+			return err
+		}
+		c.Join(realtime.SocketIORoom(claims.UserID))
+		return nil
+	})
+
+	io.OnError("/", func(_ socketio.Conn, err error) {
+		log.Error().Err(err).Msg("socket.io error")
+	})
+
+	return io
 }
 
 // Run starts the HTTP server and blocks until the context is cancelled.

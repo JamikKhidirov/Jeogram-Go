@@ -86,6 +86,19 @@ func (r *ChatRepository) ListForUser(ctx context.Context, userID string) ([]doma
 	return chats, err
 }
 
+// Search возвращает чаты пользователя, название которых содержит query.
+func (r *ChatRepository) Search(ctx context.Context, userID, query string, limit int) ([]domain.Chat, error) {
+	var chats []domain.Chat
+	like := "%" + query + "%"
+	err := r.db.WithContext(ctx).
+		Joins("JOIN chat_participants cp ON cp.chat_id = chats.id").
+		Where("cp.user_id = ?", userID).
+		Where("LOWER(chats.title) LIKE LOWER(?)", like).
+		Order("chats.updated_at DESC").
+		Limit(limit).Find(&chats).Error
+	return chats, err
+}
+
 func (r *ChatRepository) Participants(ctx context.Context, chatID string) ([]string, error) {
 	var ids []string
 	err := r.db.WithContext(ctx).
@@ -156,6 +169,13 @@ func (r *ChatRepository) UpdateChat(ctx context.Context, chat *domain.Chat) erro
 func (r *ChatRepository) AddParticipant(ctx context.Context, chatID, userID string) error {
 	cp := domain.ChatParticipant{ChatID: chatID, UserID: userID, Role: "member", JoinedAt: time.Now()}
 	return r.db.WithContext(ctx).Create(&cp).Error
+}
+
+// SetMuted toggles the mute flag for a participant (silences push/notifications).
+func (r *ChatRepository) SetMuted(ctx context.Context, chatID, userID string, muted bool) error {
+	return r.db.WithContext(ctx).Model(&domain.ChatParticipant{}).
+		Where("chat_id = ? AND user_id = ?", chatID, userID).
+		Update("muted", muted).Error
 }
 
 func (r *ChatRepository) Touch(ctx context.Context, chatID string) error {

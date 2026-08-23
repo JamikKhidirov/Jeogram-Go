@@ -127,6 +127,14 @@ definitions:
     - PlatformWeb
   github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest:
     properties:
+      app_version:
+        type: string
+      device_model:
+        type: string
+      locale:
+        type: string
+      os_version:
+        type: string
       platform:
         allOf:
         - $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.Platform'
@@ -134,6 +142,8 @@ definitions:
         - ios
         - android
         - web
+      timezone:
+        type: string
       token:
         type: string
     required:
@@ -217,6 +227,181 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/chats:
+    get:
+      parameters:
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: список всех чатов'
+      tags:
+      - admin
+  /admin/chats/{id}/messages:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: сообщения чата'
+      tags:
+      - admin
+  /admin/devices:
+    get:
+      parameters:
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: все устройства (IP, модель, ОС)'
+      tags:
+      - admin
+  /admin/messages/search:
+    get:
+      parameters:
+      - description: поисковый запрос
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: поиск сообщений по тексту'
+      tags:
+      - admin
+  /admin/stats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: aggregate stats'
+      tags:
+      - admin
+  /admin/users:
+    get:
+      parameters:
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: list users'
+      tags:
+      - admin
+  /admin/users/{id}:
+    get:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: получить пользователя по id'
+      tags:
+      - admin
+  /admin/users/{id}/devices:
+    get:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: устройства пользователя'
+      tags:
+      - admin
   /auth/login:
     post:
       consumes:
@@ -331,6 +516,26 @@ paths:
       summary: Начать звонок
       tags:
       - calls
+  /calls/{id}:
+    get:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить звонок по id
+      tags:
+      - calls
   /calls/{id}/end:
     post:
       parameters:
@@ -349,6 +554,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Завершить звонок
+      tags:
+      - calls
+  /calls/history:
+    get:
+      parameters:
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      - description: смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: История звонков
       tags:
       - calls
   /calls/ws:
@@ -423,7 +651,70 @@ paths:
       summary: Обновить чат
       tags:
       - chat
+  /chats/{chat_id}/leave:
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Покинуть чат
+      tags:
+      - chat
+  /chats/{chat_id}/media:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Медиа сообщения чата
+      tags:
+      - messages
   /chats/{chat_id}/messages:
+    delete:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Очистить историю сообщений чата
+      tags:
+      - messages
     get:
       parameters:
       - description: id чата
@@ -501,6 +792,45 @@ paths:
       summary: Поиск в чате
       tags:
       - messages
+  /chats/{chat_id}/mute:
+    delete:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Включить уведомления чата
+      tags:
+      - chat
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Заглушить уведомления чата
+      tags:
+      - chat
   /chats/{chat_id}/participants:
     get:
       parameters:
@@ -672,6 +1002,30 @@ paths:
       summary: Закрепить сообщение
       tags:
       - messages
+  /chats/{chat_id}/pinned:
+    get:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Закреплённые сообщения чата
+      tags:
+      - messages
   /chats/{chat_id}/read:
     post:
       consumes:
@@ -786,6 +1140,26 @@ paths:
       summary: Создать приватный чат
       tags:
       - chat
+  /chats/search:
+    get:
+      parameters:
+      - description: строка поиска
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Поиск чатов
+      tags:
+      - chat
   /contacts:
     get:
       produces:
@@ -840,6 +1214,25 @@ paths:
       security:
       - BearerAuth: []
       summary: Удалить из контактов
+      tags:
+      - contacts
+    get:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить контакт по id пользователя
       tags:
       - contacts
   /contacts/{user_id}/accept:
@@ -1093,6 +1486,26 @@ paths:
       summary: Реакция на сообщение
       tags:
       - messages
+  /messages/{id}/read:
+    post:
+      parameters:
+      - description: id сообщения
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отметить сообщение прочитанным
+      tags:
+      - messages
   /messages/search:
     get:
       parameters:
@@ -1164,6 +1577,20 @@ paths:
       summary: Прочитать уведомления
       tags:
       - notifications
+  /notifications/unread-count:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Число непрочитанных уведомлений
+      tags:
+      - notifications
   /user/account:
     delete:
       produces:
@@ -1233,6 +1660,20 @@ paths:
       security:
       - BearerAuth: []
       summary: Список заблокированных
+      tags:
+      - user
+  /user/export:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Экспорт данных аккаунта
       tags:
       - user
   /user/presence:
@@ -1346,4 +1787,10 @@ paths:
       summary: Обновить настройки
       tags:
       - user
+securityDefinitions:
+  BearerAuth:
+    description: 'Введите токен в формате: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

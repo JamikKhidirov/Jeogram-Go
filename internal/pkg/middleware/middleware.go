@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"bufio"
 	"context"
+	"errors"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -67,6 +70,30 @@ func UserID(r *http.Request) string {
 	return ""
 }
 
+// RequireAdmin allows the request to proceed only if the authenticated user is
+// in the provided admin ID list. A list containing "*" grants admin access to
+// any authenticated user (intended for personal/self-hosted deployments; set a
+// concrete user ID in production). Use it to guard sensitive admin routes.
+func RequireAdmin(ids []string) func(http.Handler) http.Handler {
+	allowed := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		if id != "" {
+			allowed[id] = true
+		}
+	}
+	wildcard := allowed["*"]
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			uid := UserID(r)
+			if uid == "" || (!wildcard && !allowed[uid]) {
+				response.WriteError(w, http.StatusForbidden, "forbidden", "admin access required")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 // Logger logs each request with method, path, status and duration.
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -117,4 +144,27 @@ type statusWriter struct {
 func (s *statusWriter) WriteHeader(code int) {
 	s.status = code
 	s.ResponseWriter.WriteHeader(code)
+}
+
+// Hijack делегирует вызов нижележащему writer, чтобы поддерживать WebSocket-апгрейды.
+func (s *statusWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if hj, ok := s.ResponseWriter.(http.Hijacker); ok {
+		return hj.Hijack()
+	}
+	return nil, nil, errors.New("response writer does not support hijacking")
+}
+
+// Flush делегирует вызов нижележащему writer.
+func (s *statusWriter) Flush() {
+	if f, ok := s.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+// Push делегирует вызов нижележащему writer.
+func (s *statusWriter) Push(target string, opts *http.PushOptions) error {
+	if p, ok := s.ResponseWriter.(http.Pusher); ok {
+		return p.Push(target, opts)
+	}
+	return http.ErrNotSupported
 }

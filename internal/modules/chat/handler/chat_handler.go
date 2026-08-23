@@ -43,6 +43,51 @@ func (h *ChatHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/participants/{user_id}/demote", h.Demote)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/chats/{chat_id}/participants/{user_id}", h.RemoveParticipant)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/participants", h.Participants)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/search", h.Search)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/leave", h.Leave)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/mute", h.Mute)
+	r.With(middleware.JWTAuth(h.jwt)).Delete("/chats/{chat_id}/mute", h.Unmute)
+}
+
+// Search ищет чаты пользователя по названию.
+// @Summary Поиск чатов
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param q query string true "строка поиска"
+// @Success 200 {object} response.APIResponse
+// @Router /chats/search [get]
+func (h *ChatHandler) Search(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	q := r.URL.Query().Get("q")
+	if q == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "query parameter 'q' is required")
+		return
+	}
+	chats, err := h.svc.SearchChats(r.Context(), userID, q, 20)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, chats)
+}
+
+// Leave покидает чат (удаляет пользователя из участников).
+// @Summary Покинуть чат
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param chat_id path string true "id чата"
+// @Success 200 {object} response.APIResponse
+// @Router /chats/{chat_id}/leave [post]
+func (h *ChatHandler) Leave(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	if err := h.svc.LeaveChat(r.Context(), userID, chatID); err != nil {
+		writeChatError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "left"})
 }
 
 // List возвращает список чатов пользователя.
@@ -275,6 +320,42 @@ func (h *ChatHandler) RemoveParticipant(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "removed"})
+}
+
+// Mute заглушает уведомления чата для текущего пользователя.
+// @Summary Заглушить уведомления чата
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param chat_id path string true "id чата"
+// @Success 200 {object} response.APIResponse
+// @Router /chats/{chat_id}/mute [post]
+func (h *ChatHandler) Mute(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	if err := h.svc.MuteChat(r.Context(), userID, chatID, true); err != nil {
+		writeChatError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "muted"})
+}
+
+// Unmute возобновляет уведомления чата для текущего пользователя.
+// @Summary Включить уведомления чата
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param chat_id path string true "id чата"
+// @Success 200 {object} response.APIResponse
+// @Router /chats/{chat_id}/mute [delete]
+func (h *ChatHandler) Unmute(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	if err := h.svc.MuteChat(r.Context(), userID, chatID, false); err != nil {
+		writeChatError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "unmuted"})
 }
 
 func writeChatError(w http.ResponseWriter, err error) {

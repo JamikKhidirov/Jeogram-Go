@@ -84,3 +84,8 @@ func (s *ContactService) ListRequests(ctx context.Context, owner string) ([]auth
 	}
 	return out, nil
 }
+
+// Get возвращает запись контакта между владельцем и пользователем.
+func (s *ContactService) Get(ctx context.Context, owner, contactID string) (*domain.Contact, error) {
+	return s.contacts.Get(ctx, owner, contactID)
+}

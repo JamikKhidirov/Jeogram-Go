@@ -11,7 +11,7 @@ import (
 	"github.com/jeogram/messenger/internal/modules/notification/domain"
 	devrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	"github.com/jeogram/messenger/internal/pkg/events"
-	"github.com/jeogram/messenger/internal/pkg/ws"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,7 +22,7 @@ type NotificationService struct {
 	users       *authrepo.UserRepository
 	chats       *chatrepo.ChatRepository
 	push        *PushService
-	hub         *ws.Hub
+	hub         realtime.Broadcaster
 	producer    *events.Producer
 	notifyTopic string
 }
@@ -33,7 +33,7 @@ func NewNotificationService(
 	users *authrepo.UserRepository,
 	chats *chatrepo.ChatRepository,
 	push *PushService,
-	hub *ws.Hub,
+	hub realtime.Broadcaster,
 	producer *events.Producer,
 	notifyTopic string,
 ) *NotificationService {
@@ -85,17 +85,10 @@ func (s *NotificationService) HandleMessageCreated(ctx context.Context, ev event
 			log.Error().Err(err).Msg("could not store notification")
 		}
 
-		// Real-time delivery via websocket hub.
-		s.hub.SendToUsers([]string{uid}, ws.Outbound{
-			Type: "message.new",
-			Payload: map[string]interface{}{
-				"chat_id":    ev.ChatID,
-				"message_id": ev.MessageID,
-				"sender_id":  ev.SenderID,
-				"type":       ev.Type,
-				"preview":    body,
-			},
-		})
+		// Примечание: мгновенная доставка сообщения в WebSocket выполняется
+		// напрямую из message-сервиса (Send), поэтому здесь хабом не шлём,
+		// чтобы не дублировать доставку. Консьюмер отвечает за хранение
+		// in-app уведомлений и push-рассылку.
 
 		// Push notification to registered devices.
 		devices, err := s.devices.TokensForUser(ctx, uid)
@@ -122,12 +115,20 @@ func (s *NotificationService) HandleMessageCreated(ctx context.Context, ev event
 }
 
 // RegisterDevice stores (or updates) a push token for a user.
-func (s *NotificationService) RegisterDevice(ctx context.Context, userID string, platform domain.Platform, token string) {
+func (s *NotificationService) RegisterDevice(ctx context.Context, userID string, platform domain.Platform, token string, meta domain.DeviceMeta) {
 	d := &domain.DeviceToken{
-		UserID:    userID,
-		Platform:  platform,
-		Token:     token,
-		CreatedAt: time.Now(),
+		UserID:      userID,
+		Platform:    platform,
+		Token:       token,
+		DeviceModel: meta.DeviceModel,
+		OSVersion:   meta.OSVersion,
+		AppVersion:  meta.AppVersion,
+		Locale:      meta.Locale,
+		Timezone:    meta.Timezone,
+		LastIP:      meta.IP,
+		UserAgent:   meta.UserAgent,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 	if err := s.devices.Upsert(ctx, d); err != nil {
 		log.Error().Err(err).Msg("could not register device")
@@ -159,6 +160,11 @@ func (s *NotificationService) List(ctx context.Context, userID string) ([]domain
 // MarkAllRead marks every notification for a user as read.
 func (s *NotificationService) MarkAllRead(ctx context.Context, userID string) error {
 	return s.notifs.MarkAllRead(ctx, userID)
+}
+
+// UnreadCount returns the number of unread notifications for a user.
+func (s *NotificationService) UnreadCount(ctx context.Context, userID string) (int64, error) {
+	return s.notifs.UnreadCount(ctx, userID)
 }
 
 // Run consumes the message.created topic until the context is cancelled.
