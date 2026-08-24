@@ -24,9 +24,11 @@ type Call struct {
 	ChatID    string     `gorm:"type:uuid;index" json:"chat_id"`
 	Initiator string     `gorm:"type:uuid" json:"initiator"`
 	Type      CallType   `gorm:"size:16" json:"type"`
-	Status    CallStatus `gorm:"size:16" json:"status"`
-	StartedAt time.Time  `json:"started_at"`
-	EndedAt   *time.Time `json:"ended_at,omitempty"`
+	Status        CallStatus `gorm:"size:16" json:"status"`
+	StartedAt     time.Time  `json:"started_at"`
+	EndedAt       *time.Time `json:"ended_at,omitempty"`
+	RecordingURL  string     `json:"recording_url,omitempty"`
+	RecordedAt    *time.Time `json:"recorded_at,omitempty"`
 }
 
 func (Call) TableName() string { return "calls" }

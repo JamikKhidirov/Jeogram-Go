@@ -20,15 +20,16 @@ var ErrForbidden = errors.New("forbidden")
 
 // MessageService implements messaging use cases and publishes domain events.
 type MessageService struct {
-	repo   *msgrepo.MessageRepository
-	chats  *chatrepo.ChatRepository
-	kafka  *events.Producer
-	topics config.KafkaConfig
-	hub    realtime.Broadcaster
+	repo    *msgrepo.MessageRepository
+	chats   *chatrepo.ChatRepository
+	kafka   *events.Producer
+	topics  config.KafkaConfig
+	hub     realtime.Broadcaster
+	msgCfg  config.MessageConfig
 }
 
-func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster) *MessageService {
-	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub}
+func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster, msgCfg config.MessageConfig) *MessageService {
+	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub, msgCfg: msgCfg}
 }
 
 // Send stores a message and publishes a MessageCreated event to Kafka.
@@ -114,7 +115,8 @@ func (s *MessageService) List(ctx context.Context, chatID, userID string, limit,
 	return s.toPublicBulk(ctx, msgs)
 }
 
-// Edit updates the text of a message (sender only).
+// Edit updates the text of a message (sender only). Editing is allowed only
+// within the configured window after the message was created.
 func (s *MessageService) Edit(ctx context.Context, messageID, userID, text string) (*domain.PublicMessage, error) {
 	msg, err := s.repo.Get(ctx, messageID)
 	if err != nil {
@@ -123,11 +125,22 @@ func (s *MessageService) Edit(ctx context.Context, messageID, userID, text strin
 	if msg.SenderID != userID {
 		return nil, ErrForbidden
 	}
+	if s.msgCfg.EditWindow > 0 && time.Since(msg.CreatedAt) > s.msgCfg.EditWindow {
+		return nil, errors.New("edit window expired")
+	}
 	now := time.Now()
 	msg.Text = text
 	msg.EditedAt = &now
+	msg.EditVersion++
 	if err := s.repo.Update(ctx, msg); err != nil {
 		return nil, err
+	}
+	if s.hub != nil {
+		if pm, err := s.toPublic(ctx, msg); err == nil {
+			if participants, perr := s.chats.Participants(ctx, msg.ChatID); perr == nil {
+				s.hub.SendToUsers(participants, ws.Outbound{Type: "message.edited", Payload: pm})
+			}
+		}
 	}
 	return s.toPublic(ctx, msg)
 }
@@ -216,7 +229,8 @@ func (s *MessageService) ListMedia(ctx context.Context, userID, chatID string, l
 	return s.toPublicBulk(ctx, msgs)
 }
 
-// DeleteForAll удаляет сообщение для всех (только admin/owner чата).
+// DeleteForAll удаляет сообщение для всех участников (только admin/owner чата).
+// Удаление для всех возможно только в пределах окна после создания сообщения.
 func (s *MessageService) DeleteForAll(ctx context.Context, chatID, messageID, requester string) error {
 	admin, err := s.chats.IsAdmin(ctx, chatID, requester)
 	if err != nil {
@@ -229,9 +243,23 @@ func (s *MessageService) DeleteForAll(ctx context.Context, chatID, messageID, re
 	if err != nil {
 		return err
 	}
+	if s.msgCfg.DeleteForAllWindow > 0 && time.Since(msg.CreatedAt) > s.msgCfg.DeleteForAllWindow {
+		return errors.New("delete-for-all window expired")
+	}
 	now := time.Now()
-	msg.DeletedAt = &now
-	return s.repo.Update(ctx, msg)
+	msg.DeletedForAllAt = &now
+	if err := s.repo.Update(ctx, msg); err != nil {
+		return err
+	}
+	if s.hub != nil {
+		if participants, perr := s.chats.Participants(ctx, chatID); perr == nil {
+			s.hub.SendToUsers(participants, ws.Outbound{Type: "message.deleted_for_all", Payload: map[string]interface{}{
+				"message_id": messageID,
+				"chat_id":    chatID,
+			}})
+		}
+	}
+	return nil
 }
 
 // React добавляет/обновляет реакцию пользователя на сообщение.
@@ -386,6 +414,11 @@ func (s *MessageService) toPublic(ctx context.Context, m *domain.Message) (*doma
 		e := m.EditedAt.Format(time.RFC3339)
 		pm.EditedAt = &e
 	}
+	pm.EditVersion = m.EditVersion
+	if m.DeletedForAllAt != nil {
+		d := m.DeletedForAllAt.Format(time.RFC3339)
+		pm.DeletedForAllAt = &d
+	}
 
 	if m.ReplyToID != nil && *m.ReplyToID != "" {
 		if preview, err := s.repo.ReplyPreview(ctx, *m.ReplyToID); err == nil && preview != "" {
@@ -452,6 +485,11 @@ func (s *MessageService) toPublicBulk(ctx context.Context, msgs []domain.Message
 		if m.EditedAt != nil {
 			e := m.EditedAt.Format(time.RFC3339)
 			pm.EditedAt = &e
+		}
+		pm.EditVersion = m.EditVersion
+		if m.DeletedForAllAt != nil {
+			d := m.DeletedForAllAt.Format(time.RFC3339)
+			pm.DeletedForAllAt = &d
 		}
 		if m.ReplyToID != nil && *m.ReplyToID != "" {
 			if preview, ok := replyMap[*m.ReplyToID]; ok {

@@ -13,6 +13,11 @@ func TestRedisLimiter(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
+	// Если Redis недоступен — пропускаем (инфраструктурный тест).
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		t.Skipf("redis not available: %v", err)
+	}
+
 	// Cleanup
 	client.FlushDB(context.Background())
 

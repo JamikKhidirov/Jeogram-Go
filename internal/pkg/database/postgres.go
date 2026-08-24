@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/glebarez/sqlite"
+	"github.com/jeogram/messenger/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

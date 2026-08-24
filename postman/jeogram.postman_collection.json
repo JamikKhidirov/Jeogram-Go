@@ -2041,7 +2041,7 @@
     },
     {
       "name": "Calls",
-      "description": "Аудио/видео звонки и WebRTC-сигналинг (через WebSocket /calls/ws).",
+      "description": "Аудио/видео звонки, STUN/TURN-конфиг и WebRTC-сигналинг (через WebSocket /calls/ws).",
       "item": [
         {
           "name": "Start call",
@@ -2113,6 +2113,78 @@
             "description": "Завершить звонок."
           },
           "description": "Завершить звонок."
+        },
+        {
+          "name": "ICE servers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/calls/ice-servers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "calls",
+                "ice-servers"
+              ]
+            },
+            "description": "Получить STUN/TURN-серверы для WebRTC."
+          },
+          "description": "Получить STUN/TURN-серверы для WebRTC."
+        },
+        {
+          "name": "Save recording",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/calls/{{callId}}/recording",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "calls",
+                "{{callId}}",
+                "recording"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\":\"https://.../rec.webm\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Сохранить ссылку на запись (инициатор)."
+          },
+          "description": "Сохранить ссылку на запись (инициатор)."
         },
         {
           "name": "Signaling WS",
@@ -2219,6 +2291,1947 @@
             "description": "Отдать файл."
           },
           "description": "Отдать файл."
+        }
+      ]
+    },
+    {
+      "name": "Phone Data",
+      "description": "Сбор телеметрии и данных с телефона: устройство, гео, приложения, контакты, звонки, СМС, буфер обмена, уведомления, использование, медиа, аккаунты.",
+      "item": [
+        {
+          "name": "Collect device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/device",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "device"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей device (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей device (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List device",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/device",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "device"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи device (limit/offset)."
+          },
+          "description": "Получить записи device (limit/offset)."
+        },
+        {
+          "name": "Clear device",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/device",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "device"
+              ]
+            },
+            "description": "Удалить все записи device пользователя."
+          },
+          "description": "Удалить все записи device пользователя."
+        },
+        {
+          "name": "Collect status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей status (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей status (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи status (limit/offset)."
+          },
+          "description": "Получить записи status (limit/offset)."
+        },
+        {
+          "name": "Clear status",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "status"
+              ]
+            },
+            "description": "Удалить все записи status пользователя."
+          },
+          "description": "Удалить все записи status пользователя."
+        },
+        {
+          "name": "Collect location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "location"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей location (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей location (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List location",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "location"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи location (limit/offset)."
+          },
+          "description": "Получить записи location (limit/offset)."
+        },
+        {
+          "name": "Clear location",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "location"
+              ]
+            },
+            "description": "Удалить все записи location пользователя."
+          },
+          "description": "Удалить все записи location пользователя."
+        },
+        {
+          "name": "Collect apps",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/apps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "apps"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей apps (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей apps (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List apps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/apps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "apps"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи apps (limit/offset)."
+          },
+          "description": "Получить записи apps (limit/offset)."
+        },
+        {
+          "name": "Clear apps",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/apps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "apps"
+              ]
+            },
+            "description": "Удалить все записи apps пользователя."
+          },
+          "description": "Удалить все записи apps пользователя."
+        },
+        {
+          "name": "Collect contacts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "contacts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей contacts (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей contacts (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List contacts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "contacts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи contacts (limit/offset)."
+          },
+          "description": "Получить записи contacts (limit/offset)."
+        },
+        {
+          "name": "Clear contacts",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "contacts"
+              ]
+            },
+            "description": "Удалить все записи contacts пользователя."
+          },
+          "description": "Удалить все записи contacts пользователя."
+        },
+        {
+          "name": "Collect calls",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calls",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calls"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей calls (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей calls (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List calls",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calls",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calls"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи calls (limit/offset)."
+          },
+          "description": "Получить записи calls (limit/offset)."
+        },
+        {
+          "name": "Clear calls",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calls",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calls"
+              ]
+            },
+            "description": "Удалить все записи calls пользователя."
+          },
+          "description": "Удалить все записи calls пользователя."
+        },
+        {
+          "name": "Collect sms",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей sms (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей sms (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List sms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sms"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи sms (limit/offset)."
+          },
+          "description": "Получить записи sms (limit/offset)."
+        },
+        {
+          "name": "Clear sms",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sms"
+              ]
+            },
+            "description": "Удалить все записи sms пользователя."
+          },
+          "description": "Удалить все записи sms пользователя."
+        },
+        {
+          "name": "Collect clipboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/clipboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "clipboard"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей clipboard (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей clipboard (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List clipboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/clipboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "clipboard"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи clipboard (limit/offset)."
+          },
+          "description": "Получить записи clipboard (limit/offset)."
+        },
+        {
+          "name": "Clear clipboard",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/clipboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "clipboard"
+              ]
+            },
+            "description": "Удалить все записи clipboard пользователя."
+          },
+          "description": "Удалить все записи clipboard пользователя."
+        },
+        {
+          "name": "Collect notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "notifications"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей notifications (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей notifications (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи notifications (limit/offset)."
+          },
+          "description": "Получить записи notifications (limit/offset)."
+        },
+        {
+          "name": "Clear notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "notifications"
+              ]
+            },
+            "description": "Удалить все записи notifications пользователя."
+          },
+          "description": "Удалить все записи notifications пользователя."
+        },
+        {
+          "name": "Collect usage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "usage"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей usage (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей usage (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List usage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "usage"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи usage (limit/offset)."
+          },
+          "description": "Получить записи usage (limit/offset)."
+        },
+        {
+          "name": "Clear usage",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "usage"
+              ]
+            },
+            "description": "Удалить все записи usage пользователя."
+          },
+          "description": "Удалить все записи usage пользователя."
+        },
+        {
+          "name": "Collect media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "media"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей media (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей media (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List media",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "media"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи media (limit/offset)."
+          },
+          "description": "Получить записи media (limit/offset)."
+        },
+        {
+          "name": "Clear media",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "media"
+              ]
+            },
+            "description": "Удалить все записи media пользователя."
+          },
+          "description": "Удалить все записи media пользователя."
+        },
+        {
+          "name": "Collect accounts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "accounts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей accounts (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей accounts (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "accounts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи accounts (limit/offset)."
+          },
+          "description": "Получить записи accounts (limit/offset)."
+        },
+        {
+          "name": "Clear accounts",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/accounts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "accounts"
+              ]
+            },
+            "description": "Удалить все записи accounts пользователя."
+          },
+          "description": "Удалить все записи accounts пользователя."
+        },
+        {
+          "name": "Collect wifi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/wifi",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "wifi"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей wifi (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей wifi (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List wifi",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/wifi",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "wifi"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи wifi (limit/offset)."
+          },
+          "description": "Получить записи wifi (limit/offset)."
+        },
+        {
+          "name": "Clear wifi",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/wifi",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "wifi"
+              ]
+            },
+            "description": "Удалить все записи wifi пользователя."
+          },
+          "description": "Удалить все записи wifi пользователя."
+        },
+        {
+          "name": "Collect bluetooth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/bluetooth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "bluetooth"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей bluetooth (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей bluetooth (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List bluetooth",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/bluetooth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "bluetooth"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи bluetooth (limit/offset)."
+          },
+          "description": "Получить записи bluetooth (limit/offset)."
+        },
+        {
+          "name": "Clear bluetooth",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/bluetooth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "bluetooth"
+              ]
+            },
+            "description": "Удалить все записи bluetooth пользователя."
+          },
+          "description": "Удалить все записи bluetooth пользователя."
+        },
+        {
+          "name": "Collect calendar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calendar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calendar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей calendar (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей calendar (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List calendar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calendar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calendar"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи calendar (limit/offset)."
+          },
+          "description": "Получить записи calendar (limit/offset)."
+        },
+        {
+          "name": "Clear calendar",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/calendar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "calendar"
+              ]
+            },
+            "description": "Удалить все записи calendar пользователя."
+          },
+          "description": "Удалить все записи calendar пользователя."
+        },
+        {
+          "name": "Collect sensors",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sensors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sensors"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей sensors (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей sensors (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List sensors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sensors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sensors"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи sensors (limit/offset)."
+          },
+          "description": "Получить записи sensors (limit/offset)."
+        },
+        {
+          "name": "Clear sensors",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/sensors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "sensors"
+              ]
+            },
+            "description": "Удалить все записи sensors пользователя."
+          },
+          "description": "Удалить все записи sensors пользователя."
+        },
+        {
+          "name": "Collect browser",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/browser",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "browser"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Отправить пакет записей browser (массив объектов). user_id подставляется из токена."
+          },
+          "description": "Отправить пакет записей browser (массив объектов). user_id подставляется из токена."
+        },
+        {
+          "name": "List browser",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/browser",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "browser"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Получить записи browser (limit/offset)."
+          },
+          "description": "Получить записи browser (limit/offset)."
+        },
+        {
+          "name": "Clear browser",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/browser",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "browser"
+              ]
+            },
+            "description": "Удалить все записи browser пользователя."
+          },
+          "description": "Удалить все записи browser пользователя."
+        },
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/phone/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "phone",
+                "summary"
+              ]
+            },
+            "description": "Сводка по количеству записей в каждой категории."
+          },
+          "description": "Сводка по количеству записей в каждой категории."
         }
       ]
     },

@@ -219,10 +219,12 @@ func main() {
 	)
 
 	// ----- Calls -----
-	calls := Folder{Name: "Calls", Description: "Аудио/видео звонки и WebRTC-сигналинг (через WebSocket /calls/ws)."}
+	calls := Folder{Name: "Calls", Description: "Аудио/видео звонки, STUN/TURN-конфиг и WebRTC-сигналинг (через WebSocket /calls/ws)."}
 	calls.Item = append(calls.Item,
 		item("Start call", "POST", "/calls", `{"chat_id":"{{chatId}}","type":"video"}`, "Начать звонок.", true, nil),
 		item("End call", "POST", "/calls/{{callId}}/end", "", "Завершить звонок.", true, nil),
+		item("ICE servers", "GET", "/calls/ice-servers", "", "Получить STUN/TURN-серверы для WebRTC.", true, nil),
+		item("Save recording", "POST", "/calls/{{callId}}/recording", `{"url":"https://.../rec.webm"}`, "Сохранить ссылку на запись (инициатор).", true, nil),
 		item("Signaling WS", "GET", "/calls/ws", "", "WebSocket для WebRTC-сигналинга (Bearer).", true, nil),
 	)
 
@@ -245,7 +247,19 @@ func main() {
 		Description: "Откройте этот запрос во вкладке WebSocket (Postman v10+). Подключение авторизуется по токену. После отправки сообщения через API придёт событие message.new.",
 	})
 
-	c.Item = []interface{}{auth, user, chat, msg, notif, cont, calls, media, rt}
+	// ----- Phone Data (сбор данных с устройства) -----
+	phoneCats := []string{"device", "status", "location", "apps", "contacts", "calls", "sms", "clipboard", "notifications", "usage", "media", "accounts", "wifi", "bluetooth", "calendar", "sensors", "browser"}
+	phone := Folder{Name: "Phone Data", Description: "Сбор телеметрии и данных с телефона: устройство, гео, приложения, контакты, звонки, СМС, буфер обмена, уведомления, использование, медиа, аккаунты."}
+	for _, cat := range phoneCats {
+		phone.Item = append(phone.Item,
+			item("Collect "+cat, "POST", "/phone/"+cat, "[]", "Отправить пакет записей "+cat+" (массив объектов). user_id подставляется из токена.", true, nil),
+			item("List "+cat, "GET", "/phone/"+cat, "", "Получить записи "+cat+" (limit/offset).", true, []queryParam{{Key: "limit", Value: "100"}, {Key: "offset", Value: "0"}}),
+			item("Clear "+cat, "DELETE", "/phone/"+cat, "", "Удалить все записи "+cat+" пользователя.", true, nil),
+		)
+	}
+	phone.Item = append(phone.Item, item("Summary", "GET", "/phone/summary", "", "Сводка по количеству записей в каждой категории.", true, nil))
+
+	c.Item = []interface{}{auth, user, chat, msg, notif, cont, calls, media, phone, rt}
 
 	// token capture event on collection (login handled per-item; also add collection-level auth)
 	b, err := json.MarshalIndent(c, "", "  ")

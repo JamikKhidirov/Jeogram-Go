@@ -33,6 +33,26 @@ definitions:
     - password
     - username
     type: object
+  github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest:
+    properties:
+      url:
+        type: string
+    required:
+    - url
+    type: object
+  github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest:
+    properties:
+      chat_id:
+        type: string
+      type:
+        enum:
+        - audio
+        - video
+        type: string
+    required:
+    - chat_id
+    - type
+    type: object
   github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest:
     properties:
       avatar_url:
@@ -150,6 +170,329 @@ definitions:
     - platform
     - token
     type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage:
+    properties:
+      app_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      last_used_timestamp:
+        type: integer
+      package_name:
+        type: string
+      total_foreground_ms:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      mac:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+      user_id:
+        type: string
+      visit_time:
+        type: integer
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent:
+    properties:
+      calendar_name:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      start_time:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.CallLog:
+    properties:
+      call_type:
+        description: incoming | outgoing | missed
+        type: string
+      contact_name:
+        type: string
+      created_at:
+        type: string
+      duration_sec:
+        type: integer
+      id:
+        type: string
+      phone_number:
+        type: string
+      timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry:
+    properties:
+      app_package:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      text:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount:
+    properties:
+      account_name:
+        type: string
+      account_type:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo:
+    properties:
+      app_version:
+        type: string
+      brand:
+        type: string
+      created_at:
+        type: string
+      device_id:
+        type: string
+      id:
+        type: string
+      locale:
+        type: string
+      manufacturer:
+        type: string
+      model:
+        type: string
+      os:
+        type: string
+      os_version:
+        type: string
+      screen_size:
+        type: string
+      sdk_version:
+        type: integer
+      timezone:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus:
+    properties:
+      battery_level:
+        type: integer
+      created_at:
+        type: string
+      free_storage_mb:
+        type: integer
+      id:
+        type: string
+      is_airplane_mode:
+        type: boolean
+      is_charging:
+        type: boolean
+      network_type:
+        type: string
+      signal_strength:
+        type: integer
+      total_storage_mb:
+        type: integer
+      user_id:
+        type: string
+      wifi_ssid:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp:
+    properties:
+      app_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      install_time:
+        type: integer
+      is_system:
+        type: boolean
+      package_name:
+        type: string
+      user_id:
+        type: string
+      version_code:
+        type: integer
+      version_name:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint:
+    properties:
+      accuracy:
+        type: number
+      address:
+        type: string
+      altitude:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: string
+      lat:
+        type: number
+      lng:
+        type: number
+      provider:
+        type: string
+      speed:
+        type: number
+      timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem:
+    properties:
+      created_at:
+        type: string
+      duration_ms:
+        type: integer
+      height:
+        type: integer
+      id:
+        type: string
+      mime_type:
+        type: string
+      path:
+        type: string
+      size_bytes:
+        type: integer
+      user_id:
+        type: string
+      width:
+        type: integer
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture:
+    properties:
+      app_package:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      posted_at:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      note:
+        type: string
+      phone_number:
+        type: string
+      starred:
+        type: boolean
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      sensor_type:
+        type: string
+      unit:
+        type: string
+      user_id:
+        type: string
+      value:
+        type: number
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog:
+    properties:
+      address:
+        type: string
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      sms_type:
+        description: inbox | sent
+        type: string
+      timestamp:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork:
+    properties:
+      bssid:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      security_type:
+        type: string
+      signal_level:
+        type: integer
+      ssid:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest:
     properties:
       user_id:
@@ -210,6 +553,13 @@ definitions:
         type: integer
       total:
         type: integer
+    type: object
+  modules_calls_handler.setRecordingRequest:
+    properties:
+      url:
+        type: string
+    required:
+    - url
     type: object
   modules_calls_handler.startCallRequest:
     properties:
@@ -503,7 +853,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_calls_handler.startCallRequest'
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest'
       produces:
       - application/json
       responses:
@@ -556,6 +906,34 @@ paths:
       summary: Завершить звонок
       tags:
       - calls
+  /calls/{id}/recording:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: url записи
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Сохранить запись звонка
+      tags:
+      - calls
   /calls/history:
     get:
       parameters:
@@ -577,6 +955,20 @@ paths:
       security:
       - BearerAuth: []
       summary: История звонков
+      tags:
+      - calls
+  /calls/ice-servers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить STUN/TURN серверы для звонков
       tags:
       - calls
   /calls/ws:
@@ -1591,6 +1983,901 @@ paths:
       summary: Число непрочитанных уведомлений
       tags:
       - notifications
+  /phone/accounts:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить аккаунты устройства
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить аккаунты устройства
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив аккаунтов
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить аккаунты устройства
+      tags:
+      - phone
+  /phone/apps:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить установленные приложения
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить установленные приложения
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив приложений
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить список установленных приложений
+      tags:
+      - phone
+  /phone/bluetooth:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить Bluetooth-устройства
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить Bluetooth-устройства
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив устройств
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить Bluetooth-устройства
+      tags:
+      - phone
+  /phone/browser:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить историю браузера
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить историю браузера
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив записей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить историю браузера
+      tags:
+      - phone
+  /phone/calendar:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить события календаря
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить события календаря
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив событий
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить события календаря
+      tags:
+      - phone
+  /phone/calls:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить журнал звонков
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить журнал звонков
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив звонков
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CallLog'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить журнал звонков
+      tags:
+      - phone
+  /phone/clipboard:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить записи буфера обмена
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить записи буфера обмена
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив записей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить записи буфера обмена
+      tags:
+      - phone
+  /phone/contacts:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить контакты телефона
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить контакты телефона
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив контактов
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить контакты телефона
+      tags:
+      - phone
+  /phone/device:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить данные об устройстве
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить данные об устройстве
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив записей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить данные об устройстве
+      tags:
+      - phone
+  /phone/location:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить геолокацию
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить геолокацию
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив точек
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить геолокацию
+      tags:
+      - phone
+  /phone/media:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить описания медиафайлов
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить описания медиафайлов
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив файлов
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить описания медиафайлов
+      tags:
+      - phone
+  /phone/notifications:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить перехваченные уведомления
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить перехваченные уведомления
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив уведомлений
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить перехваченные уведомления
+      tags:
+      - phone
+  /phone/sensors:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить показания датчиков
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить показания датчиков
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив показаний
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить показания датчиков
+      tags:
+      - phone
+  /phone/sms:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить СМС
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить СМС
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив СМС
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить СМС
+      tags:
+      - phone
+  /phone/status:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить состояние устройства
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить состояние устройства
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив записей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить состояние устройства
+      tags:
+      - phone
+  /phone/summary:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Сводка собранных данных
+      tags:
+      - phone
+  /phone/usage:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить статистику использования
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить статистику использования
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив записей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить статистику использования приложений
+      tags:
+      - phone
+  /phone/wifi:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить Wi-Fi сети
+      tags:
+      - phone
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить Wi-Fi сети
+      tags:
+      - phone
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: массив сетей
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Отправить Wi-Fi сети
+      tags:
+      - phone
+  /socket.io/:
+    get:
+      description: 'Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO.
+        Подключение: `/socket.io/?token=<access_token>&EIO=4&transport=websocket`.
+        События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально
+        это одно и то же.'
+      responses:
+        "200":
+          description: Socket.IO handshake
+          schema:
+            type: string
+      summary: Realtime Socket.IO (альтернатива WebSocket)
+      tags:
+      - realtime
   /user/account:
     delete:
       produces:
@@ -1787,6 +3074,24 @@ paths:
       summary: Обновить настройки
       tags:
       - user
+  /ws:
+    get:
+      description: 'Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация:
+        заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`.
+        Сервер шлёт Ping каждые 30с и push-события в формате `{"type":"<event>","payload":{...}}`
+        (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`,
+        `user_status`). Клиент может просто держать соединение открытым — это обеспечивает
+        синхронизацию между устройствами одного пользователя.'
+      responses:
+        "101":
+          description: Switching Protocols — WebSocket установлен
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Realtime WebSocket-соединение
+      tags:
+      - realtime
 securityDefinitions:
   BearerAuth:
     description: 'Введите токен в формате: Bearer <token>'

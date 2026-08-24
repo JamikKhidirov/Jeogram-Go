@@ -46,6 +46,8 @@ func (h *CallsHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/ws", h.Signaling)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/{id}", h.Get)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/history", h.History)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/ice-servers", h.ICEServers)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/recording", h.SetRecording)
 }
 
 type startCallRequest struct {
@@ -212,4 +214,52 @@ func (h *CallsHandler) History(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, calls)
+}
+
+// ICEServers возвращает STUN/TURN-конфигурацию для WebRTC.
+// @Summary Получить STUN/TURN серверы для звонков
+// @Tags calls
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /calls/ice-servers [get]
+func (h *CallsHandler) ICEServers(w http.ResponseWriter, r *http.Request) {
+	response.WriteOK(w, map[string]interface{}{
+		"ice_servers":       h.svc.ICEServers(),
+		"recording_enabled": h.svc.RecordingEnabled(),
+	})
+}
+
+type setRecordingRequest struct {
+	URL string `json:"url" validate:"required"`
+}
+
+// SetRecording прикрепляет ссылку на запись звонка (только инициатор).
+// @Summary Сохранить запись звонка
+// @Tags calls
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id звонка"
+// @Param body body setRecordingRequest true "url записи"
+// @Success 200 {object} response.APIResponse
+// @Router /calls/{id}/recording [post]
+func (h *CallsHandler) SetRecording(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	var req setRecordingRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.URL == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "url required")
+		return
+	}
+	call, err := h.svc.SetRecording(r.Context(), id, userID, req.URL)
+	if err != nil {
+		if err == service.ErrForbidden {
+			response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())
+			return
+		}
+		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
+		return
+	}
+	response.WriteOK(w, call)
 }

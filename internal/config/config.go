@@ -22,6 +22,8 @@ type Config struct {
 	Push     PushConfig
 	Metrics  MetricsConfig
 	Admin    AdminConfig
+	RTC      RTCConfig
+	Message  MessageConfig
 }
 
 // AdminConfig holds the list of user IDs that are granted admin access.
@@ -109,6 +111,22 @@ type PushConfig struct {
 	APNsProduction bool
 }
 
+// RTCConfig holds WebRTC STUN/TURN servers used by calls.
+type RTCConfig struct {
+	STUNServers []string
+	TURNServers []string
+	TURNUser    string
+	TURNPassword string
+	RecordingEnabled bool
+	RecordingDir     string
+}
+
+// MessageConfig holds message edit/delete-for-all behaviour.
+type MessageConfig struct {
+	DeleteForAllWindow time.Duration
+	EditWindow         time.Duration
+}
+
 // Load reads configuration from environment (optionally from a .env file).
 func Load() (*Config, error) {
 	_ = godotenv.Load()
@@ -169,6 +187,18 @@ func Load() (*Config, error) {
 		},
 		Admin: AdminConfig{
 			UserIDs: getEnvSlice("ADMIN_USER_IDS", nil),
+		},
+		RTC: RTCConfig{
+			STUNServers:      getEnvSlice("RTC_STUN_SERVERS", []string{"stun:stun.l.google.com:19302"}),
+			TURNServers:      getEnvSlice("RTC_TURN_SERVERS", nil),
+			TURNUser:         getEnv("RTC_TURN_USER", ""),
+			TURNPassword:     getEnv("RTC_TURN_PASSWORD", ""),
+			RecordingEnabled: getEnvBool("RTC_RECORDING_ENABLED", false),
+			RecordingDir:     getEnv("RTC_RECORDING_DIR", "./recordings"),
+		},
+		Message: MessageConfig{
+			DeleteForAllWindow: getEnvDuration("MESSAGE_DELETE_FOR_ALL_WINDOW", 24*time.Hour),
+			EditWindow:         getEnvDuration("MESSAGE_EDIT_WINDOW", 24*time.Hour),
 		},
 	}
 

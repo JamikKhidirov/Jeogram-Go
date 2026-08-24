@@ -94,14 +94,14 @@ jobs:
         run: go mod download
 
       - name: Build
-        run: CGO_ENABLED=0 go build -o bin/server ./cmd
+        run: CGO_ENABLED=0 go build -o bin/server .
 
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Regenerate Swagger and fail if changed
         run: |
-          swag init --dir ./cmd,./internal --output ./docs --parseDependency --parseInternal
+          swag init --dir .,./internal --exclude ./docs --output ./docs --parseDependency --parseInternal
           if [ -n "$(git status --porcelain docs/)" ]; then
             echo "Swagger out of date — закоммитьте docs/ после 'make swagger'."
             git --no-pager diff --stat docs/
@@ -164,7 +164,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd Jeogram-Go/messenger
+            cd Jeogram-Go
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f

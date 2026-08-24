@@ -55,6 +55,11 @@ func (r *CallRepository) Get(ctx context.Context, id string) (*domain.Call, erro
 	return &c, nil
 }
 
+// Update persists changes to a call record.
+func (r *CallRepository) Update(ctx context.Context, c *domain.Call) error {
+	return r.db.WithContext(ctx).Save(c).Error
+}
+
 // ListByUser возвращает историю звонков пользователя (инициатор или участник чата).
 func (r *CallRepository) ListByUser(ctx context.Context, userID string, limit, offset int) ([]domain.Call, error) {
 	var calls []domain.Call

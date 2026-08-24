@@ -190,3 +190,20 @@ func (c *Client) readPump(h *Hub) {
 func (h *Hub) Route() http.HandlerFunc {
 	return h.Handler()
 }
+
+// WebSocketDoc документирует реальное WebSocket-соединение /ws в Swagger.
+// @Summary Realtime WebSocket-соединение
+// @Description Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`. Сервер шлёт Ping каждые 30с и push-события в формате `{"type":"<event>","payload":{...}}` (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`, `user_status`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.
+// @Tags realtime
+// @Security BearerAuth
+// @Success 101 {string} string "Switching Protocols — WebSocket установлен"
+// @Router /ws [get]
+func (h *Hub) WebSocketDoc() {}
+
+// SocketIODoc документирует Socket.IO endpoint (/socket.io/).
+// @Summary Realtime Socket.IO (альтернатива WebSocket)
+// @Description Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=<access_token>&EIO=4&transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.
+// @Tags realtime
+// @Success 200 {string} string "Socket.IO handshake"
+// @Router /socket.io/ [get]
+func SocketIODoc() {}

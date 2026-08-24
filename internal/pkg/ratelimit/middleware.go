@@ -3,7 +3,6 @@ package ratelimit
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
 	"github.com/jeogram/messenger/internal/pkg/response"
 )

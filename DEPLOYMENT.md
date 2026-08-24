@@ -124,7 +124,7 @@ docker exec -i jeogram-postgres psql -U jeogram -d jeogram < dump.sql
 ```bash
 make lint        # go vet ./...
 make test        # go test ./... -race -count=1
-make build       # go build -o bin/server ./cmd
+make build       # go build -o bin/server .
 make swagger     # перегенерация docs/ (swag init)
 make docker-up   # docker compose up --build -d
 ```

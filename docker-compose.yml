@@ -101,10 +101,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -119,14 +115,8 @@ services:
       POSTGRES_PASSWORD: jeogram
       POSTGRES_DB: jeogram
       POSTGRES_SSLMODE: disable
-      REDIS_ENABLED: "true"
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      KAFKA_ENABLED: "true"
-      KAFKA_BROKERS: "kafka:29092"
-      KAFKA_CONSUMER_GROUP: jeogram-notifications
-      KAFKA_MESSAGE_TOPIC: message.created
-      KAFKA_NOTIFY_TOPIC: user.notifications
+      REDIS_ENABLED: "false"
+      KAFKA_ENABLED: "false"
       JWT_ACCESS_SECRET: change-me-access-production
       JWT_REFRESH_SECRET: change-me-refresh-production
       JWT_ACCESS_TTL: 1h
@@ -138,6 +128,7 @@ services:
       METRICS_ENABLED: "true"
       METRICS_PATH: /metrics
       PUSH_ENABLED: "false"
+      RTC_STUN_SERVERS: "stun:stun.l.google.com:19302"
       # Личный/self-hosted доступ: "*" = админ для любого авторизованного.
       # В продакшене замените на свой ID: ADMIN_USER_IDS: "ваш-uuid"
       ADMIN_USER_IDS: "*"

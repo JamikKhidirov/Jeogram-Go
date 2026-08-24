@@ -17,7 +17,7 @@ func TestMessageService_SendAndList(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	chatRepo := chatrepo.NewChatRepository(db)
 	msgRepo := msgrepo.NewMessageRepository(db)
-	svc := NewMessageService(msgRepo, chatRepo, nil, config.KafkaConfig{}, ws.NewHub())
+	svc := NewMessageService(msgRepo, chatRepo, nil, config.KafkaConfig{}, ws.NewHub(), config.MessageConfig{})
 
 	ctx := context.Background()
 
@@ -79,7 +79,7 @@ func TestMessageService_ReactionsPinForwardSearch(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	chatRepo := chatrepo.NewChatRepository(db)
 	msgRepo := msgrepo.NewMessageRepository(db)
-	svc := NewMessageService(msgRepo, chatRepo, nil, config.KafkaConfig{}, ws.NewHub())
+	svc := NewMessageService(msgRepo, chatRepo, nil, config.KafkaConfig{}, ws.NewHub(), config.MessageConfig{})
 	ctx := context.Background()
 
 	chat := &chatdomain.Chat{Type: chatdomain.ChatTypeGroup}
@@ -157,3 +157,4 @@ func TestMessageService_ReactionsPinForwardSearch(t *testing.T) {
 		t.Fatalf("typing: %v", err)
 	}
 }
+

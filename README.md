@@ -235,13 +235,13 @@ docker compose down -v        # + удалить volumes (БД, uploads, grafana
 # вариант А: поднять только инфраструктуру в Docker
 docker compose up -d postgres redis kafka
 cp .env.example .env
-go run ./cmd
+go run .
 
 # вариант Б: вообще без внешней инфраструктуры (SQLite)
 DB_DRIVER=sqlite SQLITE_PATH=./jeogram.db \
 REDIS_ENABLED=false KAFKA_ENABLED=false \
 JWT_ACCESS_SECRET=dev-secret JWT_REFRESH_SECRET=dev-secret \
-HTTP_PORT=8080 go run ./cmd
+HTTP_PORT=8080 go run .
 ```
 
 ## Запуск в Kubernetes
@@ -499,8 +499,8 @@ make swagger   # устанавливает swag и перегенерирует
 ## Полезные команды (Makefile)
 
 ```bash
-make build      # go build -o bin/server ./cmd
-make run        # go run ./cmd
+make build      # go build -o bin/server .
+make run        # go run .
 make test       # go test ./... -race -count=1
 make swagger    # перегенерация docs/ из аннотаций (swag init)
 make docker-up  # docker compose up --build -d

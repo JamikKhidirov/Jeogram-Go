@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server .
 
 # Финальный образ
 FROM alpine:3.20

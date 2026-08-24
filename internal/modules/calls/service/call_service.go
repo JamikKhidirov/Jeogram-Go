@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/jeogram/messenger/internal/config"
 	"github.com/jeogram/messenger/internal/modules/calls/domain"
 	"github.com/jeogram/messenger/internal/modules/calls/repository"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
@@ -16,10 +18,51 @@ var ErrForbidden = errors.New("forbidden")
 type CallService struct {
 	repo  *repository.CallRepository
 	chats *chatrepo.ChatRepository
+	rtc   config.RTCConfig
 }
 
-func NewCallService(repo *repository.CallRepository, chats *chatrepo.ChatRepository) *CallService {
-	return &CallService{repo: repo, chats: chats}
+func NewCallService(repo *repository.CallRepository, chats *chatrepo.ChatRepository, rtc config.RTCConfig) *CallService {
+	return &CallService{repo: repo, chats: chats, rtc: rtc}
+}
+
+// ICEServers returns the STUN/TURN configuration for WebRTC negotiation.
+func (s *CallService) ICEServers() []map[string]interface{} {
+	servers := make([]map[string]interface{}, 0)
+	for _, srv := range s.rtc.STUNServers {
+		servers = append(servers, map[string]interface{}{"urls": srv})
+	}
+	for _, srv := range s.rtc.TURNServers {
+		servers = append(servers, map[string]interface{}{
+			"urls":       srv,
+			"username":   s.rtc.TURNUser,
+			"credential": s.rtc.TURNPassword,
+		})
+	}
+	if len(servers) == 0 {
+		servers = append(servers, map[string]interface{}{"urls": "stun:stun.l.google.com:19302"})
+	}
+	return servers
+}
+
+// RecordingEnabled reports whether call recording is enabled.
+func (s *CallService) RecordingEnabled() bool { return s.rtc.RecordingEnabled }
+
+// SetRecording attaches a recording url to a call (only initiator).
+func (s *CallService) SetRecording(ctx context.Context, id, userID, url string) (*domain.Call, error) {
+	call, err := s.repo.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if call.Initiator != userID {
+		return nil, ErrForbidden
+	}
+	now := time.Now()
+	call.RecordingURL = url
+	call.RecordedAt = &now
+	if err := s.repo.Update(ctx, call); err != nil {
+		return nil, err
+	}
+	return call, nil
 }
 
 // Start records a new call if the initiator belongs to the chat.

@@ -20,10 +20,12 @@ type Message struct {
 	Text      string      `gorm:"type:text" json:"text,omitempty"`
 	MediaURL  string      `gorm:"size:512" json:"media_url,omitempty"`
 	ReplyToID *string     `gorm:"type:uuid" json:"reply_to_id,omitempty"`
-	CreatedAt time.Time   `gorm:"index:idx_messages_chat_created,priority:2" json:"created_at"`
-	EditedAt  *time.Time  `json:"edited_at,omitempty"`
-	DeletedAt *time.Time  `json:"deleted_at,omitempty"`
-	ReadBy    []string    `gorm:"-" json:"read_by,omitempty"`
+	CreatedAt      time.Time  `gorm:"index:idx_messages_chat_created,priority:2" json:"created_at"`
+	EditedAt       *time.Time `json:"edited_at,omitempty"`
+	EditVersion    int        `json:"edit_version,omitempty"`
+	DeletedAt      *time.Time `json:"deleted_at,omitempty"`
+	DeletedForAllAt *time.Time `json:"deleted_for_all_at,omitempty"`
+	ReadBy         []string   `gorm:"-" json:"read_by,omitempty"`
 }
 
 func (Message) TableName() string { return "messages" }
@@ -91,6 +93,8 @@ type PublicMessage struct {
 	Pinned       bool              `json:"pinned,omitempty"`
 	CreatedAt    string            `json:"created_at"`
 	EditedAt     *string           `json:"edited_at,omitempty"`
+	EditVersion  int               `json:"edit_version,omitempty"`
+	DeletedForAllAt *string        `json:"deleted_for_all_at,omitempty"`
 	ReadBy       []string          `json:"read_by,omitempty"`
 }
 

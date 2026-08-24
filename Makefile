@@ -2,10 +2,10 @@
 .PHONY: build run test tidy swagger docker-up docker-down migrate migrate-down lint
 
 build:
-	go build -o bin/server ./cmd/server
+	go build -o bin/server .
 
 run:
-	go run ./cmd/server
+	go run .
 
 test:
 	go test ./... -race -count=1
@@ -16,7 +16,7 @@ tidy:
 # Генерация Swagger-документации из аннотаций в коде.
 swagger:
 	go install github.com/swaggo/swag/cmd/swag@latest
-	swag init --dir ./cmd,./internal --output ./docs
+	swag init --dir .,./internal --exclude ./docs --output ./docs --parseDependency --parseInternal
 
 docker-up:
 	docker compose up --build -d
