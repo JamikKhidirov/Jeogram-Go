@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -12,7 +13,9 @@ import (
 	notifdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/response"
+	"github.com/jeogram/messenger/internal/pkg/ws"
 	"gorm.io/gorm"
 )
 
@@ -23,10 +26,11 @@ type AdminHandler struct {
 	db        *gorm.DB
 	jwt       *auth.JWT
 	adminIDs  []string
+	hub       realtime.Broadcaster
 }
 
-func NewAdminHandler(db *gorm.DB, jwt *auth.JWT, adminIDs []string) *AdminHandler {
-	return &AdminHandler{db: db, jwt: jwt, adminIDs: adminIDs}
+func NewAdminHandler(db *gorm.DB, jwt *auth.JWT, adminIDs []string, hub realtime.Broadcaster) *AdminHandler {
+	return &AdminHandler{db: db, jwt: jwt, adminIDs: adminIDs, hub: hub}
 }
 
 // RegisterRoutes mounts admin endpoints, each guarded by RequireAdmin.
@@ -54,6 +58,12 @@ func (h *AdminHandler) RegisterRoutes(r chi.Router) {
 	r.Get("/admin/messages/search", withAdmin(h.SearchMessages))
 	r.Get("/admin/devices", withAdmin(h.ListDevices))
 	r.Get("/admin/stats", withAdmin(h.Stats))
+	r.Get("/admin/users/search", withAdmin(h.SearchUsers))
+	r.Post("/admin/users/{id}/ban", withAdmin(h.BanUser))
+	r.Post("/admin/users/{id}/unban", withAdmin(h.UnbanUser))
+	r.Post("/admin/users/{id}/role", withAdmin(h.SetRole))
+	r.Delete("/admin/users/{id}", withAdmin(h.DeleteUser))
+	r.Post("/admin/broadcast", withAdmin(h.Broadcast))
 }
 
 func page(r *http.Request) (limit, offset int) {
@@ -233,4 +243,172 @@ func (h *AdminHandler) Stats(w http.ResponseWriter, r *http.Request) {
 		"devices":    count(&notifdomain.DeviceToken{}),
 	}
 	response.WriteOK(w, stats)
+}
+
+// SearchUsers ищет пользователей по username/display_name/email.
+//
+//	@Summary	Admin: поиск пользователей
+//	@Tags		admin
+//	@Produce	json
+//	@Param		q		query		string	true	"запрос"
+//	@Param		limit	query		int		false	"лимит"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/search [get]
+//	@Security	BearerAuth
+func (h *AdminHandler) SearchUsers(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	if q == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "query parameter 'q' is required")
+		return
+	}
+	limit, _ := page(r)
+	var users []authdomain.User
+	like := "%" + q + "%"
+	if err := h.db.WithContext(r.Context()).
+		Where("LOWER(username) LIKE LOWER(?) OR LOWER(display_name) LIKE LOWER(?) OR LOWER(email) LIKE LOWER(?)", like, like, like).
+		Order("created_at DESC").Limit(limit).Find(&users).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, users)
+}
+
+func (h *AdminHandler) loadUser(w http.ResponseWriter, r *http.Request) (*authdomain.User, bool) {
+	id := chi.URLParam(r, "id")
+	var u authdomain.User
+	if err := h.db.WithContext(r.Context()).Where("id = ?", id).First(&u).Error; err != nil {
+		response.WriteError(w, http.StatusNotFound, "not_found", "user not found")
+		return nil, false
+	}
+	return &u, true
+}
+
+// BanUser блокирует пользователя.
+//
+//	@Summary	Admin: заблокировать пользователя
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id}/ban [post]
+//	@Security	BearerAuth
+func (h *AdminHandler) BanUser(w http.ResponseWriter, r *http.Request) {
+	u, ok := h.loadUser(w, r)
+	if !ok {
+		return
+	}
+	u.Status = authdomain.StatusBanned
+	if err := h.db.WithContext(r.Context()).Save(u).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "banned", "user_id": u.ID})
+}
+
+// UnbanUser разблокирует пользователя.
+//
+//	@Summary	Admin: разблокировать пользователя
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id}/unban [post]
+//	@Security	BearerAuth
+func (h *AdminHandler) UnbanUser(w http.ResponseWriter, r *http.Request) {
+	u, ok := h.loadUser(w, r)
+	if !ok {
+		return
+	}
+	u.Status = authdomain.StatusActive
+	if err := h.db.WithContext(r.Context()).Save(u).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "active", "user_id": u.ID})
+}
+
+// SetRole меняет роль пользователя (user/admin).
+//
+//	@Summary	Admin: назначить роль
+//	@Tags		admin
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Param		body	body		setRoleRequest	true	"роль"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id}/role [post]
+//	@Security	BearerAuth
+func (h *AdminHandler) SetRole(w http.ResponseWriter, r *http.Request) {
+	u, ok := h.loadUser(w, r)
+	if !ok {
+		return
+	}
+	var req setRoleRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Role == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "role required")
+		return
+	}
+	if req.Role != authdomain.RoleUser && req.Role != authdomain.RoleAdmin {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid role")
+		return
+	}
+	u.Role = req.Role
+	if err := h.db.WithContext(r.Context()).Save(u).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"role": u.Role, "user_id": u.ID})
+}
+
+type setRoleRequest struct {
+	Role string `json:"role"`
+}
+
+// DeleteUser удаляет аккаунт пользователя.
+//
+//	@Summary	Admin: удалить пользователя
+//	@Tags		admin
+//	@Produce	json
+//	@Param		id		path		string	true	"id пользователя"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/users/{id} [delete]
+//	@Security	BearerAuth
+func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if err := h.db.WithContext(r.Context()).Where("id = ?", id).Delete(&authdomain.User{}).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "deleted", "user_id": id})
+}
+
+// Broadcast отправляет системное уведомление всем подключённым пользователям.
+//
+//	@Summary	Admin: рассылка уведомления всем онлайн-пользователям
+//	@Tags		admin
+//	@Accept		json
+//	@Produce	json
+//	@Param		body	body		broadcastRequest	true	"заголовок и текст"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/admin/broadcast [post]
+//	@Security	BearerAuth
+func (h *AdminHandler) Broadcast(w http.ResponseWriter, r *http.Request) {
+	var req broadcastRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Title == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "title required")
+		return
+	}
+	if h.hub == nil {
+		response.WriteOK(w, map[string]string{"status": "no_realtime_hub"})
+		return
+	}
+	ids := h.hub.OnlineUserIDs()
+	payload := map[string]interface{}{"title": req.Title, "body": req.Body}
+	h.hub.SendToUsers(ids, ws.Outbound{Type: "admin.broadcast", Payload: payload})
+	response.WriteOK(w, map[string]interface{}{"status": "broadcast", "recipients": len(ids)})
+}
+
+type broadcastRequest struct {
+	Title string `json:"title"`
+	Body  string `json:"body,omitempty"`
 }

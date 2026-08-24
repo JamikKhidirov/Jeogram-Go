@@ -15,6 +15,44 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/broadcast": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: рассылка уведомления всем онлайн-пользователям",
+                "parameters": [
+                    {
+                        "description": "заголовок и текст",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/chats": {
             "get": {
                 "security": [
@@ -237,6 +275,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: поиск пользователей",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "запрос",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "лимит",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/users/{id}": {
             "get": {
                 "security": [
@@ -251,6 +328,70 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Admin: получить пользователя по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: удалить пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/ban": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: заблокировать пользователя",
                 "parameters": [
                     {
                         "type": "string",
@@ -291,6 +432,117 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/role": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: назначить роль",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "роль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/unban": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: разблокировать пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Запросить сброс пароля (код на email)",
+                "parameters": [
+                    {
+                        "description": "email",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -443,6 +695,167 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/request-otp": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Запросить OTP-код (вход по телефону)",
+                "parameters": [
+                    {
+                        "description": "номер телефона",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/resend-verification": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Повторная отправка кода подтверждения email",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Сброс пароля по коду",
+                "parameters": [
+                    {
+                        "description": "email, code, новый пароль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verify-email": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Подтверждение email кодом",
+                "parameters": [
+                    {
+                        "description": "код",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/verify-otp": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Вход по телефону и OTP-коду",
+                "parameters": [
+                    {
+                        "description": "номер и код",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
@@ -2223,6 +2636,28 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Удалить все уведомления",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
             }
         },
         "/notifications/device": {
@@ -2301,6 +2736,39 @@ const docTemplate = `{
                     "notifications"
                 ],
                 "summary": "Число непрочитанных уведомлений",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notifications/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Удалить уведомление",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id уведомления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4149,6 +4617,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest": {
             "type": "object",
             "required": [
@@ -4191,10 +4678,64 @@ const docTemplate = `{
                     "maxLength": 72,
                     "minLength": 8
                 },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 5
+                },
                 "username": {
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 3
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest": {
+            "type": "object",
+            "properties": {
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
@@ -4983,6 +5524,74 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "modules_admin_handler.broadcastRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_admin_handler.setRoleRequest": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.forgotPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.otpRequest": {
+            "type": "object",
+            "properties": {
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.resetPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.verifyEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.verifyOTPRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },

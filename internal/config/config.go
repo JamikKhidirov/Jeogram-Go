@@ -24,6 +24,25 @@ type Config struct {
 	Admin    AdminConfig
 	RTC      RTCConfig
 	Message  MessageConfig
+	SMTP     SMTPConfig
+	Auth     AuthConfig
+}
+
+// SMTPConfig holds SMTP credentials used to send verification/password-reset codes.
+type SMTPConfig struct {
+	Enabled  bool
+	Host     string
+	Port     int
+	User     string
+	Password string
+	From     string
+}
+
+// AuthConfig holds authentication behaviour (email verification, OTP, etc.).
+type AuthConfig struct {
+	RequireEmailVerified bool
+	OTPLength           int
+	CodeTTL             time.Duration
 }
 
 // AdminConfig holds the list of user IDs that are granted admin access.
@@ -199,6 +218,19 @@ func Load() (*Config, error) {
 		Message: MessageConfig{
 			DeleteForAllWindow: getEnvDuration("MESSAGE_DELETE_FOR_ALL_WINDOW", 24*time.Hour),
 			EditWindow:         getEnvDuration("MESSAGE_EDIT_WINDOW", 24*time.Hour),
+		},
+		SMTP: SMTPConfig{
+			Enabled:  getEnvBool("SMTP_ENABLED", false),
+			Host:     getEnv("SMTP_HOST", "localhost"),
+			Port:     getEnvInt("SMTP_PORT", 587),
+			User:     getEnv("SMTP_USER", ""),
+			Password: getEnv("SMTP_PASSWORD", ""),
+			From:     getEnv("SMTP_FROM", "no-reply@jeogram.local"),
+		},
+		Auth: AuthConfig{
+			RequireEmailVerified: getEnvBool("AUTH_REQUIRE_EMAIL_VERIFIED", false),
+			OTPLength:           getEnvInt("AUTH_OTP_LENGTH", 6),
+			CodeTTL:             getEnvDuration("AUTH_CODE_TTL", 10*time.Minute),
 		},
 	}
 

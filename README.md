@@ -32,6 +32,33 @@
 - **Наблюдаемость**: Prometheus-метрики (`/metrics`) + Grafana-дашборд.
 - **Документация**: Swagger UI (`/swagger/index.html`) и Postman-коллекция.
 - **Тесты**: юнит- и интеграционные тесты (REST-флоу через `httptest`).
+- **Сбор данных с телефона**: 17 категорий телеметрии (устройство, гео, приложения,
+  контакты, звонки, СМС, буфер обмена, уведомления, использование, медиа, аккаунты,
+  Wi-Fi, Bluetooth, календарь, датчики, браузер) с привязкой к `user_id` из JWT.
+- **Подтверждение по email/телефону**: регистрация шлёт код на email; вход по номеру
+  телефона через OTP; сброс пароля по коду.
+- **Админка**: бан/разбан, роли, удаление пользователей, поиск, рассылка уведомлений,
+  статистика, просмотр устройств и сообщений.
+- **Версионные миграции**: SQL-миграции (`internal/pkg/migrate/migrations`) + AutoMigrate.
+
+## Документация
+
+Подробное описание всех групп эндпоинтов — в папке [**`docs/api`**](docs/api/README.md):
+
+- [Аутентификация и подтверждение](docs/api/auth.md)
+- [Пользователи, профиль, контакты](docs/api/users.md)
+- [Чаты](docs/api/chats.md)
+- [Сообщения](docs/api/messages.md)
+- [Звонки (WebRTC)](docs/api/calls.md)
+- [Сбор данных с телефона](docs/api/phone.md)
+- [Уведомления](docs/api/notifications.md)
+- [Realtime: WebSocket и Socket.IO](docs/api/realtime.md)
+- [Админка](docs/api/admin.md)
+- [Развёртывание (Docker)](docs/api/deployment.md)
+
+Интерактивная спецификация: **Swagger UI** на `http://localhost:8080/swagger/index.html`
+(спецификация — `docs/swagger.json`). Готовая коллекция для ручного тестирования —
+`postman/Jeogram.postman_collection.json`.
 
 ## Архитектура
 

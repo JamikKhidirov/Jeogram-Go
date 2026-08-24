@@ -1,4 +1,16 @@
 definitions:
+  github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest:
+    properties:
+      role:
+        type: string
+    type: object
   github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest:
     properties:
       email:
@@ -24,6 +36,10 @@ definitions:
         maxLength: 72
         minLength: 8
         type: string
+      phone:
+        maxLength: 32
+        minLength: 5
+        type: string
       username:
         maxLength: 32
         minLength: 3
@@ -32,6 +48,37 @@ definitions:
     - email
     - password
     - username
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest:
+    properties:
+      phone:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest:
+    properties:
+      code:
+        type: string
+    type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest:
+    properties:
+      code:
+        type: string
+      phone:
+        type: string
     type: object
   github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest:
     properties:
@@ -554,6 +601,49 @@ definitions:
       total:
         type: integer
     type: object
+  modules_admin_handler.broadcastRequest:
+    properties:
+      body:
+        type: string
+      title:
+        type: string
+    type: object
+  modules_admin_handler.setRoleRequest:
+    properties:
+      role:
+        type: string
+    type: object
+  modules_auth_handler.forgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  modules_auth_handler.otpRequest:
+    properties:
+      phone:
+        type: string
+    type: object
+  modules_auth_handler.resetPasswordRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  modules_auth_handler.verifyEmailRequest:
+    properties:
+      code:
+        type: string
+    type: object
+  modules_auth_handler.verifyOTPRequest:
+    properties:
+      code:
+        type: string
+      phone:
+        type: string
+    type: object
   modules_calls_handler.setRecordingRequest:
     properties:
       url:
@@ -577,6 +667,29 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/broadcast:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: заголовок и текст
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: рассылка уведомления всем онлайн-пользователям'
+      tags:
+      - admin
   /admin/chats:
     get:
       parameters:
@@ -713,6 +826,25 @@ paths:
       tags:
       - admin
   /admin/users/{id}:
+    delete:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: удалить пользователя'
+      tags:
+      - admin
     get:
       parameters:
       - description: id пользователя
@@ -730,6 +862,26 @@ paths:
       security:
       - BearerAuth: []
       summary: 'Admin: получить пользователя по id'
+      tags:
+      - admin
+  /admin/users/{id}/ban:
+    post:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: заблокировать пользователя'
       tags:
       - admin
   /admin/users/{id}/devices:
@@ -752,6 +904,99 @@ paths:
       summary: 'Admin: устройства пользователя'
       tags:
       - admin
+  /admin/users/{id}/role:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: роль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: назначить роль'
+      tags:
+      - admin
+  /admin/users/{id}/unban:
+    post:
+      parameters:
+      - description: id пользователя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: разблокировать пользователя'
+      tags:
+      - admin
+  /admin/users/search:
+    get:
+      parameters:
+      - description: запрос
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: лимит
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: поиск пользователей'
+      tags:
+      - admin
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Запросить сброс пароля (код на email)
+      tags:
+      - auth
   /auth/login:
     post:
       consumes:
@@ -841,6 +1086,106 @@ paths:
           schema:
             $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
       summary: Register a new account
+      tags:
+      - auth
+  /auth/request-otp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: номер телефона
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Запросить OTP-код (вход по телефону)
+      tags:
+      - auth
+  /auth/resend-verification:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Повторная отправка кода подтверждения email
+      tags:
+      - auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: email, code, новый пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Сброс пароля по коду
+      tags:
+      - auth
+  /auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: код
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Подтверждение email кодом
+      tags:
+      - auth
+  /auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: номер и код
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Вход по телефону и OTP-коду
       tags:
       - auth
   /calls:
@@ -1919,6 +2264,19 @@ paths:
       tags:
       - messages
   /notifications:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить все уведомления
+      tags:
+      - notifications
     get:
       produces:
       - application/json
@@ -1930,6 +2288,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Лента уведомлений
+      tags:
+      - notifications
+  /notifications/{id}:
+    delete:
+      parameters:
+      - description: id уведомления
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить уведомление
       tags:
       - notifications
   /notifications/device:

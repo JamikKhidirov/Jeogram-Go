@@ -110,13 +110,20 @@ func main() {
 		{Key: "chatId", Value: ""},
 		{Key: "userId", Value: ""},
 		{Key: "messageId", Value: ""},
+		{Key: "notifId", Value: ""},
 	}
 
 	// ----- Auth -----
 	auth := Folder{Name: "Auth", Description: "Регистрация и получение JWT. Login сохраняет токен в переменную accessToken."}
 	auth.Item = append(auth.Item,
-		item("Register", "POST", "/auth/register", `{"username":"alice","email":"alice@example.com","password":"Passw0rd!23"}`, "Создать пользователя. Скопируйте id для других запросов.", false, nil),
+		item("Register", "POST", "/auth/register", `{"username":"alice","email":"alice@example.com","password":"Passw0rd!23","phone":"+79001234567"}`, "Создать пользователя. После регистрации на email (или в лог сервера в dev) приходит код подтверждения.", false, nil),
 		item("Login", "POST", "/auth/login", `{"username":"alice","password":"Passw0rd!23"}`, "Вход. Скрипт теста сохраняет data.access_token в {{accessToken}}.", false, nil),
+		item("Request OTP", "POST", "/auth/request-otp", `{"phone":"+79001234567"}`, "Запросить OTP-код для входа по телефону (код приходит на email или в лог сервера).", false, nil),
+		item("Verify OTP (login)", "POST", "/auth/verify-otp", `{"phone":"+79001234567","code":"123456"}`, "Вход по телефону и коду. Возвращает токены.", false, nil),
+		item("Forgot password", "POST", "/auth/forgot-password", `{"email":"alice@example.com"}`, "Запросить код сброса пароля на email.", false, nil),
+		item("Reset password", "POST", "/auth/reset-password", `{"email":"alice@example.com","code":"123456","password":"NewPassw0rd!23"}`, "Сброс пароля по коду.", false, nil),
+		item("Verify email", "POST", "/auth/verify-email", `{"code":"123456"}`, "Подтвердить email по коду из письма.", true, nil),
+		item("Resend verification", "POST", "/auth/resend-verification", ``, "Повторно отправить код подтверждения email.", true, nil),
 		item("Refresh", "POST", "/auth/refresh", `{"refresh_token":"<refresh>"}`, "Обновить access-токен.", false, nil),
 		item("Me", "GET", "/auth/me", "", "Кто я (проверка токена).", true, nil),
 		item("Logout", "POST", "/auth/logout", "", "Выход (инвалидация сессии).", true, nil),
@@ -206,6 +213,8 @@ func main() {
 		item("Register device", "POST", "/notifications/device", `{"token":"device-token-abc","platform":"web"}`, "Зарегистрировать push-токен.", true, nil),
 		item("Mark read", "POST", "/notifications/read", `{"ids":["<notif_id>"]}`, "Прочитать уведомления.", true, nil),
 		item("Unread count", "GET", "/notifications/unread-count", "", "Число непрочитанных уведомлений.", true, nil),
+		item("Delete notification", "DELETE", "/notifications/{{notifId}}", "", "Удалить одно уведомление.", true, nil),
+		item("Delete all notifications", "DELETE", "/notifications", "", "Удалить все уведомления пользователя.", true, nil),
 	)
 
 	// ----- Contacts -----
@@ -259,7 +268,26 @@ func main() {
 	}
 	phone.Item = append(phone.Item, item("Summary", "GET", "/phone/summary", "", "Сводка по количеству записей в каждой категории.", true, nil))
 
-	c.Item = []interface{}{auth, user, chat, msg, notif, cont, calls, media, phone, rt}
+	// ----- Admin -----
+	admin := Folder{Name: "Admin", Description: "Админка: управление пользователями, бан/разбан, роли, удаление, поиск, рассылка. Требует ADMIN_USER_IDS."}
+	admin.Item = append(admin.Item,
+		item("List users", "GET", "/admin/users", "", "Список пользователей (limit/offset).", true, []queryParam{{Key: "limit", Value: "50"}, {Key: "offset", Value: "0"}}),
+		item("Search users", "GET", "/admin/users/search", "", "Поиск пользователей.", true, []queryParam{{Key: "q", Value: "alice"}}),
+		item("Get user", "GET", "/admin/users/{{userId}}", "", "Профиль пользователя.", true, nil),
+		item("Ban user", "POST", "/admin/users/{{userId}}/ban", "", "Заблокировать пользователя.", true, nil),
+		item("Unban user", "POST", "/admin/users/{{userId}}/unban", "", "Разблокировать пользователя.", true, nil),
+		item("Set role", "POST", "/admin/users/{{userId}}/role", `{"role":"admin"}`, "Назначить роль user/admin.", true, nil),
+		item("Delete user", "DELETE", "/admin/users/{{userId}}", "", "Удалить аккаунт.", true, nil),
+		item("List chats", "GET", "/admin/chats", "", "Все чаты.", true, []queryParam{{Key: "limit", Value: "50"}, {Key: "offset", Value: "0"}}),
+		item("Chat messages", "GET", "/admin/chats/{{chatId}}/messages", "", "Сообщения чата.", true, []queryParam{{Key: "limit", Value: "50"}, {Key: "offset", Value: "0"}}),
+		item("Search messages", "GET", "/admin/messages/search", "", "Поиск сообщений по тексту.", true, []queryParam{{Key: "q", Value: "привет"}}),
+		item("Devices", "GET", "/admin/devices", "", "Все устройства.", true, []queryParam{{Key: "limit", Value: "50"}, {Key: "offset", Value: "0"}}),
+		item("User devices", "GET", "/admin/users/{{userId}}/devices", "", "Устройства пользователя.", true, nil),
+		item("Stats", "GET", "/admin/stats", "", "Агрегированная статистика.", true, nil),
+		item("Broadcast", "POST", "/admin/broadcast", `{"title":"Важное","body":"Обновитесь"}`, "Рассылка уведомления всем онлайн-пользователям.", true, nil),
+	)
+
+	c.Item = []interface{}{auth, user, chat, msg, notif, cont, calls, media, phone, admin, rt}
 
 	// token capture event on collection (login handled per-item; also add collection-level auth)
 	b, err := json.MarshalIndent(c, "", "  ")

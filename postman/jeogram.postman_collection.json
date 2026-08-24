@@ -33,16 +33,16 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"Passw0rd!23\"}",
+              "raw": "{\"username\":\"alice\",\"email\":\"alice@example.com\",\"password\":\"Passw0rd!23\",\"phone\":\"+79001234567\"}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
-            "description": "Создать пользователя. Скопируйте id для других запросов."
+            "description": "Создать пользователя. После регистрации на email (или в лог сервера в dev) приходит код подтверждения."
           },
-          "description": "Создать пользователя. Скопируйте id для других запросов."
+          "description": "Создать пользователя. После регистрации на email (или в лог сервера в dev) приходит код подтверждения."
         },
         {
           "name": "Login",
@@ -94,6 +94,217 @@
             "description": "Вход. Скрипт теста сохраняет data.access_token в {{accessToken}}."
           },
           "description": "Вход. Скрипт теста сохраняет data.access_token в {{accessToken}}."
+        },
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/request-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "request-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone\":\"+79001234567\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Запросить OTP-код для входа по телефону (код приходит на email или в лог сервера)."
+          },
+          "description": "Запросить OTP-код для входа по телефону (код приходит на email или в лог сервера)."
+        },
+        {
+          "name": "Verify OTP (login)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "verify-otp"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone\":\"+79001234567\",\"code\":\"123456\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Вход по телефону и коду. Возвращает токены."
+          },
+          "description": "Вход по телефону и коду. Возвращает токены."
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"alice@example.com\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Запросить код сброса пароля на email."
+          },
+          "description": "Запросить код сброса пароля на email."
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"alice@example.com\",\"code\":\"123456\",\"password\":\"NewPassw0rd!23\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Сброс пароля по коду."
+          },
+          "description": "Сброс пароля по коду."
+        },
+        {
+          "name": "Verify email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "verify-email"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\":\"123456\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Подтвердить email по коду из письма."
+          },
+          "description": "Подтвердить email по коду из письма."
+        },
+        {
+          "name": "Resend verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "auth",
+                "resend-verification"
+              ]
+            },
+            "description": "Повторно отправить код подтверждения email."
+          },
+          "description": "Повторно отправить код подтверждения email."
         },
         {
           "name": "Refresh",
@@ -1867,6 +2078,67 @@
             "description": "Число непрочитанных уведомлений."
           },
           "description": "Число непрочитанных уведомлений."
+        },
+        {
+          "name": "Delete notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notifId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "notifications",
+                "{{notifId}}"
+              ]
+            },
+            "description": "Удалить одно уведомление."
+          },
+          "description": "Удалить одно уведомление."
+        },
+        {
+          "name": "Delete all notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "notifications"
+              ]
+            },
+            "description": "Удалить все уведомления пользователя."
+          },
+          "description": "Удалить все уведомления пользователя."
         }
       ]
     },
@@ -4236,6 +4508,530 @@
       ]
     },
     {
+      "name": "Admin",
+      "description": "Админка: управление пользователями, бан/разбан, роли, удаление, поиск, рассылка. Требует ADMIN_USER_IDS.",
+      "item": [
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Список пользователей (limit/offset)."
+          },
+          "description": "Список пользователей (limit/offset)."
+        },
+        {
+          "name": "Search users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "alice"
+                }
+              ]
+            },
+            "description": "Поиск пользователей."
+          },
+          "description": "Поиск пользователей."
+        },
+        {
+          "name": "Get user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Профиль пользователя."
+          },
+          "description": "Профиль пользователя."
+        },
+        {
+          "name": "Ban user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/ban",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}",
+                "ban"
+              ]
+            },
+            "description": "Заблокировать пользователя."
+          },
+          "description": "Заблокировать пользователя."
+        },
+        {
+          "name": "Unban user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/unban",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}",
+                "unban"
+              ]
+            },
+            "description": "Разблокировать пользователя."
+          },
+          "description": "Разблокировать пользователя."
+        },
+        {
+          "name": "Set role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}",
+                "role"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\":\"admin\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Назначить роль user/admin."
+          },
+          "description": "Назначить роль user/admin."
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Удалить аккаунт."
+          },
+          "description": "Удалить аккаунт."
+        },
+        {
+          "name": "List chats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/chats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "chats"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Все чаты."
+          },
+          "description": "Все чаты."
+        },
+        {
+          "name": "Chat messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/chats/{{chatId}}/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "chats",
+                "{{chatId}}",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Сообщения чата."
+          },
+          "description": "Сообщения чата."
+        },
+        {
+          "name": "Search messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/messages/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "messages",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "привет"
+                }
+              ]
+            },
+            "description": "Поиск сообщений по тексту."
+          },
+          "description": "Поиск сообщений по тексту."
+        },
+        {
+          "name": "Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "devices"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Все устройства."
+          },
+          "description": "Все устройства."
+        },
+        {
+          "name": "User devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "users",
+                "{{userId}}",
+                "devices"
+              ]
+            },
+            "description": "Устройства пользователя."
+          },
+          "description": "Устройства пользователя."
+        },
+        {
+          "name": "Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "stats"
+              ]
+            },
+            "description": "Агрегированная статистика."
+          },
+          "description": "Агрегированная статистика."
+        },
+        {
+          "name": "Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/broadcast",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "",
+                "admin",
+                "broadcast"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Важное\",\"body\":\"Обновитесь\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Рассылка уведомления всем онлайн-пользователям."
+          },
+          "description": "Рассылка уведомления всем онлайн-пользователям."
+        }
+      ]
+    },
+    {
       "name": "Realtime (WebSocket)",
       "description": "Raw WebSocket: подключайтесь через вкладку Postman WebSocket к ws://{{baseUrl}}/ws?token={{accessToken}}. События: message.new, message.read, typing, presence, notification, call.signal. См. WEBSOCKET.md.",
       "item": [
@@ -4291,6 +5087,10 @@
     },
     {
       "key": "messageId",
+      "value": ""
+    },
+    {
+      "key": "notifId",
       "value": ""
     }
   ]

@@ -75,6 +75,19 @@ func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*d
 	return &u, nil
 }
 
+// GetByPhone возвращает пользователя по номеру телефона (если указан).
+func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
+	var u domain.User
+	err := r.db.WithContext(ctx).Where("phone = ?", phone).First(&u).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
 func (r *UserRepository) Update(ctx context.Context, u *domain.User) error {
 	return r.db.WithContext(ctx).Save(u).Error
 }

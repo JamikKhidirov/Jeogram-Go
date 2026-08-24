@@ -1,0 +1,112 @@
+# Аутентификация и подтверждение
+
+Все эндпоинты префикс `/auth`.
+
+## Регистрация
+
+`POST /auth/register`
+
+```json
+{
+  "email": "alice@example.com",
+  "username": "alice",
+  "password": "Passw0rd!23",
+  "phone": "+79001234567"
+}
+```
+
+После успешной регистрации на email (или в лог сервера, если SMTP не настроен)
+отправляется 6-значный код подтверждения. Токены выдаются сразу, но если включён
+флаг `AUTH_REQUIRE_EMAIL_VERIFIED=true` — вход будет запрещён до подтверждения.
+
+Ответ:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": { "id": "uuid", "email": "...", "username": "alice", "display_name": "alice" },
+    "access_token": "ey...",
+    "refresh_token": "ey..."
+  }
+}
+```
+
+## Вход по email + паролю
+
+`POST /auth/login`
+
+```json
+{ "email": "alice@example.com", "password": "Passw0rd!23" }
+```
+
+## Подтверждение email кодом
+
+`POST /auth/verify-email` (требует Bearer)
+
+```json
+{ "code": "123456" }
+```
+
+## Повторная отправка кода
+
+`POST /auth/resend-verification` (требует Bearer) — тело пустое.
+
+## Вход по номеру телефона (OTP)
+
+1. `POST /auth/request-otp`
+
+```json
+{ "phone": "+79001234567" }
+```
+
+Код «отправляется» на email пользователя (если указан) либо пишется в лог сервера
+в dev-режиме.
+
+2. `POST /auth/verify-otp`
+
+```json
+{ "phone": "+79001234567", "code": "123456" }
+```
+
+Возвращает пару токенов, как при обычном логине.
+
+## Сброс пароля
+
+1. `POST /auth/forgot-password`
+
+```json
+{ "email": "alice@example.com" }
+```
+
+Всегда возвращает успех (чтобы не раскрывать наличие аккаунта), но при существующем
+email отправляет код.
+
+2. `POST /auth/reset-password`
+
+```json
+{ "email": "alice@example.com", "code": "123456", "password": "NewPassw0rd!23" }
+```
+
+## Обновление токена
+
+`POST /auth/refresh`
+
+```json
+{ "refresh_token": "ey..." }
+```
+
+## Профиль / выход
+
+- `GET /auth/me` (Bearer) — текущий пользователь.
+- `POST /auth/logout` (Bearer) — отзыв refresh-токена.
+
+## Конфигурация (env)
+
+| Переменная | По умолчанию | Назначение |
+| --- | --- | --- |
+| `AUTH_REQUIRE_EMAIL_VERIFIED` | `false` | требовать подтверждение email для входа |
+| `AUTH_OTP_LENGTH` | `6` | длина OTP/кода |
+| `AUTH_CODE_TTL` | `10m` | время жизни кода |
+| `SMTP_ENABLED` | `false` | включить отправку email через SMTP |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | localhost / 587 / "" / "" / no-reply@jeogram.local | параметры SMTP |

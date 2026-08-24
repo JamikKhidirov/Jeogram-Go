@@ -167,6 +167,16 @@ func (s *NotificationService) UnreadCount(ctx context.Context, userID string) (i
 	return s.notifs.UnreadCount(ctx, userID)
 }
 
+// DeleteOne удаляет одно уведомление пользователя.
+func (s *NotificationService) DeleteOne(ctx context.Context, id, userID string) error {
+	return s.notifs.Delete(ctx, id, userID)
+}
+
+// DeleteAll удаляет все уведомления пользователя.
+func (s *NotificationService) DeleteAll(ctx context.Context, userID string) error {
+	return s.notifs.DeleteAll(ctx, userID)
+}
+
 // Run consumes the message.created topic until the context is cancelled.
 func (s *NotificationService) Run(ctx context.Context, consumer *events.Consumer) {
 	log.Info().Msg("notification consumer started")

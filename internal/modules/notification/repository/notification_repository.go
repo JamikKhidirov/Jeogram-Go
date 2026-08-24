@@ -44,3 +44,13 @@ func (r *NotificationRepository) UnreadCount(ctx context.Context, userID string)
 		Count(&count).Error
 	return count, err
 }
+
+// Delete удаляет одно уведомление (только владельца).
+func (r *NotificationRepository) Delete(ctx context.Context, id, userID string) error {
+	return r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).Delete(&domain.Notification{}).Error
+}
+
+// DeleteAll удаляет все уведомления пользователя.
+func (r *NotificationRepository) DeleteAll(ctx context.Context, userID string) error {
+	return r.db.WithContext(ctx).Where("user_id = ?", userID).Delete(&domain.Notification{}).Error
+}

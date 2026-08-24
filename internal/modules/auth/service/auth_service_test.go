@@ -8,6 +8,7 @@ import (
 	"github.com/jeogram/messenger/internal/modules/auth/domain"
 	"github.com/jeogram/messenger/internal/modules/auth/repository"
 	"github.com/jeogram/messenger/internal/pkg/auth"
+	"github.com/jeogram/messenger/internal/pkg/mail"
 	"github.com/jeogram/messenger/internal/testutil"
 )
 
@@ -15,7 +16,9 @@ func TestAuthService_RegisterLoginMe(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	repo := repository.NewUserRepository(db)
 	jwt := auth.NewJWT(config.JWTConfig{AccessSecret: "a", RefreshSecret: "r", AccessTTL: 0, RefreshTTL: 0})
-	svc := NewAuthService(repo, jwt, nil)
+	vrfRepo := repository.NewVerificationRepository(db)
+	mailer := mail.New(config.SMTPConfig{})
+	svc := NewAuthService(repo, vrfRepo, jwt, nil, mailer, config.AuthConfig{OTPLength: 6, CodeTTL: 10 * 60e9})
 
 	ctx := context.Background()
 	res, err := svc.Register(ctx, domain.RegisterRequest{

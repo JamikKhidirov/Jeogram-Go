@@ -50,6 +50,7 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/events"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
 	dbmigrate "github.com/jeogram/messenger/internal/pkg/migrate"
+	"github.com/jeogram/messenger/internal/pkg/mail"
 	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
@@ -83,6 +84,7 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 func migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&domain.User{},
+		&domain.VerificationCode{},
 		&userdomain.UserSettings{},
 		&userdomain.BlockedUser{},
 		&contactdomain.Contact{},
@@ -174,7 +176,9 @@ func (s *Server) Router() *chi.Mux {
 	contactRepo := contactrepo.NewContactRepository(s.db)
 
 	// Module services.
-	authSvc := service.NewAuthService(userRepo, jwtSvc, s.redis)
+	vrfRepo := repository.NewVerificationRepository(s.db)
+	mailer := mail.New(s.cfg.SMTP)
+	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, s.redis, mailer, s.cfg.Auth)
 	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo)
 	chatSvc := chatService.NewChatService(chatRepo)
 	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, broadcaster, s.cfg.Message)
@@ -196,7 +200,7 @@ func (s *Server) Router() *chi.Mux {
 	notifH := notificationhandler.NewNotificationHandler(notifSvc, jwtSvc)
 	callH := callhandler.NewCallsHandler(callSvc, chatRepo, broadcaster, jwtSvc)
 	contactH := contacthandler.NewContactHandler(contactSvc, jwtSvc)
-	adminH := adminhandler.NewAdminHandler(s.db, jwtSvc, s.cfg.Admin.UserIDs)
+	adminH := adminhandler.NewAdminHandler(s.db, jwtSvc, s.cfg.Admin.UserIDs, broadcaster)
 
 	phoneSvc := phoneservice.NewPhoneService(s.db)
 	phoneH := phonehandler.NewPhoneHandler(phoneSvc, jwtSvc)

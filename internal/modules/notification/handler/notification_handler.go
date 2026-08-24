@@ -39,6 +39,8 @@ func (h *NotificationHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/notifications", h.List)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/notifications/read", h.MarkRead)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/notifications/unread-count", h.UnreadCount)
+	r.With(middleware.JWTAuth(h.jwt)).Delete("/notifications/{id}", h.DeleteOne)
+	r.With(middleware.JWTAuth(h.jwt)).Delete("/notifications", h.DeleteAll)
 }
 
 // RegisterDevice регистрирует push-токен устройства.
@@ -122,6 +124,40 @@ func (h *NotificationHandler) UnreadCount(w http.ResponseWriter, r *http.Request
 		return
 	}
 	response.WriteOK(w, map[string]int64{"unread": n})
+}
+
+// DeleteOne удаляет одно уведомление.
+// @Summary Удалить уведомление
+// @Tags notifications
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id уведомления"
+// @Success 200 {object} response.APIResponse
+// @Router /notifications/{id} [delete]
+func (h *NotificationHandler) DeleteOne(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	if err := h.svc.DeleteOne(r.Context(), id, userID); err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "deleted"})
+}
+
+// DeleteAll удаляет все уведомления пользователя.
+// @Summary Удалить все уведомления
+// @Tags notifications
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /notifications [delete]
+func (h *NotificationHandler) DeleteAll(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	if err := h.svc.DeleteAll(r.Context(), userID); err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "all_deleted"})
 }
 
 func firstErr(errs map[string]string) string {
