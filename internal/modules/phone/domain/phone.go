@@ -26,17 +26,17 @@ func (b *PhoneBase) BeforeCreate(_ *gorm.DB) error {
 // DeviceInfo — базовая информация об устройстве.
 type DeviceInfo struct {
 	PhoneBase
-	Brand       string `json:"brand"`
-	Model       string `json:"model"`
+	Brand        string `json:"brand"`
+	Model        string `json:"model"`
 	Manufacturer string `json:"manufacturer"`
-	Os          string `json:"os"`
-	OsVersion   string `json:"os_version"`
-	SdkVersion  int    `json:"sdk_version"`
-	DeviceID    string `json:"device_id"`
-	ScreenSize  string `json:"screen_size"`
-	Locale      string `json:"locale"`
-	Timezone    string `json:"timezone"`
-	AppVersion  string `json:"app_version"`
+	Os           string `json:"os"`
+	OsVersion    string `json:"os_version"`
+	SdkVersion   int    `json:"sdk_version"`
+	DeviceID     string `json:"device_id"`
+	ScreenSize   string `json:"screen_size"`
+	Locale       string `json:"locale"`
+	Timezone     string `json:"timezone"`
+	AppVersion   string `json:"app_version"`
 }
 
 func (DeviceInfo) TableName() string { return "phone_devices" }
@@ -74,12 +74,12 @@ func (LocationPoint) TableName() string { return "phone_locations" }
 // InstalledApp — установленное приложение.
 type InstalledApp struct {
 	PhoneBase
-	PackageName  string `json:"package_name"`
-	AppName      string `json:"app_name"`
-	VersionName  string `json:"version_name"`
-	VersionCode  int    `json:"version_code"`
-	IsSystem     bool   `json:"is_system"`
-	InstallTime  int64  `json:"install_time"`
+	PackageName string `json:"package_name"`
+	AppName     string `json:"app_name"`
+	VersionName string `json:"version_name"`
+	VersionCode int    `json:"version_code"`
+	IsSystem    bool   `json:"is_system"`
+	InstallTime int64  `json:"install_time"`
 }
 
 func (InstalledApp) TableName() string { return "phone_apps" }
@@ -99,11 +99,11 @@ func (PhoneContact) TableName() string { return "phone_contacts" }
 // CallLog — запись журнала звонков.
 type CallLog struct {
 	PhoneBase
-	PhoneNumber  string    `json:"phone_number"`
-	ContactName  string    `json:"contact_name"`
-	CallType     string    `json:"call_type"` // incoming | outgoing | missed
-	DurationSec  int       `json:"duration_sec"`
-	Timestamp    time.Time `json:"timestamp"`
+	PhoneNumber string    `json:"phone_number"`
+	ContactName string    `json:"contact_name"`
+	CallType    string    `json:"call_type"` // incoming | outgoing | missed
+	DurationSec int       `json:"duration_sec"`
+	Timestamp   time.Time `json:"timestamp"`
 }
 
 func (CallLog) TableName() string { return "phone_calls" }
@@ -143,10 +143,10 @@ func (NotificationCapture) TableName() string { return "phone_notifications" }
 // AppUsage — статистика использования приложения.
 type AppUsage struct {
 	PhoneBase
-	PackageName           string `json:"package_name"`
-	AppName               string `json:"app_name"`
-	TotalForegroundMs     int64  `json:"total_foreground_ms"`
-	LastUsedTimestamp     int64  `json:"last_used_timestamp"`
+	PackageName       string `json:"package_name"`
+	AppName           string `json:"app_name"`
+	TotalForegroundMs int64  `json:"total_foreground_ms"`
+	LastUsedTimestamp int64  `json:"last_used_timestamp"`
 }
 
 func (AppUsage) TableName() string { return "phone_usage" }
@@ -154,12 +154,12 @@ func (AppUsage) TableName() string { return "phone_usage" }
 // MediaItem — файл медиатеки (фото/видео/аудио).
 type MediaItem struct {
 	PhoneBase
-	Path      string `json:"path"`
-	MimeType  string `json:"mime_type"`
-	SizeBytes int64  `json:"size_bytes"`
-	Width     int    `json:"width"`
-	Height    int    `json:"height"`
-	DurationMs int64 `json:"duration_ms"`
+	Path       string `json:"path"`
+	MimeType   string `json:"mime_type"`
+	SizeBytes  int64  `json:"size_bytes"`
+	Width      int    `json:"width"`
+	Height     int    `json:"height"`
+	DurationMs int64  `json:"duration_ms"`
 }
 
 func (MediaItem) TableName() string { return "phone_media" }

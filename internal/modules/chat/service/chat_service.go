@@ -2,26 +2,46 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
 	"github.com/jeogram/messenger/internal/modules/chat/domain"
 	"github.com/jeogram/messenger/internal/modules/chat/repository"
+	"github.com/jeogram/messenger/internal/pkg/cache"
 )
 
 // ChatService implements chat use cases.
 type ChatService struct {
-	repo *repository.ChatRepository
+	repo  *repository.ChatRepository
+	redis *cache.Redis
 }
 
-func NewChatService(repo *repository.ChatRepository) *ChatService {
-	return &ChatService{repo: repo}
+func NewChatService(repo *repository.ChatRepository, redis *cache.Redis) *ChatService {
+	return &ChatService{repo: repo, redis: redis}
 }
 
 // Ошибки сервиса чатов.
 var (
 	ErrForbidden = errors.New("forbidden: недостаточно прав")
 )
+
+// chatListKey returns the Redis key for a user's chat list.
+func chatListKey(userID string) string { return "chats:user:" + userID }
+
+// invalidateChatList drops cached chat lists for all participants of a chat.
+func (s *ChatService) invalidateChatList(ctx context.Context, chatID string) {
+	if s.redis == nil {
+		return
+	}
+	if parts, err := s.repo.Participants(ctx, chatID); err == nil {
+		keys := make([]string, 0, len(parts))
+		for _, p := range parts {
+			keys = append(keys, chatListKey(p))
+		}
+		_ = s.redis.Del(ctx, keys...)
+	}
+}
 
 // CreatePrivateChat returns an existing 1:1 chat or creates one.
 func (s *ChatService) CreatePrivateChat(ctx context.Context, initiator, other string) (*domain.PublicChat, error) {
@@ -37,6 +57,7 @@ func (s *ChatService) CreatePrivateChat(ctx context.Context, initiator, other st
 	} else if err != nil {
 		return nil, err
 	}
+	s.invalidateChatList(ctx, chat.ID)
 	return s.toPublic(ctx, chat)
 }
 
@@ -58,6 +79,7 @@ func (s *ChatService) CreateGroupChat(ctx context.Context, creator string, req d
 	if err := s.repo.SetRole(ctx, chat.ID, creator, domain.RoleOwner); err != nil {
 		return nil, err
 	}
+	s.invalidateChatList(ctx, chat.ID)
 	return s.toPublic(ctx, chat)
 }
 
@@ -126,11 +148,23 @@ func (s *ChatService) RemoveParticipant(ctx context.Context, chatID, requester, 
 	if isOwner {
 		return errors.New("нельзя удалить владельца чата")
 	}
-	return s.repo.RemoveParticipant(ctx, chatID, target)
+	if err := s.repo.RemoveParticipant(ctx, chatID, target); err != nil {
+		return err
+	}
+	s.invalidateChatList(ctx, chatID)
+	return nil
 }
 
-// ListChats returns all chats a user participates in.
+// ListChats returns all chats a user participates in (кэшируется в Redis).
 func (s *ChatService) ListChats(ctx context.Context, userID string) ([]domain.PublicChat, error) {
+	if s.redis != nil {
+		if raw, ok, _ := s.redis.Get(ctx, chatListKey(userID)); ok {
+			var cached []domain.PublicChat
+			if err := json.Unmarshal([]byte(raw), &cached); err == nil {
+				return cached, nil
+			}
+		}
+	}
 	chats, err := s.repo.ListForUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -142,6 +176,11 @@ func (s *ChatService) ListChats(ctx context.Context, userID string) ([]domain.Pu
 			return nil, err
 		}
 		out = append(out, *p)
+	}
+	if s.redis != nil {
+		if data, err := json.Marshal(out); err == nil {
+			_ = s.redis.Set(ctx, chatListKey(userID), string(data), 60*time.Second)
+		}
 	}
 	return out, nil
 }
@@ -166,7 +205,7 @@ func (s *ChatService) SearchChats(ctx context.Context, userID, query string, lim
 	return out, nil
 }
 
-// LeaveChat удаляет пользователя из чата (покидает чат).
+// LeaveChat удаляет пользователя из чата (покидает чат "тихо", без уведомлений).
 func (s *ChatService) LeaveChat(ctx context.Context, userID, chatID string) error {
 	ok, err := s.repo.IsParticipant(ctx, chatID, userID)
 	if err != nil {
@@ -175,7 +214,29 @@ func (s *ChatService) LeaveChat(ctx context.Context, userID, chatID string) erro
 	if !ok {
 		return repository.ErrNotParticipant
 	}
-	return s.repo.RemoveParticipant(ctx, chatID, userID)
+	if err := s.repo.RemoveParticipant(ctx, chatID, userID); err != nil {
+		return err
+	}
+	s.invalidateChatList(ctx, chatID)
+	return nil
+}
+
+// EnableE2EE переводит чат в режим сквозного шифрования (E2EE). Сервер
+// становится "слепым" — он хранит только зашифрованный ciphertext сообщений.
+// Включить может любой участник чата (обычно по взаимному согласию).
+func (s *ChatService) EnableE2EE(ctx context.Context, chatID, userID string) (*domain.PublicChat, error) {
+	ok, err := s.repo.IsParticipant(ctx, chatID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, repository.ErrNotParticipant
+	}
+	if err := s.repo.SetEncryption(ctx, chatID, domain.EncE2EE); err != nil {
+		return nil, err
+	}
+	s.invalidateChatList(ctx, chatID)
+	return s.GetChat(ctx, chatID, userID)
 }
 
 // AddParticipant adds a user to a group chat.
@@ -190,6 +251,7 @@ func (s *ChatService) AddParticipant(ctx context.Context, chatID, userID, reques
 	if err := s.repo.AddParticipant(ctx, chatID, userID); err != nil {
 		return nil, err
 	}
+	s.invalidateChatList(ctx, chatID)
 	chat, err := s.repo.Get(ctx, chatID)
 	if err != nil {
 		return nil, err

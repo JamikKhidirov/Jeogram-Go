@@ -6,6 +6,20 @@ definitions:
       title:
         type: string
     type: object
+  github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        description: user | admin
+        type: string
+      username:
+        type: string
+    type: object
   github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest:
     properties:
       role:
@@ -91,6 +105,9 @@ definitions:
     properties:
       chat_id:
         type: string
+      mode:
+        description: peer | group (SFU-ready)
+        type: string
       type:
         enum:
         - audio
@@ -131,6 +148,29 @@ definitions:
     required:
     - user_id
     type: object
+  github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem:
+    properties:
+      key_id:
+        type: string
+      public_key:
+        type: string
+      signature_key:
+        type: string
+    required:
+    - key_id
+    - public_key
+    - signature_key
+    type: object
+  github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload:
+    properties:
+      prekeys:
+        items:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem'
+        minItems: 1
+        type: array
+    required:
+    - prekeys
+    type: object
   github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest:
     properties:
       text:
@@ -169,6 +209,9 @@ definitions:
       media_url:
         type: string
       reply_to:
+        type: string
+      scheduled_at:
+        description: RFC3339; if set in the future, message is queued
         type: string
       text:
         type: string
@@ -608,6 +651,20 @@ definitions:
       title:
         type: string
     type: object
+  modules_admin_handler.createUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        description: user | admin
+        type: string
+      username:
+        type: string
+    type: object
   modules_admin_handler.setRoleRequest:
     properties:
       role:
@@ -655,6 +712,9 @@ definitions:
     properties:
       chat_id:
         type: string
+      mode:
+        description: peer | group (SFU-ready)
+        type: string
       type:
         enum:
         - audio
@@ -677,7 +737,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest'
+          $ref: '#/definitions/modules_admin_handler.broadcastRequest'
       produces:
       - application/json
       responses:
@@ -825,6 +885,28 @@ paths:
       summary: 'Admin: list users'
       tags:
       - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: данные аккаунта
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/modules_admin_handler.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 'Admin: создать пользователя (включая админа)'
+      tags:
+      - admin
   /admin/users/{id}:
     delete:
       parameters:
@@ -919,7 +1001,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest'
+          $ref: '#/definitions/modules_admin_handler.setRoleRequest'
       produces:
       - application/json
       responses:
@@ -1198,7 +1280,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest'
+          $ref: '#/definitions/modules_calls_handler.startCallRequest'
       produces:
       - application/json
       responses:
@@ -1266,7 +1348,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest'
+          $ref: '#/definitions/modules_calls_handler.setRecordingRequest'
       produces:
       - application/json
       responses:
@@ -1386,6 +1468,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Обновить чат
+      tags:
+      - chat
+  /chats/{chat_id}/e2ee/enable:
+    post:
+      parameters:
+      - description: id чата
+        in: path
+        name: chat_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Включить E2EE для чата
       tags:
       - chat
   /chats/{chat_id}/leave:
@@ -2006,6 +2108,51 @@ paths:
       summary: Входящие запросы
       tags:
       - contacts
+  /e2ee/prekeys:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: prekey bundle
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Upload prekey bundle
+      tags:
+      - e2ee
+  /e2ee/prekeys/{user_id}:
+    get:
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Get a one-time prekey for a user
+      tags:
+      - e2ee
   /media/{type}/{file}:
     get:
       parameters:
@@ -3325,6 +3472,40 @@ paths:
       security:
       - BearerAuth: []
       summary: Список заблокированных
+      tags:
+      - user
+  /user/devices:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Мои устройства
+      tags:
+      - user
+  /user/devices/{platform}:
+    delete:
+      parameters:
+      - description: платформа устройства (ios|android|web)
+        in: path
+        name: platform
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалённый выход с устройства
       tags:
       - user
   /user/export:

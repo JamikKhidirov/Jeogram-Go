@@ -14,9 +14,9 @@ const (
 
 // Contact представляет связь «владелец -> контакт» (запрос или подтверждённый контакт).
 type Contact struct {
-	ID        string       `gorm:"type:uuid;primary_key" json:"id"`
-	OwnerID   string       `gorm:"type:uuid;index" json:"owner_id"`
-	ContactID string       `gorm:"type:uuid;index" json:"contact_id"`
+	ID        string        `gorm:"type:uuid;primary_key" json:"id"`
+	OwnerID   string        `gorm:"type:uuid;index" json:"owner_id"`
+	ContactID string        `gorm:"type:uuid;index" json:"contact_id"`
 	Status    ContactStatus `gorm:"size:16;default:'pending'" json:"status"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`

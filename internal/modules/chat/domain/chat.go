@@ -17,14 +17,24 @@ const (
 	RoleMember string = "member"
 )
 
+// Encryption modes for a chat.
+const (
+	// EncNone means messages are stored in plaintext on the server.
+	EncNone string = "none"
+	// EncE2EE means messages are end-to-end encrypted; the server only stores
+	// opaque ciphertext and never sees the plaintext.
+	EncE2EE string = "e2ee"
+)
+
 // Chat is a conversation container.
 type Chat struct {
-	ID        string    `gorm:"type:uuid;primary_key" json:"id"`
-	Type      ChatType  `gorm:"size:16;not null" json:"type"`
-	Title     string    `gorm:"size:128" json:"title,omitempty"`
-	AvatarURL string    `gorm:"size:512" json:"avatar_url,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `gorm:"type:uuid;primary_key" json:"id"`
+	Type       ChatType  `gorm:"size:16;not null" json:"type"`
+	Title      string    `gorm:"size:128" json:"title,omitempty"`
+	AvatarURL  string    `gorm:"size:512" json:"avatar_url,omitempty"`
+	Encryption string    `gorm:"size:16;not null;default:'none'" json:"encryption"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (Chat) TableName() string { return "chats" }
@@ -46,6 +56,7 @@ type PublicChat struct {
 	Type         ChatType `json:"type"`
 	Title        string   `json:"title,omitempty"`
 	AvatarURL    string   `json:"avatar_url,omitempty"`
+	Encryption   string   `json:"encryption"`
 	Participants []string `json:"participants,omitempty"`
 	CreatedAt    string   `json:"created_at"`
 }

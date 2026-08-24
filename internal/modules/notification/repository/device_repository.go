@@ -52,3 +52,10 @@ func (r *DeviceRepository) ListAll(ctx context.Context, limit, offset int) ([]do
 		Find(&tokens).Error
 	return tokens, err
 }
+
+// Delete removes a single device registration (remote logout of that device).
+func (r *DeviceRepository) Delete(ctx context.Context, userID, platform string) error {
+	return r.db.WithContext(ctx).
+		Where("user_id = ? AND platform = ?", userID, platform).
+		Delete(&domain.DeviceToken{}).Error
+}

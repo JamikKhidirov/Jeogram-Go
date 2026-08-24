@@ -23,10 +23,10 @@ import (
 // admin users. It reads data directly from the database for full visibility
 // (users, their devices/IPs, chats, messages, calls and aggregate stats).
 type AdminHandler struct {
-	db        *gorm.DB
-	jwt       *auth.JWT
-	adminIDs  []string
-	hub       realtime.Broadcaster
+	db       *gorm.DB
+	jwt      *auth.JWT
+	adminIDs []string
+	hub      realtime.Broadcaster
 }
 
 func NewAdminHandler(db *gorm.DB, jwt *auth.JWT, adminIDs []string, hub realtime.Broadcaster) *AdminHandler {
@@ -51,6 +51,7 @@ func (h *AdminHandler) RegisterRoutes(r chi.Router) {
 		}
 	}
 	r.Get("/admin/users", withAdmin(h.ListUsers))
+	r.Post("/admin/users", withAdmin(h.CreateUser))
 	r.Get("/admin/users/{id}", withAdmin(h.GetUser))
 	r.Get("/admin/users/{id}/devices", withAdmin(h.UserDevices))
 	r.Get("/admin/chats", withAdmin(h.ListChats))
@@ -105,7 +106,24 @@ func (h *AdminHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusNotFound, "not_found", "user not found")
 		return
 	}
-	response.WriteOK(w, u)
+	ctx := r.Context()
+	count := func(model interface{}, where ...interface{}) int64 {
+		var n int64
+		q := h.db.WithContext(ctx).Model(model)
+		if len(where) > 0 {
+			q = q.Where(where[0], where[1:]...)
+		}
+		q.Count(&n)
+		return n
+	}
+	detail := map[string]interface{}{
+		"user":     u,
+		"chats":    count(&chatdomain.Chat{}, "id IN (SELECT chat_id FROM chat_participants WHERE user_id = ?)", id),
+		"messages": count(&msgdomain.Message{}, "sender_id = ? AND deleted_at IS NULL", id),
+		"devices":  count(&notifdomain.DeviceToken{}, "user_id = ?", id),
+		"calls":    count(&calldomain.Call{}, "initiator = ?", id),
+	}
+	response.WriteOK(w, detail)
 }
 
 // UserDevices возвращает устройства пользователя (модель, ОС, IP, локаль и т.п.).
@@ -236,11 +254,11 @@ func (h *AdminHandler) Stats(w http.ResponseWriter, r *http.Request) {
 		return n
 	}
 	stats := map[string]int64{
-		"users":      count(&authdomain.User{}),
-		"chats":      count(&chatdomain.Chat{}),
-		"messages":   count(&msgdomain.Message{}),
-		"calls":      count(&calldomain.Call{}),
-		"devices":    count(&notifdomain.DeviceToken{}),
+		"users":    count(&authdomain.User{}),
+		"chats":    count(&chatdomain.Chat{}),
+		"messages": count(&msgdomain.Message{}),
+		"calls":    count(&calldomain.Call{}),
+		"devices":  count(&notifdomain.DeviceToken{}),
 	}
 	response.WriteOK(w, stats)
 }
@@ -271,6 +289,67 @@ func (h *AdminHandler) SearchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, users)
+}
+
+// CreateUser создаёт аккаунт (в том числе админский) от лица администратора.
+//
+//	@Summary	Admin: создать пользователя (включая админа)
+//	@Tags		admin
+//	@Accept		json
+//	@Produce	json
+//	@Param		body	body	createUserRequest	true	"данные аккаунта"
+//	@Success	201		{object}	response.APIResponse
+//	@Router		/admin/users [post]
+//	@Security	BearerAuth
+func (h *AdminHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var req createUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" || req.Username == "" || req.Password == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "email, username and password required")
+		return
+	}
+	role := req.Role
+	if role == "" {
+		role = authdomain.RoleUser
+	}
+	if role != authdomain.RoleUser && role != authdomain.RoleAdmin {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid role")
+		return
+	}
+	hash, err := auth.HashPassword(req.Password)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	u := authdomain.User{
+		Email:        req.Email,
+		Username:     req.Username,
+		Phone:        req.Phone,
+		PasswordHash: hash,
+		DisplayName:  req.Username,
+		Status:       authdomain.StatusActive,
+		Role:         role,
+	}
+	// Проверка уникальности перед вставкой.
+	var dup int64
+	h.db.WithContext(r.Context()).Model(&authdomain.User{}).
+		Where("email = ? OR username = ?", req.Email, req.Username).Count(&dup)
+	if dup > 0 {
+		response.WriteError(w, http.StatusConflict, "conflict", "email or username already in use")
+		return
+	}
+	if err := h.db.WithContext(r.Context()).Create(&u).Error; err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteCreated(w, u)
+}
+
+type createUserRequest struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Phone    string `json:"phone,omitempty"`
+	Role     string `json:"role,omitempty"` // user | admin
 }
 
 func (h *AdminHandler) loadUser(w http.ResponseWriter, r *http.Request) (*authdomain.User, bool) {

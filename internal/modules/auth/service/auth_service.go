@@ -13,6 +13,7 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/mail"
+	"github.com/jeogram/messenger/internal/pkg/webhook"
 )
 
 // ErrInvalidCredentials is returned when login fails.
@@ -23,16 +24,17 @@ var ErrEmailNotVerified = errors.New("email not verified")
 
 // AuthService implements authentication use cases.
 type AuthService struct {
-	repo    *repository.UserRepository
-	vrfRepo *repository.VerificationRepository
-	jwt     *auth.JWT
-	cache   *cache.Redis
-	mailer  *mail.Mailer
-	authCfg config.AuthConfig
+	repo     *repository.UserRepository
+	vrfRepo  *repository.VerificationRepository
+	jwt      *auth.JWT
+	cache    *cache.Redis
+	mailer   *mail.Mailer
+	authCfg  config.AuthConfig
+	webhooks *webhook.Dispatcher
 }
 
-func NewAuthService(repo *repository.UserRepository, vrfRepo *repository.VerificationRepository, jwt *auth.JWT, c *cache.Redis, mailer *mail.Mailer, authCfg config.AuthConfig) *AuthService {
-	return &AuthService{repo: repo, vrfRepo: vrfRepo, jwt: jwt, cache: c, mailer: mailer, authCfg: authCfg}
+func NewAuthService(repo *repository.UserRepository, vrfRepo *repository.VerificationRepository, jwt *auth.JWT, c *cache.Redis, mailer *mail.Mailer, authCfg config.AuthConfig, webhooks *webhook.Dispatcher) *AuthService {
+	return &AuthService{repo: repo, vrfRepo: vrfRepo, jwt: jwt, cache: c, mailer: mailer, authCfg: authCfg, webhooks: webhooks}
 }
 
 // generateCode возвращает случайный числовой код заданной длины.
@@ -60,13 +62,20 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 		Phone:        req.Phone,
 		PasswordHash: hash,
 		DisplayName:  req.Username,
-		Status:      domain.StatusActive,
-		Role:        domain.RoleUser,
+		Status:       domain.StatusActive,
+		Role:         domain.RoleUser,
 	}
 	if err := s.repo.Create(ctx, u); err != nil {
 		return nil, err
 	}
 	s.sendVerification(ctx, u, domain.PurposeEmailVerify)
+	if s.webhooks != nil {
+		s.webhooks.Send("user.registered", map[string]interface{}{
+			"user_id":  u.ID,
+			"email":    u.Email,
+			"username": u.Username,
+		})
+	}
 	return s.issue(ctx, u)
 }
 

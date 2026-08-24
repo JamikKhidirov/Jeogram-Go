@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest"
+                            "$ref": "#/definitions/modules_admin_handler.broadcastRequest"
                         }
                     }
                 ],
@@ -273,6 +273,42 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Admin: создать пользователя (включая админа)",
+                "parameters": [
+                    {
+                        "description": "данные аккаунта",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/modules_admin_handler.createUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
             }
         },
         "/admin/users/search": {
@@ -475,7 +511,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest"
+                            "$ref": "#/definitions/modules_admin_handler.setRoleRequest"
                         }
                     }
                 ],
@@ -887,7 +923,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest"
+                            "$ref": "#/definitions/modules_calls_handler.startCallRequest"
                         }
                     }
                 ],
@@ -1081,7 +1117,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest"
+                            "$ref": "#/definitions/modules_calls_handler.setRecordingRequest"
                         }
                     }
                 ],
@@ -1291,6 +1327,39 @@ const docTemplate = `{
                         "schema": {
                             "type": "object"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/chats/{chat_id}/e2ee/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Включить E2EE для чата",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2185,6 +2254,83 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "id отправителя запроса",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/e2ee/prekeys": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "e2ee"
+                ],
+                "summary": "Upload prekey bundle",
+                "parameters": [
+                    {
+                        "description": "prekey bundle",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/e2ee/prekeys/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "e2ee"
+                ],
+                "summary": "Get a one-time prekey for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
                         "name": "user_id",
                         "in": "path",
                         "required": true
@@ -4384,6 +4530,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/devices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Мои устройства",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/devices/{platform}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Удалённый выход с устройства",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "платформа устройства (ios|android|web)",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/export": {
             "get": {
                 "security": [
@@ -4628,6 +4831,27 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "user | admin",
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest": {
             "type": "object",
             "properties": {
@@ -4760,6 +4984,10 @@ const docTemplate = `{
                 "chat_id": {
                     "type": "string"
                 },
+                "mode": {
+                    "description": "peer | group (SFU-ready)",
+                    "type": "string"
+                },
                 "type": {
                     "type": "string",
                     "enum": [
@@ -4812,6 +5040,40 @@ const docTemplate = `{
             "properties": {
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem": {
+            "type": "object",
+            "required": [
+                "key_id",
+                "public_key",
+                "signature_key"
+            ],
+            "properties": {
+                "key_id": {
+                    "type": "string"
+                },
+                "public_key": {
+                    "type": "string"
+                },
+                "signature_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload": {
+            "type": "object",
+            "required": [
+                "prekeys"
+            ],
+            "properties": {
+                "prekeys": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem"
+                    }
                 }
             }
         },
@@ -4877,6 +5139,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reply_to": {
+                    "type": "string"
+                },
+                "scheduled_at": {
+                    "description": "RFC3339; if set in the future, message is queued",
                     "type": "string"
                 },
                 "text": {
@@ -5538,6 +5804,27 @@ const docTemplate = `{
                 }
             }
         },
+        "modules_admin_handler.createUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "user | admin",
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "modules_admin_handler.setRoleRequest": {
             "type": "object",
             "properties": {
@@ -5614,6 +5901,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "chat_id": {
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "peer | group (SFU-ready)",
                     "type": "string"
                 },
                 "type": {

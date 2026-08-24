@@ -26,11 +26,11 @@ type User struct {
 
 // User statuses and roles.
 const (
-	StatusActive   = "active"
-	StatusBanned   = "banned"
+	StatusActive    = "active"
+	StatusBanned    = "banned"
 	StatusSuspended = "suspended"
-	RoleUser       = "user"
-	RoleAdmin      = "admin"
+	RoleUser        = "user"
+	RoleAdmin       = "admin"
 )
 
 func (User) TableName() string { return "users" }

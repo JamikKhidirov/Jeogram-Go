@@ -45,6 +45,7 @@ func (h *ChatHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/participants", h.Participants)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/search", h.Search)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/leave", h.Leave)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/e2ee/enable", h.EnableE2EE)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/mute", h.Mute)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/chats/{chat_id}/mute", h.Unmute)
 }
@@ -88,6 +89,25 @@ func (h *ChatHandler) Leave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "left"})
+}
+
+// EnableE2EE включает сквозное шифрование для чата (сервер хранит только ciphertext).
+// @Summary Включить E2EE для чата
+// @Tags chat
+// @Produce json
+// @Security BearerAuth
+// @Param chat_id path string true "id чата"
+// @Success 200 {object} response.APIResponse
+// @Router /chats/{chat_id}/e2ee/enable [post]
+func (h *ChatHandler) EnableE2EE(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	chatID := chi.URLParam(r, "chat_id")
+	chat, err := h.svc.EnableE2EE(r.Context(), chatID, userID)
+	if err != nil {
+		writeChatError(w, err)
+		return
+	}
+	response.WriteOK(w, chat)
 }
 
 // List возвращает список чатов пользователя.

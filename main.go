@@ -91,6 +91,9 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to build server")
 	}
 
+	// Фоновые воркеры (публикация отложенных сообщений и т.п.).
+	server.StartWorkers(ctx)
+
 	// Notification microservice (Kafka consumer) inside the monolith.
 	userRepo := authrepo.NewUserRepository(db)
 	chatRepo := chatrepo.NewChatRepository(db)

@@ -8,7 +8,16 @@
 
 - `GET /admin/users?limit=50&offset=0` — список пользователей.
 - `GET /admin/users/search?q=alice` — поиск.
-- `GET /admin/users/{id}` — профиль (email, телефон, IP, статус, роль).
+- `GET /admin/users/{id}` — профиль (email, телефон, IP, статус, роль) + агрегаты:
+  число чатов, сообщений, устройств и звонков пользователя.
+- `POST /admin/users` — создать аккаунт от лица админа:
+
+```json
+{ "email": "user@example.com", "phone": "+7900000000", "password": "secret123", "role": "user" }
+```
+
+`role` — `user` (по умолчанию) или `admin`. Возвращает созданный профиль.
+Дубликат email/телефона отклоняется с `409`.
 - `GET /admin/users/{id}/devices` — устройства пользователя.
 - `POST /admin/users/{id}/ban` — заблокировать (`status=banned`).
 - `POST /admin/users/{id}/unban` — разблокировать.

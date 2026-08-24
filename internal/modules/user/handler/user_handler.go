@@ -48,6 +48,8 @@ func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/presence", h.Presence)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/user/account", h.DeleteAccount)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/export", h.Export)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/user/devices", h.ListDevices)
+	r.With(middleware.JWTAuth(h.jwt)).Delete("/user/devices/{platform}", h.RemoveDevice)
 }
 
 // GetProfile возвращает профиль текущего пользователя.
@@ -289,4 +291,43 @@ func firstErr(errs map[string]string) string {
 		return v
 	}
 	return "validation failed"
+}
+
+// ListDevices возвращает активные устройства пользователя («Мои устройства»).
+// @Summary Мои устройства
+// @Tags user
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /user/devices [get]
+func (h *UserHandler) ListDevices(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	devices, err := h.svc.ListDevices(r.Context(), userID)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, devices)
+}
+
+// RemoveDevice удаляет регистрацию устройства (удалённый выход с устройства).
+// @Summary Удалённый выход с устройства
+// @Tags user
+// @Produce json
+// @Security BearerAuth
+// @Param platform path string true "платформа устройства (ios|android|web)"
+// @Success 200 {object} response.APIResponse
+// @Router /user/devices/{platform} [delete]
+func (h *UserHandler) RemoveDevice(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	platform := chi.URLParam(r, "platform")
+	if platform == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "platform required")
+		return
+	}
+	if err := h.svc.RemoveDevice(r.Context(), userID, platform); err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "device_removed", "platform": platform})
 }

@@ -5,8 +5,9 @@ import (
 	"testing"
 
 	"github.com/jeogram/messenger/internal/modules/auth/repository"
-	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
+	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
+	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	userrepo "github.com/jeogram/messenger/internal/modules/user/repository"
 	"github.com/jeogram/messenger/internal/testutil"
 )
@@ -17,7 +18,8 @@ func TestUserService_BlockUnblock(t *testing.T) {
 	settingsRepo := userrepo.NewSettingsRepository(db)
 	contactRepo := contactrepo.NewContactRepository(db)
 	chatRepo := chatrepo.NewChatRepository(db)
-	svc := NewUserService(userRepo, settingsRepo, contactRepo, chatRepo)
+	deviceRepo := notificationrepo.NewDeviceRepository(db)
+	svc := NewUserService(userRepo, settingsRepo, contactRepo, chatRepo, deviceRepo)
 	ctx := context.Background()
 
 	// u1 не может заблокировать самого себя.

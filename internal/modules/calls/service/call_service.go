@@ -9,6 +9,7 @@ import (
 	"github.com/jeogram/messenger/internal/modules/calls/domain"
 	"github.com/jeogram/messenger/internal/modules/calls/repository"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
+	"github.com/jeogram/messenger/internal/pkg/webhook"
 )
 
 // ErrForbidden indicates the user may not act on the call.
@@ -16,13 +17,14 @@ var ErrForbidden = errors.New("forbidden")
 
 // CallService manages call lifecycle.
 type CallService struct {
-	repo  *repository.CallRepository
-	chats *chatrepo.ChatRepository
-	rtc   config.RTCConfig
+	repo     *repository.CallRepository
+	chats    *chatrepo.ChatRepository
+	rtc      config.RTCConfig
+	webhooks *webhook.Dispatcher
 }
 
-func NewCallService(repo *repository.CallRepository, chats *chatrepo.ChatRepository, rtc config.RTCConfig) *CallService {
-	return &CallService{repo: repo, chats: chats, rtc: rtc}
+func NewCallService(repo *repository.CallRepository, chats *chatrepo.ChatRepository, rtc config.RTCConfig, webhooks *webhook.Dispatcher) *CallService {
+	return &CallService{repo: repo, chats: chats, rtc: rtc, webhooks: webhooks}
 }
 
 // ICEServers returns the STUN/TURN configuration for WebRTC negotiation.
@@ -66,7 +68,8 @@ func (s *CallService) SetRecording(ctx context.Context, id, userID, url string) 
 }
 
 // Start records a new call if the initiator belongs to the chat.
-func (s *CallService) Start(ctx context.Context, initiator, chatID string, callType domain.CallType) (*domain.Call, error) {
+// mode задаёт peer-to-peer или групповой (SFU-ready) режим звонка.
+func (s *CallService) Start(ctx context.Context, initiator, chatID string, callType domain.CallType, mode domain.CallMode) (*domain.Call, error) {
 	ok, err := s.chats.IsParticipant(ctx, chatID, initiator)
 	if err != nil {
 		return nil, err
@@ -74,9 +77,21 @@ func (s *CallService) Start(ctx context.Context, initiator, chatID string, callT
 	if !ok {
 		return nil, ErrForbidden
 	}
-	c := &domain.Call{ChatID: chatID, Initiator: initiator, Type: callType}
+	if mode == "" {
+		mode = domain.CallModePeer
+	}
+	c := &domain.Call{ChatID: chatID, Initiator: initiator, Type: callType, Mode: mode}
 	if err := s.repo.Create(ctx, c); err != nil {
 		return nil, err
+	}
+	if s.webhooks != nil {
+		s.webhooks.Send("call.started", map[string]interface{}{
+			"call_id":   c.ID,
+			"chat_id":   c.ChatID,
+			"initiator": c.Initiator,
+			"type":      string(c.Type),
+			"mode":      string(c.Mode),
+		})
 	}
 	return c, nil
 }

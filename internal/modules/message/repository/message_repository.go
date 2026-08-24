@@ -205,6 +205,16 @@ func (r *MessageRepository) DeleteAll(ctx context.Context, chatID string) error 
 		Delete(&domain.Message{}).Error
 }
 
+// DueScheduled возвращает отложенные сообщения, время публикации которых наступило.
+func (r *MessageRepository) DueScheduled(ctx context.Context, now time.Time) ([]domain.Message, error) {
+	var msgs []domain.Message
+	err := r.db.WithContext(ctx).
+		Where("status = ? AND scheduled_at IS NOT NULL AND scheduled_at <= ?", domain.StatusScheduled, now).
+		Order("scheduled_at ASC").
+		Find(&msgs).Error
+	return msgs, err
+}
+
 // ListMedia возвращает медиа-сообщения чата (изображения и голосовые).
 func (r *MessageRepository) ListMedia(ctx context.Context, chatID string, limit int) ([]domain.Message, error) {
 	var msgs []domain.Message

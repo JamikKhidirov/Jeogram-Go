@@ -4,8 +4,12 @@
 
 ## Управление звонком
 
-- `POST /calls` — начать звонок: `{ "chat_id": "uuid", "type": "video" | "audio" }`.
-  Участникам чата через WebSocket приходит событие `call.started`.
+- `POST /calls` — начать звонок:
+  `{ "chat_id": "uuid", "type": "video" | "audio", "mode": "peer" | "group" }`.
+  `mode` по умолчанию `peer` (1-на-1). `mode=group` переводит звонок в групповой
+  режим (SFU-ready) — сигналинг сохраняет пересылку по всем участникам чата,
+  готовую к SFU-маршрутизации медиапотоков. Участникам чата через WebSocket
+  приходит событие `call.started`.
 - `POST /calls/{id}/end` — завершить (только инициатор).
 - `GET /calls/{id}` — информация о звонке.
 - `GET /calls/history?limit=50&offset=0` — история звонков пользователя.

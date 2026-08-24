@@ -6,8 +6,10 @@ import (
 
 	authdomain "github.com/jeogram/messenger/internal/modules/auth/domain"
 	authrepo "github.com/jeogram/messenger/internal/modules/auth/repository"
-	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
+	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
+	notificationdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
+	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	"github.com/jeogram/messenger/internal/modules/user/domain"
 	userrepo "github.com/jeogram/messenger/internal/modules/user/repository"
 )
@@ -18,10 +20,11 @@ type UserService struct {
 	settings *userrepo.SettingsRepository
 	contacts *contactrepo.ContactRepository
 	chats    *chatrepo.ChatRepository
+	devices  *notificationrepo.DeviceRepository
 }
 
-func NewUserService(users *authrepo.UserRepository, settings *userrepo.SettingsRepository, contacts *contactrepo.ContactRepository, chats *chatrepo.ChatRepository) *UserService {
-	return &UserService{users: users, settings: settings, contacts: contacts, chats: chats}
+func NewUserService(users *authrepo.UserRepository, settings *userrepo.SettingsRepository, contacts *contactrepo.ContactRepository, chats *chatrepo.ChatRepository, devices *notificationrepo.DeviceRepository) *UserService {
+	return &UserService{users: users, settings: settings, contacts: contacts, chats: chats, devices: devices}
 }
 
 // GetProfile returns a public profile for a user.
@@ -130,6 +133,17 @@ func (s *UserService) DeleteAccount(ctx context.Context, userID string) error {
 		}
 	}
 	return s.users.Delete(ctx, userID)
+}
+
+// ListDevices возвращает активные устройства пользователя (платформа, модель,
+// ОС, IP, время регистрации/обновления) — основа функции «Мои устройства».
+func (s *UserService) ListDevices(ctx context.Context, userID string) ([]notificationdomain.DeviceToken, error) {
+	return s.devices.TokensForUser(ctx, userID)
+}
+
+// RemoveDevice удаляет регистрацию устройства (удалённый выход с устройства).
+func (s *UserService) RemoveDevice(ctx context.Context, userID, platform string) error {
+	return s.devices.Delete(ctx, userID, platform)
 }
 
 // Export возвращает полную выгрузку данных аккаунта (GDPR-экспорт):

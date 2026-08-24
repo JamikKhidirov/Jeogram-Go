@@ -12,7 +12,7 @@ import (
 func TestChatService_PrivateAndGroup(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	repo := repository.NewChatRepository(db)
-	svc := NewChatService(repo)
+	svc := NewChatService(repo, nil)
 	ctx := context.Background()
 
 	// Приватный чат создаётся и повторный вызов возвращает тот же чат.
@@ -64,7 +64,7 @@ func TestChatService_PrivateAndGroup(t *testing.T) {
 func TestChatService_AdminPermissions(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	repo := repository.NewChatRepository(db)
-	svc := NewChatService(repo)
+	svc := NewChatService(repo, nil)
 	ctx := context.Background()
 
 	g, err := svc.CreateGroupChat(ctx, "owner", domain.CreateGroupChatRequest{

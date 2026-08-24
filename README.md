@@ -39,6 +39,22 @@
   телефона через OTP; сброс пароля по коду.
 - **Админка**: бан/разбан, роли, удаление пользователей, поиск, рассылка уведомлений,
   статистика, просмотр устройств и сообщений.
+- **Создание аккаунтов админом**: `POST /admin/users` (роль `user`/`admin`) +
+  расширенная сводка профиля (число чатов, сообщений, устройств, звонков).
+- **Кэширование (Redis)**: списки чатов и история сообщений кэшируются в Redis
+  (TTL 60с / 30с) с инвалидацией при мутациях — снижает нагрузку на БД.
+- **Отложенные сообщения**: поле `scheduled_at` — сообщение публикуется фоновым
+  воркером в назначенное время (`status: scheduled` → `sent`).
+- **Webhook-уведомления**: исходящие HTTP-вебхуки (`WEBHOOK_URLS`) на события
+  `user.registered`, `message.created`, `call.started` для внешних интеграций.
+- **Сквозное шифрование (E2EE)**: режим чата `encryption=e2ee`, хранение prekey-связок
+  (`PUT /e2ee/prekeys`, `GET /e2ee/prekeys/{user_id}`); сервер хранит только шифротекст.
+- **Групповые звонки (SFU-ready)**: `mode=group` (наряду с `mode=peer`) — сигналинг
+  готов к SFU-маршрутизации медиапотоков.
+- **Мои устройства**: список активных сессий (`GET /user/devices`) и удалённый выход
+  с устройства (`DELETE /user/devices/{platform}`).
+- **Батч-телеметрия**: эндпоинты `/phone/*` принимают массивы записей одним запросом
+  (контакты, звонки, СМС, приложения и т.д.).
 - **Версионные миграции**: SQL-миграции (`internal/pkg/migrate/migrations`) + AutoMigrate.
 
 ## Документация
@@ -429,7 +445,17 @@ WS   /calls/ws             (WebRTC-сигналинг)
 WS   /ws                   (real-time сообщения, raw WebSocket)
 IO   /socket.io            (real-time сообщения, Socket.IO v2)
 
+# --- Кэш, отложенные сообщения, E2EE, устройства ---
+POST /chats/{id}/e2ee/enable                 # включить E2EE-режим чата (admin/owner)
+POST /messages              { ..., "scheduled_at": "2026-01-01T12:00:00Z" }  # отложенная публикация
+PUT  /e2ee/prekeys         { "prekeys":[...], "signed_prekey":"...", "identity_key":"..." }
+GET  /e2ee/prekeys/{user_id}                 # prekey-связка пользователя (для E2EE)
+POST /calls                { "chat_id":"...", "type":"audio|video", "mode":"peer|group" }
+GET  /user/devices                                   # «Мои устройства»
+DELETE /user/devices/{platform}                      # удалённый выход с устройства
+
 # --- Админка (только для ADMIN_USER_IDS, см. ADMIN.md) ---
+POST /admin/users                  { "email":"...", "password":"...", "role":"user|admin" }  # создать аккаунт
 GET  /admin/users                  # список пользователей (IP, User-Agent)
 GET  /admin/users/{id}             # профиль пользователя
 GET  /admin/users/{id}/devices     # устройства (модель, ОС, app, локаль, IP)

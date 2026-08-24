@@ -15,6 +15,7 @@
 - [Уведомления](notifications.md)
 - [Realtime: WebSocket и Socket.IO](realtime.md)
 - [Админка](admin.md)
+- [Webhook-уведомления](webhooks.md)
 - [Развёртывание (Docker)](deployment.md)
 
 ## Базовый URL

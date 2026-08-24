@@ -36,8 +36,8 @@ func NewRateLimitMiddleware(limiter Limiter, config LimitConfig) func(http.Handl
 
 // Predefined limits
 var (
-	AuthLimit = LimitConfig{Name: "auth", Rate: 5, Window: 60}        // 5 per minute
+	AuthLimit    = LimitConfig{Name: "auth", Rate: 5, Window: 60}      // 5 per minute
 	MessageLimit = LimitConfig{Name: "messages", Rate: 30, Window: 60} // 30 per minute
-	SearchLimit = LimitConfig{Name: "search", Rate: 10, Window: 60}    // 10 per minute
-	BlockLimit = LimitConfig{Name: "block", Rate: 20, Window: 60}      // 20 per minute
+	SearchLimit  = LimitConfig{Name: "search", Rate: 10, Window: 60}   // 10 per minute
+	BlockLimit   = LimitConfig{Name: "block", Rate: 20, Window: 60}    // 20 per minute
 )

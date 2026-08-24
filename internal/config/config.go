@@ -26,6 +26,7 @@ type Config struct {
 	Message  MessageConfig
 	SMTP     SMTPConfig
 	Auth     AuthConfig
+	Webhooks WebhookConfig
 }
 
 // SMTPConfig holds SMTP credentials used to send verification/password-reset codes.
@@ -41,8 +42,16 @@ type SMTPConfig struct {
 // AuthConfig holds authentication behaviour (email verification, OTP, etc.).
 type AuthConfig struct {
 	RequireEmailVerified bool
-	OTPLength           int
-	CodeTTL             time.Duration
+	OTPLength            int
+	CodeTTL              time.Duration
+}
+
+// WebhookConfig holds outbound webhook subscriber URLs.
+type WebhookConfig struct {
+	// URLs is the list of subscriber endpoints that receive event notifications.
+	URLs []string
+	// Timeout is the per-request HTTP timeout for delivering an event.
+	Timeout time.Duration
 }
 
 // AdminConfig holds the list of user IDs that are granted admin access.
@@ -132,10 +141,10 @@ type PushConfig struct {
 
 // RTCConfig holds WebRTC STUN/TURN servers used by calls.
 type RTCConfig struct {
-	STUNServers []string
-	TURNServers []string
-	TURNUser    string
-	TURNPassword string
+	STUNServers      []string
+	TURNServers      []string
+	TURNUser         string
+	TURNPassword     string
 	RecordingEnabled bool
 	RecordingDir     string
 }
@@ -229,8 +238,12 @@ func Load() (*Config, error) {
 		},
 		Auth: AuthConfig{
 			RequireEmailVerified: getEnvBool("AUTH_REQUIRE_EMAIL_VERIFIED", false),
-			OTPLength:           getEnvInt("AUTH_OTP_LENGTH", 6),
-			CodeTTL:             getEnvDuration("AUTH_CODE_TTL", 10*time.Minute),
+			OTPLength:            getEnvInt("AUTH_OTP_LENGTH", 6),
+			CodeTTL:              getEnvDuration("AUTH_CODE_TTL", 10*time.Minute),
+		},
+		Webhooks: WebhookConfig{
+			URLs:    getEnvSlice("WEBHOOK_URLS", nil),
+			Timeout: getEnvDuration("WEBHOOK_TIMEOUT", 5*time.Second),
 		},
 	}
 

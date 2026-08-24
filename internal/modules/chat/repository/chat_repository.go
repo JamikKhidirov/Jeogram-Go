@@ -166,6 +166,12 @@ func (r *ChatRepository) UpdateChat(ctx context.Context, chat *domain.Chat) erro
 	}).Error
 }
 
+// SetEncryption changes the encryption mode of a chat (e.g. enable E2EE).
+func (r *ChatRepository) SetEncryption(ctx context.Context, chatID, encryption string) error {
+	return r.db.WithContext(ctx).Model(&domain.Chat{}).
+		Where("id = ?", chatID).Update("encryption", encryption).Error
+}
+
 func (r *ChatRepository) AddParticipant(ctx context.Context, chatID, userID string) error {
 	cp := domain.ChatParticipant{ChatID: chatID, UserID: userID, Role: "member", JoinedAt: time.Now()}
 	return r.db.WithContext(ctx).Create(&cp).Error

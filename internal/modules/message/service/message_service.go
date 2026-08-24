@@ -2,15 +2,19 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/jeogram/messenger/internal/config"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
 	"github.com/jeogram/messenger/internal/modules/message/domain"
 	msgrepo "github.com/jeogram/messenger/internal/modules/message/repository"
+	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/events"
 	"github.com/jeogram/messenger/internal/pkg/realtime"
+	"github.com/jeogram/messenger/internal/pkg/webhook"
 	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
 )
@@ -20,19 +24,40 @@ var ErrForbidden = errors.New("forbidden")
 
 // MessageService implements messaging use cases and publishes domain events.
 type MessageService struct {
-	repo    *msgrepo.MessageRepository
-	chats   *chatrepo.ChatRepository
-	kafka   *events.Producer
-	topics  config.KafkaConfig
-	hub     realtime.Broadcaster
-	msgCfg  config.MessageConfig
+	repo     *msgrepo.MessageRepository
+	chats    *chatrepo.ChatRepository
+	kafka    *events.Producer
+	topics   config.KafkaConfig
+	hub      realtime.Broadcaster
+	msgCfg   config.MessageConfig
+	redis    *cache.Redis
+	webhooks *webhook.Dispatcher
 }
 
-func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster, msgCfg config.MessageConfig) *MessageService {
-	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub, msgCfg: msgCfg}
+func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster, msgCfg config.MessageConfig, redis *cache.Redis, webhooks *webhook.Dispatcher) *MessageService {
+	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub, msgCfg: msgCfg, redis: redis, webhooks: webhooks}
+}
+
+// msgListKey returns the Redis key for a chat's message list page.
+func msgListKey(chatID string, limit, offset int) string {
+	return "msgs:chat:" + chatID + ":" + strconv.Itoa(limit) + ":" + strconv.Itoa(offset)
+}
+
+// invalidateMsgCache drops cached message lists for a chat.
+func (s *MessageService) invalidateMsgCache(ctx context.Context, chatID string) {
+	if s.redis == nil {
+		return
+	}
+	// Удаляем все страницы кэша сообщений чата (паттерн через DEL по ключам не
+	// поддерживается в базовом клиенте, поэтому инвалидируем типовые лимиты).
+	for _, lim := range []int{20, 50, 100} {
+		_ = s.redis.Del(ctx, msgListKey(chatID, lim, 0))
+	}
 }
 
 // Send stores a message and publishes a MessageCreated event to Kafka.
+// Если указан scheduled_at в будущем, сообщение сохраняется со статусом
+// "scheduled" и публикуется фоновым воркером в назначенное время.
 func (s *MessageService) Send(ctx context.Context, senderID string, req domain.SendMessageRequest) (*domain.PublicMessage, error) {
 	ok, err := s.chats.IsParticipant(ctx, req.ChatID, senderID)
 	if err != nil {
@@ -54,17 +79,41 @@ func (s *MessageService) Send(ctx context.Context, senderID string, req domain.S
 		Type:     domain.MessageType(req.Type),
 		Text:     req.Text,
 		MediaURL: req.MediaURL,
+		Status:   domain.StatusSent,
 	}
 	if req.ReplyTo != "" {
 		msg.ReplyToID = &req.ReplyTo
 	}
+
+	// Отложенная публикация.
+	if req.ScheduledAt != "" {
+		if t, perr := time.Parse(time.RFC3339, req.ScheduledAt); perr == nil && t.After(time.Now()) {
+			msg.Status = domain.StatusScheduled
+			msg.ScheduledAt = &t
+			msg.CreatedAt = t
+		}
+	}
+
 	if err := s.repo.Create(ctx, msg); err != nil {
 		return nil, err
 	}
+	s.invalidateMsgCache(ctx, req.ChatID)
 	if err := s.chats.Touch(ctx, req.ChatID); err != nil {
 		log.Warn().Err(err).Msg("could not touch chat")
 	}
 
+	// Отложенные сообщения не доставляются сразу — их опубликует воркер.
+	if msg.Status == domain.StatusScheduled {
+		return s.toPublic(ctx, msg)
+	}
+
+	s.deliver(ctx, msg)
+	return s.toPublic(ctx, msg)
+}
+
+// deliver публикует уже сохранённое (и готовое к отправке) сообщение:
+// Kafka-событие, realtime-доставка участникам и webhook-уведомление.
+func (s *MessageService) deliver(ctx context.Context, msg *domain.Message) {
 	event := events.MessageCreatedEvent{
 		MessageID: msg.ID,
 		ChatID:    msg.ChatID,
@@ -79,24 +128,45 @@ func (s *MessageService) Send(ctx context.Context, senderID string, req domain.S
 			log.Error().Err(err).Msg("failed to publish message.created event")
 		}
 	}
-
-	// Realtime-доставка всем участникам чата через WebSocket-хаб.
-	// Публикация в Kafka используется для внешних консьюмеров (search/analytics),
-	// а мгновенная доставка в WS делается здесь, чтобы клиенты получали
-	// сообщения в реальном времени независимо от наличия Kafka.
 	if s.hub != nil {
 		if pm, err := s.toPublic(ctx, msg); err == nil {
-			participants, perr := s.chats.Participants(ctx, msg.ChatID)
-			if perr == nil {
+			if participants, perr := s.chats.Participants(ctx, msg.ChatID); perr == nil {
 				s.hub.SendToUsers(participants, ws.Outbound{Type: "message.new", Payload: pm})
 			}
 		}
 	}
+	if s.webhooks != nil {
+		s.webhooks.Send("message.created", event)
+	}
+}
 
-	return s.toPublic(ctx, msg)
+// PublishDueScheduled публикует все отложенные сообщения, время которых наступило.
+// Вызывается периодически из фонового воркера.
+func (s *MessageService) PublishDueScheduled(ctx context.Context) (int, error) {
+	due, err := s.repo.DueScheduled(ctx, time.Now())
+	if err != nil {
+		return 0, err
+	}
+	count := 0
+	for _, msg := range due {
+		msg.Status = domain.StatusSent
+		msg.ScheduledAt = nil
+		if err := s.repo.Update(ctx, &msg); err != nil {
+			log.Error().Err(err).Msg("scheduled message publish failed")
+			continue
+		}
+		s.invalidateMsgCache(ctx, msg.ChatID)
+		if err := s.chats.Touch(ctx, msg.ChatID); err != nil {
+			log.Warn().Err(err).Msg("could not touch chat for scheduled message")
+		}
+		s.deliver(ctx, &msg)
+		count++
+	}
+	return count, nil
 }
 
 // List returns messages for a chat (access-checked), с реакциями/закрепами/ответами.
+// Результат кэшируется в Redis по ключу страницы.
 func (s *MessageService) List(ctx context.Context, chatID, userID string, limit, offset int) ([]domain.PublicMessage, error) {
 	ok, err := s.chats.IsParticipant(ctx, chatID, userID)
 	if err != nil {
@@ -108,11 +178,28 @@ func (s *MessageService) List(ctx context.Context, chatID, userID string, limit,
 	if limit <= 0 || limit > 100 {
 		limit = 50
 	}
+	if s.redis != nil {
+		if raw, ok2, _ := s.redis.Get(ctx, msgListKey(chatID, limit, offset)); ok2 {
+			var cached []domain.PublicMessage
+			if err := json.Unmarshal([]byte(raw), &cached); err == nil {
+				return cached, nil
+			}
+		}
+	}
 	msgs, err := s.repo.List(ctx, chatID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	return s.toPublicBulk(ctx, msgs)
+	out, err := s.toPublicBulk(ctx, msgs)
+	if err != nil {
+		return nil, err
+	}
+	if s.redis != nil {
+		if data, err := json.Marshal(out); err == nil {
+			_ = s.redis.Set(ctx, msgListKey(chatID, limit, offset), string(data), 30*time.Second)
+		}
+	}
+	return out, nil
 }
 
 // Edit updates the text of a message (sender only). Editing is allowed only
@@ -135,6 +222,7 @@ func (s *MessageService) Edit(ctx context.Context, messageID, userID, text strin
 	if err := s.repo.Update(ctx, msg); err != nil {
 		return nil, err
 	}
+	s.invalidateMsgCache(ctx, msg.ChatID)
 	if s.hub != nil {
 		if pm, err := s.toPublic(ctx, msg); err == nil {
 			if participants, perr := s.chats.Participants(ctx, msg.ChatID); perr == nil {
@@ -156,7 +244,11 @@ func (s *MessageService) Delete(ctx context.Context, messageID, userID string) e
 	}
 	now := time.Now()
 	msg.DeletedAt = &now
-	return s.repo.Update(ctx, msg)
+	if err := s.repo.Update(ctx, msg); err != nil {
+		return err
+	}
+	s.invalidateMsgCache(ctx, msg.ChatID)
+	return nil
 }
 
 // MarkRead records read receipts for the given messages.
@@ -210,7 +302,11 @@ func (s *MessageService) ClearHistory(ctx context.Context, userID, chatID string
 	if !ok {
 		return ErrForbidden
 	}
-	return s.repo.DeleteAll(ctx, chatID)
+	if err := s.repo.DeleteAll(ctx, chatID); err != nil {
+		return err
+	}
+	s.invalidateMsgCache(ctx, chatID)
+	return nil
 }
 
 // ListMedia возвращает медиа-сообщения чата.
@@ -251,6 +347,7 @@ func (s *MessageService) DeleteForAll(ctx context.Context, chatID, messageID, re
 	if err := s.repo.Update(ctx, msg); err != nil {
 		return err
 	}
+	s.invalidateMsgCache(ctx, msg.ChatID)
 	if s.hub != nil {
 		if participants, perr := s.chats.Participants(ctx, chatID); perr == nil {
 			s.hub.SendToUsers(participants, ws.Outbound{Type: "message.deleted_for_all", Payload: map[string]interface{}{
@@ -335,6 +432,7 @@ func (s *MessageService) Forward(ctx context.Context, messageID, userID, targetC
 	if err := s.repo.Create(ctx, copy); err != nil {
 		return nil, err
 	}
+	s.invalidateMsgCache(ctx, targetChatID)
 	if err := s.chats.Touch(ctx, targetChatID); err != nil {
 		log.Warn().Err(err).Msg("could not touch chat")
 	}
@@ -408,7 +506,12 @@ func (s *MessageService) toPublic(ctx context.Context, m *domain.Message) (*doma
 		Text:      m.Text,
 		MediaURL:  m.MediaURL,
 		ReplyToID: m.ReplyToID,
+		Status:    m.Status,
 		CreatedAt: m.CreatedAt.Format(time.RFC3339),
+	}
+	if m.ScheduledAt != nil {
+		st := m.ScheduledAt.Format(time.RFC3339)
+		pm.ScheduledAt = &st
 	}
 	if m.EditedAt != nil {
 		e := m.EditedAt.Format(time.RFC3339)
@@ -480,7 +583,12 @@ func (s *MessageService) toPublicBulk(ctx context.Context, msgs []domain.Message
 			Text:      m.Text,
 			MediaURL:  m.MediaURL,
 			ReplyToID: m.ReplyToID,
+			Status:    m.Status,
 			CreatedAt: m.CreatedAt.Format(time.RFC3339),
+		}
+		if m.ScheduledAt != nil {
+			st := m.ScheduledAt.Format(time.RFC3339)
+			pm.ScheduledAt = &st
 		}
 		if m.EditedAt != nil {
 			e := m.EditedAt.Format(time.RFC3339)

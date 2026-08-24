@@ -53,6 +53,7 @@ func (h *CallsHandler) RegisterRoutes(r chi.Router) {
 type startCallRequest struct {
 	ChatID string `json:"chat_id" validate:"required"`
 	Type   string `json:"type" validate:"required,oneof=audio video"`
+	Mode   string `json:"mode,omitempty"` // peer | group (SFU-ready)
 }
 
 // Start начинает звонок (audio/video) в чате.
@@ -71,7 +72,7 @@ func (h *CallsHandler) Start(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid json")
 		return
 	}
-	call, err := h.svc.Start(r.Context(), userID, req.ChatID, domain.CallType(req.Type))
+	call, err := h.svc.Start(r.Context(), userID, req.ChatID, domain.CallType(req.Type), domain.CallMode(req.Mode))
 	if err != nil {
 		if err == service.ErrForbidden {
 			response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())

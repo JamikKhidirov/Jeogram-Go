@@ -24,6 +24,16 @@
 - `POST /chats/{chat_id}/participants/{user_id}/demote` — снять админа.
 - `DELETE /chats/{chat_id}/participants/{user_id}` — удалить участника.
 - `POST /chats/{chat_id}/leave` — выйти из чата.
+- `POST /chats/{chat_id}/e2ee/enable` — включить сквозное шифрование (E2EE) для
+  чата (только `admin`/`owner`). Проставляет `encryption=e2ee`; после этого сервер
+  хранит только шифротекст сообщений.
+
+## Кэширование списка чатов
+
+`GET /chats` кэшируется в Redis под ключом `chats:user:{userID}` (TTL 60с). Кэш
+сбрасывается при любой мутации чата (создание, удаление участника, выход, смена
+названия/аватара, включение E2EE, новое сообщение). При отключённом Redis
+(`REDIS_ENABLED=false`) кэш прозрачно отключается.
 
 ## Mute и прочитанное
 

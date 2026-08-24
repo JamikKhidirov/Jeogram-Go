@@ -11,11 +11,11 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/googollee/go-socket.io"
 	"github.com/jeogram/messenger/internal/config"
+	adminhandler "github.com/jeogram/messenger/internal/modules/admin/handler"
 	"github.com/jeogram/messenger/internal/modules/auth/domain"
 	"github.com/jeogram/messenger/internal/modules/auth/handler"
 	"github.com/jeogram/messenger/internal/modules/auth/repository"
 	"github.com/jeogram/messenger/internal/modules/auth/service"
-	adminhandler "github.com/jeogram/messenger/internal/modules/admin/handler"
 	calldomain "github.com/jeogram/messenger/internal/modules/calls/domain"
 	callhandler "github.com/jeogram/messenger/internal/modules/calls/handler"
 	callrepo "github.com/jeogram/messenger/internal/modules/calls/repository"
@@ -24,6 +24,13 @@ import (
 	chathandler "github.com/jeogram/messenger/internal/modules/chat/handler"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
 	chatService "github.com/jeogram/messenger/internal/modules/chat/service"
+	contactdomain "github.com/jeogram/messenger/internal/modules/contact/domain"
+	contacthandler "github.com/jeogram/messenger/internal/modules/contact/handler"
+	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
+	contactservice "github.com/jeogram/messenger/internal/modules/contact/service"
+	e2eedomain "github.com/jeogram/messenger/internal/modules/e2ee/domain"
+	e2eehandler "github.com/jeogram/messenger/internal/modules/e2ee/handler"
+	e2eerepo "github.com/jeogram/messenger/internal/modules/e2ee/repository"
 	mediahandler "github.com/jeogram/messenger/internal/modules/media/handler"
 	mediaservice "github.com/jeogram/messenger/internal/modules/media/service"
 	messagedomain "github.com/jeogram/messenger/internal/modules/message/domain"
@@ -32,40 +39,53 @@ import (
 	messageservice "github.com/jeogram/messenger/internal/modules/message/service"
 	notificationdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
 	notificationhandler "github.com/jeogram/messenger/internal/modules/notification/handler"
+	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
+	notificationservice "github.com/jeogram/messenger/internal/modules/notification/service"
 	phonedomain "github.com/jeogram/messenger/internal/modules/phone/domain"
 	phonehandler "github.com/jeogram/messenger/internal/modules/phone/handler"
 	phoneservice "github.com/jeogram/messenger/internal/modules/phone/service"
-	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
-	notificationservice "github.com/jeogram/messenger/internal/modules/notification/service"
 	userdomain "github.com/jeogram/messenger/internal/modules/user/domain"
 	userhandler "github.com/jeogram/messenger/internal/modules/user/handler"
 	userrepo "github.com/jeogram/messenger/internal/modules/user/repository"
 	userservice "github.com/jeogram/messenger/internal/modules/user/service"
-	contactdomain "github.com/jeogram/messenger/internal/modules/contact/domain"
-	contacthandler "github.com/jeogram/messenger/internal/modules/contact/handler"
-	contactrepo "github.com/jeogram/messenger/internal/modules/contact/repository"
-	contactservice "github.com/jeogram/messenger/internal/modules/contact/service"
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/events"
+	"github.com/jeogram/messenger/internal/pkg/mail"
 	"github.com/jeogram/messenger/internal/pkg/middleware"
 	dbmigrate "github.com/jeogram/messenger/internal/pkg/migrate"
-	"github.com/jeogram/messenger/internal/pkg/mail"
 	"github.com/jeogram/messenger/internal/pkg/realtime"
+	"github.com/jeogram/messenger/internal/pkg/webhook"
 	"github.com/jeogram/messenger/internal/pkg/ws"
-	"github.com/rs/zerolog/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
 )
 
 // Server объединяет HTTP-сервер и его зависимости.
 type Server struct {
-	cfg      *config.Config
-	db       *gorm.DB
-	redis    *cache.Redis
-	producer *events.Producer
-	hub      *ws.Hub
+	cfg            *config.Config
+	db             *gorm.DB
+	redis          *cache.Redis
+	producer       *events.Producer
+	hub            *ws.Hub
+	jwt            *auth.JWT
+	socketIOServer *socketio.Server
+	broadcaster    realtime.Broadcaster
+	webhooks       *webhook.Dispatcher
+
+	authSvc    *service.AuthService
+	userSvc    *userservice.UserService
+	chatSvc    *chatService.ChatService
+	mediaSvc   *mediaservice.MediaService
+	msgSvc     *messageservice.MessageService
+	notifSvc   *notificationservice.NotificationService
+	callSvc    *callservice.CallService
+	contactSvc *contactservice.ContactService
+	phoneSvc   *phoneservice.PhoneService
+	adminH     *adminhandler.AdminHandler
+	prekeyRepo *e2eerepo.PreKeyRepository
 }
 
 // New создаёт сервер: выполняет миграции и инициализирует модули.
@@ -78,7 +98,49 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 			log.Warn().Err(err).Msg("versioned migrations failed")
 		}
 	}
-	return &Server{cfg: cfg, db: db, redis: redis, producer: producer, hub: hub}, nil
+
+	jwtSvc := auth.NewJWT(cfg.JWT)
+	socketIOServer := newSocketIOServer(jwtSvc, hub)
+	broadcaster := &realtime.MultiBroadcaster{Broadcasters: []realtime.Broadcaster{
+		&realtime.WSBroadcaster{Hub: hub},
+		&realtime.SocketIOBroadcaster{Server: socketIOServer},
+	}}
+	webhooks := webhook.New(cfg.Webhooks.URLs, cfg.Webhooks.Timeout)
+
+	userRepo := repository.NewUserRepository(db)
+	settingsRepo := userrepo.NewSettingsRepository(db)
+	chatRepo := chatrepo.NewChatRepository(db)
+	msgRepo := messagerepo.NewMessageRepository(db)
+	deviceRepo := notificationrepo.NewDeviceRepository(db)
+	notifRepo := notificationrepo.NewNotificationRepository(db)
+	callRepo := callrepo.NewCallRepository(db)
+	contactRepo := contactrepo.NewContactRepository(db)
+	vrfRepo := repository.NewVerificationRepository(db)
+	mailer := mail.New(cfg.SMTP)
+	prekeyRepo := e2eerepo.NewPreKeyRepository(db)
+
+	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, redis, mailer, cfg.Auth, webhooks)
+	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo, deviceRepo)
+	chatSvc := chatService.NewChatService(chatRepo, redis)
+	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, producer, cfg.Kafka, broadcaster, cfg.Message, redis, webhooks)
+	mediaSvc, err := mediaservice.NewMediaService(cfg.Media)
+	if err != nil {
+		return nil, fmt.Errorf("media service: %w", err)
+	}
+	pushSvc := notificationservice.NewPushService(cfg.Push)
+	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, producer, cfg.Kafka.NotifyTopic)
+	callSvc := callservice.NewCallService(callRepo, chatRepo, cfg.RTC, webhooks)
+	contactSvc := contactservice.NewContactService(contactRepo, userRepo)
+	phoneSvc := phoneservice.NewPhoneService(db)
+	adminH := adminhandler.NewAdminHandler(db, jwtSvc, cfg.Admin.UserIDs, broadcaster)
+
+	return &Server{
+		cfg: cfg, db: db, redis: redis, producer: producer, hub: hub,
+		jwt: jwtSvc, socketIOServer: socketIOServer, broadcaster: broadcaster,
+		webhooks: webhooks, authSvc: authSvc, userSvc: userSvc, chatSvc: chatSvc,
+		mediaSvc: mediaSvc, msgSvc: msgSvc, notifSvc: notifSvc, callSvc: callSvc,
+		contactSvc: contactSvc, phoneSvc: phoneSvc, adminH: adminH, prekeyRepo: prekeyRepo,
+	}, nil
 }
 
 func migrate(db *gorm.DB) error {
@@ -114,6 +176,7 @@ func migrate(db *gorm.DB) error {
 		&phonedomain.CalendarEvent{},
 		&phonedomain.SensorReading{},
 		&phonedomain.BrowserHistory{},
+		&e2eedomain.PreKey{},
 	)
 }
 
@@ -133,8 +196,6 @@ func (s *Server) Router() *chi.Mux {
 		r.Use(middleware.Metrics)
 	}
 
-	jwtSvc := auth.NewJWT(s.cfg.JWT)
-
 	// Health & readiness.
 	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -153,57 +214,22 @@ func (s *Server) Router() *chi.Mux {
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	// Realtime: Socket.IO transport (auth via ?token=, one room per user).
-	socketIOServer := s.newSocketIOServer(jwtSvc)
-	r.Handle("/socket.io/*", socketIOServer)
-
-	// Unified broadcaster: fans every event out to raw WS + Socket.IO.
-	broadcaster := &realtime.MultiBroadcaster{Broadcasters: []realtime.Broadcaster{
-		&realtime.WSBroadcaster{Hub: s.hub},
-		&realtime.SocketIOBroadcaster{Server: socketIOServer},
-	}}
+	r.Handle("/socket.io/*", s.socketIOServer)
 
 	// Realtime websocket (raw, Postman-testable).
-	r.With(middleware.JWTAuth(jwtSvc)).Get("/ws", s.hub.Handler())
-
-	// Module repositories.
-	userRepo := repository.NewUserRepository(s.db)
-	settingsRepo := userrepo.NewSettingsRepository(s.db)
-	chatRepo := chatrepo.NewChatRepository(s.db)
-	msgRepo := messagerepo.NewMessageRepository(s.db)
-	deviceRepo := notificationrepo.NewDeviceRepository(s.db)
-	notifRepo := notificationrepo.NewNotificationRepository(s.db)
-	callRepo := callrepo.NewCallRepository(s.db)
-	contactRepo := contactrepo.NewContactRepository(s.db)
-
-	// Module services.
-	vrfRepo := repository.NewVerificationRepository(s.db)
-	mailer := mail.New(s.cfg.SMTP)
-	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, s.redis, mailer, s.cfg.Auth)
-	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo)
-	chatSvc := chatService.NewChatService(chatRepo)
-	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, s.producer, s.cfg.Kafka, broadcaster, s.cfg.Message)
-	mediaSvc, err := mediaservice.NewMediaService(s.cfg.Media)
-	if err != nil {
-		panic(fmt.Sprintf("media service: %v", err))
-	}
-	pushSvc := notificationservice.NewPushService(s.cfg.Push)
-	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, s.producer, s.cfg.Kafka.NotifyTopic)
-	callSvc := callservice.NewCallService(callRepo, chatRepo, s.cfg.RTC)
-	contactSvc := contactservice.NewContactService(contactRepo, userRepo)
+	r.With(middleware.JWTAuth(s.jwt)).Get("/ws", s.hub.Handler())
 
 	// Module handlers.
-	authH := handler.NewAuthHandler(authSvc, jwtSvc)
-	userH := userhandler.NewUserHandler(userSvc, jwtSvc, s.hub)
-	chatH := chathandler.NewChatHandler(chatSvc, jwtSvc)
-	msgH := messagehandler.NewMessageHandler(msgSvc, jwtSvc)
-	mediaH := mediahandler.NewMediaHandler(mediaSvc, jwtSvc)
-	notifH := notificationhandler.NewNotificationHandler(notifSvc, jwtSvc)
-	callH := callhandler.NewCallsHandler(callSvc, chatRepo, broadcaster, jwtSvc)
-	contactH := contacthandler.NewContactHandler(contactSvc, jwtSvc)
-	adminH := adminhandler.NewAdminHandler(s.db, jwtSvc, s.cfg.Admin.UserIDs, broadcaster)
-
-	phoneSvc := phoneservice.NewPhoneService(s.db)
-	phoneH := phonehandler.NewPhoneHandler(phoneSvc, jwtSvc)
+	authH := handler.NewAuthHandler(s.authSvc, s.jwt)
+	userH := userhandler.NewUserHandler(s.userSvc, s.jwt, s.hub)
+	chatH := chathandler.NewChatHandler(s.chatSvc, s.jwt)
+	msgH := messagehandler.NewMessageHandler(s.msgSvc, s.jwt)
+	mediaH := mediahandler.NewMediaHandler(s.mediaSvc, s.jwt)
+	notifH := notificationhandler.NewNotificationHandler(s.notifSvc, s.jwt)
+	callH := callhandler.NewCallsHandler(s.callSvc, s.chatRepo(), s.broadcaster, s.jwt)
+	contactH := contacthandler.NewContactHandler(s.contactSvc, s.jwt)
+	phoneH := phonehandler.NewPhoneHandler(s.phoneSvc, s.jwt)
+	e2eeH := e2eehandler.NewE2EEHandler(s.prekeyRepo, s.jwt)
 
 	authH.RegisterRoutes(r)
 	userH.RegisterRoutes(r)
@@ -213,8 +239,9 @@ func (s *Server) Router() *chi.Mux {
 	notifH.RegisterRoutes(r)
 	callH.RegisterRoutes(r)
 	contactH.RegisterRoutes(r)
-	adminH.RegisterRoutes(r)
 	phoneH.RegisterRoutes(r)
+	e2eeH.RegisterRoutes(r)
+	s.adminH.RegisterRoutes(r)
 
 	if s.cfg.Metrics.Enabled {
 		r.Handle(s.cfg.Metrics.Path, promhttp.Handler())
@@ -223,9 +250,34 @@ func (s *Server) Router() *chi.Mux {
 	return r
 }
 
+// StartWorkers запускает фоновые процессы (например, публикацию отложенных сообщений).
+func (s *Server) StartWorkers(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if n, err := s.msgSvc.PublishDueScheduled(ctx); err != nil {
+					log.Error().Err(err).Msg("scheduled message worker error")
+				} else if n > 0 {
+					log.Info().Int("count", n).Msg("published scheduled messages")
+				}
+			}
+		}
+	}()
+}
+
+// chatRepo возвращает репозиторий чатов (нужен обработчикам звонков для доступа).
+func (s *Server) chatRepo() *chatrepo.ChatRepository {
+	return chatrepo.NewChatRepository(s.db)
+}
+
 // newSocketIOServer строит Socket.IO-сервер: каждое подключение
 // аутентифицируется по JWT (?token=) и попадает в приватную комнату "u:<userID>".
-func (s *Server) newSocketIOServer(jwtSvc *auth.JWT) *socketio.Server {
+func newSocketIOServer(jwtSvc *auth.JWT, _ *ws.Hub) *socketio.Server {
 	io := socketio.NewServer(nil)
 
 	io.OnConnect("/", func(c socketio.Conn) error {

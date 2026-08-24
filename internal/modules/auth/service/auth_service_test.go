@@ -18,7 +18,7 @@ func TestAuthService_RegisterLoginMe(t *testing.T) {
 	jwt := auth.NewJWT(config.JWTConfig{AccessSecret: "a", RefreshSecret: "r", AccessTTL: 0, RefreshTTL: 0})
 	vrfRepo := repository.NewVerificationRepository(db)
 	mailer := mail.New(config.SMTPConfig{})
-	svc := NewAuthService(repo, vrfRepo, jwt, nil, mailer, config.AuthConfig{OTPLength: 6, CodeTTL: 10 * 60e9})
+	svc := NewAuthService(repo, vrfRepo, jwt, nil, mailer, config.AuthConfig{OTPLength: 6, CodeTTL: 10 * 60e9}, nil)
 
 	ctx := context.Background()
 	res, err := svc.Register(ctx, domain.RegisterRequest{
