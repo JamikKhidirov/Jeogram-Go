@@ -96,7 +96,8 @@
 
 Интерактивная спецификация: **Swagger UI** на `http://localhost:8080/swagger/index.html`
 (спецификация — `docs/swagger.json`). Готовая коллекция для ручного тестирования —
-`postman/Jeogram.postman_collection.json`.
+`postman/Jeogram API.postman_collection.json` (файл окружения — `postman/Jeogram.postman_environment.json`).
+Импортируйте сначала окружение, затем коллекцию; токен после `/auth/login` сохраняется автоматически.
 
 ## Архитектура
 
@@ -578,7 +579,7 @@ make swagger   # устанавливает swag и перегенерирует
 | Переменные окружения (шаблон)                          | [`.env.example`](.env.example) |
 | Сборка образа                                               | [`Dockerfile`](Dockerfile) |
 | Kubernetes-манифесты (namespace, Postgres, Redis, Kafka, app, ingress) | [`k8s/`](k8s/) · [`k8s/README.md`](k8s/README.md) |
-| Postman-коллекция эндпоинтов                                | [`postman/jeogram.postman_collection.json`](postman/jeogram.postman_collection.json) |
+| Postman-коллекция эндпоинтов (все HTTP + WebSocket)         | [`postman/Jeogram API.postman_collection.json`](postman/Jeogram%20API.postman_collection.json) · окружение [`postman/Jeogram.postman_environment.json`](postman/Jeogram.postman_environment.json) |
 | Сквозной e2e-прогон всех эндпоинтов (PowerShell)           | [`e2e_test.ps1`](e2e_test.ps1) |
 | Swagger-спецификация (сгенерировано)                       | [`docs/swagger.json`](docs/swagger.json) · UI: `/swagger/index.html` |
 | Полный каталог эндпоинтов (55 маршрутов)                  | [`ENDPOINTS.md`](ENDPOINTS.md) |

@@ -48,5 +48,6 @@ http://localhost:8080/socket.io/?token=<access_token>&EIO=4&transport=websocket
 
 ## Проверка (Postman)
 
-В коллекции `postman/Jeogram.postman_collection.json` есть папка
-**Realtime (WebSocket)** с готовым запросом подключения.
+В коллекции `postman/Jeogram API.postman_collection.json` есть папка
+**Realtime (WebSocket / Socket.IO)** с готовыми запросами подключения (`WS /ws`,
+`Socket.IO /socket.io`, `WS /calls/ws`).

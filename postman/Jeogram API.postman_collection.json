@@ -1,0 +1,4126 @@
+{
+  "info": {
+    "name": "Jeogram API",
+    "description": "Полная коллекция Jeogram Messenger. Импортируйте сначала файл окружения (Jeogram.postman_environment.json), выберите его в Postman (Environment), затем коллекцию. Войдите через /auth/login (или /auth/register) — токен автоматически сохранится в переменную access_token и подставится во все запросы.\n\nПеременные: {{base_url}}=http://localhost:8080, {{base_url_ws}}=ws://localhost:8080.\nДля путей с {id}/{chat_id} и т.п. заполните соответствующие переменные коллекции.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Группа эндпоинтов: auth",
+      "item": [
+        {
+          "name": "Выключить 2FA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/2fa/disable",
+            "description": ""
+          }
+        },
+        {
+          "name": "Включить 2FA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/2fa/enable",
+            "description": ""
+          }
+        },
+        {
+          "name": "Подтвердить 2FA (OTP) при входе",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/2fa/verify",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"two_factor_token\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data || {};if (d.access_token) pm.collectionVariables.set('access_token', d.access_token);if (d.refresh_token) pm.collectionVariables.set('refresh_token', d.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Подтвердить смену email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/change-email",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"new_email\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Запрос смены email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/change-email/request",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"new_email\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Сменить пароль",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/change-password",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_password\": \"string\",\n  \"old_password\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Подтвердить смену телефона",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/change-phone",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"new_phone\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Запрос смены телефона",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/change-phone/request",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"new_phone\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Запросить сброс пароля (код на email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/forgot-password",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "Вход в систему",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/login",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\",\n  \"password\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data || {};if (d.access_token) pm.collectionVariables.set('access_token', d.access_token);if (d.refresh_token) pm.collectionVariables.set('refresh_token', d.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Выход",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/logout",
+            "description": ""
+          }
+        },
+        {
+          "name": "Выход со всех устройств",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/logout-all",
+            "description": ""
+          }
+        },
+        {
+          "name": "Профиль текущего пользователя",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/me",
+            "description": ""
+          }
+        },
+        {
+          "name": "Обновление токена",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/refresh",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data || {};if (d.access_token) pm.collectionVariables.set('access_token', d.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register a new account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/register",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"phone\": \"string\",\n  \"username\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data || {};if (d.access_token) pm.collectionVariables.set('access_token', d.access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Запросить OTP-код (вход по телефону)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/request-otp",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "Повторная отправка кода подтверждения email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/resend-verification",
+            "description": ""
+          }
+        },
+        {
+          "name": "Сброс пароля по коду",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/reset-password",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"email\": \"string\",\n  \"password\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "История входов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/sessions",
+            "description": ""
+          }
+        },
+        {
+          "name": "Подтверждение email кодом",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/verify-email",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Вход по телефону и OTP-коду",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/auth/verify-otp",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"string\",\n  \"phone\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "description": "Группа эндпоинтов: contacts",
+      "item": [
+        {
+          "name": "Список контактов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить запрос в контакты",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Входящие запросы",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/requests",
+            "description": ""
+          }
+        },
+        {
+          "name": "Синхронизация контактов (массовое добавление)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/sync",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_ids\": [\n    \"string\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Получить контакт по id пользователя",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/{{user_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалить из контактов",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/{{user_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Принять запрос в контакты",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/{{user_id}}/accept",
+            "description": ""
+          }
+        },
+        {
+          "name": "Заблокировать пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/contacts/{{user_id}}/block",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "description": "Группа эндпоинтов: messages",
+      "item": [
+        {
+          "name": "Медиа сообщения чата",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/media?limit={{limit}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Список сообщений чата",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/messages?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Очистить историю сообщений чата",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/messages",
+            "description": ""
+          }
+        },
+        {
+          "name": "Поиск в чате",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/messages/search?q={{q}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалить для всех (админ)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/messages/{{id}}/admin",
+            "description": ""
+          }
+        },
+        {
+          "name": "Закрепить сообщение",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/pin/{{message_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Открепить сообщение",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/pin/{{message_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Закреплённые сообщения чата",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/pinned?limit={{limit}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отметить прочитанным",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/read",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message_ids\": [\n    \"string\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Индикатор печати",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/typing",
+            "description": ""
+          }
+        },
+        {
+          "name": "Непрочитанные (счётчик)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/unread",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить сообщение",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"string\",\n  \"media_url\": \"string\",\n  \"reply_to\": \"string\",\n  \"scheduled_at\": \"string\",\n  \"text\": \"string\",\n  \"type\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Глобальный поиск сообщений",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/search?q={{q}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Редактировать сообщение",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить сообщение",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Переслать сообщение",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}/forward",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Список реакций",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}/reactions",
+            "description": ""
+          }
+        },
+        {
+          "name": "Реакция на сообщение",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}/reactions",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emoji\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Убрать реакцию",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}/reactions?emoji={{emoji}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отметить сообщение прочитанным",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/messages/{{id}}/read",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "description": "Группа эндпоинтов: media",
+      "item": [
+        {
+          "name": "Загрузить медиа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/media/upload",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалить медиафайл",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/media/{{id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Скачать файл по id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/media/{{id}}/download",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить превью/миниатюру",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/media/{{id}}/thumbnail",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отдать медиафайл",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/media/{{type}}/{{file}}",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calls",
+      "description": "Группа эндпоинтов: calls",
+      "item": [
+        {
+          "name": "Начать звонок",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"string\",\n  \"mode\": \"string\",\n  \"type\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Активные звонки",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/active",
+            "description": ""
+          }
+        },
+        {
+          "name": "История звонков",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/history?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить STUN/TURN серверы для звонков",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/ice-servers",
+            "description": ""
+          }
+        },
+        {
+          "name": "WebRTC-сигналинг (WebSocket)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/ws",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить звонок по id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Завершить звонок",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}/end",
+            "description": ""
+          }
+        },
+        {
+          "name": "Присоединиться к групповому звонку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}/join",
+            "description": ""
+          }
+        },
+        {
+          "name": "Мьют микрофона/камеры",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}/mute",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"string\",\n  \"muted\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Старт/стоп записи звонка",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}/record",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Сохранить запись звонка",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/calls/{{id}}/recording",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "Группа эндпоинтов: notifications",
+      "item": [
+        {
+          "name": "Лента уведомлений",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалить все уведомления",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications",
+            "description": ""
+          }
+        },
+        {
+          "name": "Регистрация устройства (push)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications/device",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_version\": \"string\",\n  \"device_model\": \"string\",\n  \"locale\": \"string\",\n  \"os_version\": \"string\",\n  \"platform\": null,\n  \"timezone\": \"string\",\n  \"token\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Прочитать уведомления",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications/read",
+            "description": ""
+          }
+        },
+        {
+          "name": "Число непрочитанных уведомлений",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications/unread-count",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалить уведомление",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/notifications/{{id}}",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phone",
+      "description": "Группа эндпоинтов: phone",
+      "item": [
+        {
+          "name": "Получить аккаунты устройства",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/accounts",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить аккаунты устройства",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/accounts",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"account_name\": \"string\",\n    \"account_type\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить аккаунты устройства",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/accounts",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить установленные приложения",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/apps",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить список установленных приложений",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/apps",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"app_name\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"install_time\": 0,\n    \"is_system\": true,\n    \"package_name\": \"string\",\n    \"user_id\": \"string\",\n    \"version_code\": 0,\n    \"version_name\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить установленные приложения",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/apps",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить Bluetooth-устройства",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/bluetooth",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить Bluetooth-устройства",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/bluetooth",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"mac\": \"string\",\n    \"name\": \"string\",\n    \"type\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить Bluetooth-устройства",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/bluetooth",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить историю браузера",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/browser",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить историю браузера",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/browser",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"title\": \"string\",\n    \"url\": \"string\",\n    \"user_id\": \"string\",\n    \"visit_time\": 0\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить историю браузера",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/browser",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить события календаря",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calendar",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить события календаря",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calendar",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"calendar_name\": \"string\",\n    \"created_at\": \"string\",\n    \"description\": \"string\",\n    \"end_time\": \"string\",\n    \"id\": \"string\",\n    \"start_time\": \"string\",\n    \"title\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить события календаря",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calendar",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить журнал звонков",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calls",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить журнал звонков",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calls",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"call_type\": \"string\",\n    \"contact_name\": \"string\",\n    \"created_at\": \"string\",\n    \"duration_sec\": 0,\n    \"id\": \"string\",\n    \"phone_number\": \"string\",\n    \"timestamp\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить журнал звонков",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/calls",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить записи буфера обмена",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/clipboard",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить записи буфера обмена",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/clipboard",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"app_package\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"text\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить записи буфера обмена",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/clipboard",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить контакты телефона",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/contacts",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить контакты телефона",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/contacts",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"created_at\": \"string\",\n    \"email\": \"string\",\n    \"id\": \"string\",\n    \"name\": \"string\",\n    \"note\": \"string\",\n    \"phone_number\": \"string\",\n    \"starred\": true,\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить контакты телефона",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/contacts",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить данные об устройстве",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/device",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить данные об устройстве",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/device",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"app_version\": \"string\",\n    \"brand\": \"string\",\n    \"created_at\": \"string\",\n    \"device_id\": \"string\",\n    \"id\": \"string\",\n    \"locale\": \"string\",\n    \"manufacturer\": \"string\",\n    \"model\": \"string\",\n    \"os\": \"string\",\n    \"os_version\": \"string\",\n    \"screen_size\": \"string\",\n    \"sdk_version\": 0,\n    \"timezone\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить данные об устройстве",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/device",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить геолокацию",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/location",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить геолокацию",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/location",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"accuracy\": 0.0,\n    \"address\": \"string\",\n    \"altitude\": 0.0,\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"lat\": 0.0,\n    \"lng\": 0.0,\n    \"provider\": \"string\",\n    \"speed\": 0.0,\n    \"timestamp\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить геолокацию",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/location",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить описания медиафайлов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/media",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить описания медиафайлов",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/media",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"created_at\": \"string\",\n    \"duration_ms\": 0,\n    \"height\": 0,\n    \"id\": \"string\",\n    \"mime_type\": \"string\",\n    \"path\": \"string\",\n    \"size_bytes\": 0,\n    \"user_id\": \"string\",\n    \"width\": 0\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить описания медиафайлов",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/media",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить перехваченные уведомления",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/notifications",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить перехваченные уведомления",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/notifications",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"app_package\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"posted_at\": \"string\",\n    \"text\": \"string\",\n    \"title\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить перехваченные уведомления",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/notifications",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить показания датчиков",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sensors",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить показания датчиков",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sensors",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"sensor_type\": \"string\",\n    \"unit\": \"string\",\n    \"user_id\": \"string\",\n    \"value\": 0.0\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить показания датчиков",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sensors",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить СМС",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sms",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить СМС",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sms",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"address\": \"string\",\n    \"body\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"is_read\": true,\n    \"sms_type\": \"string\",\n    \"timestamp\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить СМС",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/sms",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить состояние устройства",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/status",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить состояние устройства",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/status",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"battery_level\": 0,\n    \"created_at\": \"string\",\n    \"free_storage_mb\": 0,\n    \"id\": \"string\",\n    \"is_airplane_mode\": true,\n    \"is_charging\": true,\n    \"network_type\": \"string\",\n    \"signal_strength\": 0,\n    \"total_storage_mb\": 0,\n    \"user_id\": \"string\",\n    \"wifi_ssid\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить состояние устройства",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/status",
+            "description": ""
+          }
+        },
+        {
+          "name": "Сводка собранных данных",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/summary",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить статистику использования",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/usage",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить статистику использования приложений",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/usage",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"app_name\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"last_used_timestamp\": 0,\n    \"package_name\": \"string\",\n    \"total_foreground_ms\": 0,\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить статистику использования",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/usage",
+            "description": ""
+          }
+        },
+        {
+          "name": "Получить Wi-Fi сети",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/wifi",
+            "description": ""
+          }
+        },
+        {
+          "name": "Отправить Wi-Fi сети",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/wifi",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"bssid\": \"string\",\n    \"created_at\": \"string\",\n    \"id\": \"string\",\n    \"security_type\": \"string\",\n    \"signal_level\": 0,\n    \"ssid\": \"string\",\n    \"user_id\": \"string\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить Wi-Fi сети",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/phone/wifi",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Группа эндпоинтов: admin",
+      "item": [
+        {
+          "name": "Admin: рассылка уведомления всем онлайн-пользователям",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/broadcast",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"string\",\n  \"title\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Admin: список всех чатов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/chats?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: сообщения чата",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/chats/{{id}}/messages?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: все устройства (IP, модель, ОС)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/devices?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: поиск сообщений по тексту",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/messages/search?q={{q}}&limit={{limit}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: aggregate stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/stats",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: list users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users?limit={{limit}}&offset={{offset}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: создать пользователя (включая админа)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"phone\": \"string\",\n  \"role\": \"string\",\n  \"username\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Admin: поиск пользователей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/search?q={{q}}&limit={{limit}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: получить пользователя по id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: удалить пользователя",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: заблокировать пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}/ban",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: устройства пользователя",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}/devices",
+            "description": ""
+          }
+        },
+        {
+          "name": "Admin: назначить роль",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}/role",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Admin: разблокировать пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/admin/users/{{id}}/unban",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Realtime",
+      "description": "Группа эндпоинтов: realtime",
+      "item": [
+        {
+          "name": "Realtime Socket.IO (альтернатива WebSocket)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/socket.io/",
+            "description": "Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=<access_token>&EIO=4&transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же."
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "Realtime WebSocket-соединение",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/ws",
+            "description": "Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`. Сервер шлёт Ping каждые 30с и push-события в формате `{\"type\":\"<event>\",\"payload\":{...}}` (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`, `user_status`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя."
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "description": "Группа эндпоинтов: chat",
+      "item": [
+        {
+          "name": "Список моих чатов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats",
+            "description": ""
+          }
+        },
+        {
+          "name": "Создать групповой чат",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/group",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_url\": \"string\",\n  \"participant_ids\": [\n    \"string\"\n  ],\n  \"title\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Создать приватный чат",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/private",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Поиск чатов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/search?q={{q}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Информация о чате",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Обновить чат",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Включить E2EE для чата",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/e2ee/enable",
+            "description": ""
+          }
+        },
+        {
+          "name": "Покинуть чат",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/leave",
+            "description": ""
+          }
+        },
+        {
+          "name": "Заглушить уведомления чата",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/mute",
+            "description": ""
+          }
+        },
+        {
+          "name": "Включить уведомления чата",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/mute",
+            "description": ""
+          }
+        },
+        {
+          "name": "Участники чата",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/participants",
+            "description": ""
+          }
+        },
+        {
+          "name": "Добавить участника",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/participants",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Удалить участника",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/participants/{{user_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Снять админа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/participants/{{user_id}}/demote",
+            "description": ""
+          }
+        },
+        {
+          "name": "Назначить админа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/chats/{{chat_id}}/participants/{{user_id}}/promote",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "E2ee",
+      "description": "Группа эндпоинтов: e2ee",
+      "item": [
+        {
+          "name": "Upload prekey bundle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/e2ee/prekeys",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prekeys\": [\n    {\n      \"key_id\": \"string\",\n      \"public_key\": \"string\",\n      \"signature_key\": \"string\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get a one-time prekey for a user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/e2ee/prekeys/{{user_id}}",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "description": "Группа эндпоинтов: user",
+      "item": [
+        {
+          "name": "Удалить аккаунт",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/account",
+            "description": ""
+          }
+        },
+        {
+          "name": "Заблокировать пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/block",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Разблокировать пользователя",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/block/{{user_id}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Список заблокированных",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/blocks",
+            "description": ""
+          }
+        },
+        {
+          "name": "Мои устройства",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/devices",
+            "description": ""
+          }
+        },
+        {
+          "name": "Удалённый выход с устройства",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/devices/{{platform}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Экспорт данных аккаунта",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/export",
+            "description": ""
+          }
+        },
+        {
+          "name": "Список онлайн-друзей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/online",
+            "description": ""
+          }
+        },
+        {
+          "name": "Онлайн-статус пользователей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/presence?ids={{ids}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Профиль пользователя",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/profile",
+            "description": ""
+          }
+        },
+        {
+          "name": "Обновить профиль",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/profile",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_url\": \"string\",\n  \"display_name\": \"string\",\n  \"username\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Поиск пользователей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/search?q={{q}}",
+            "description": ""
+          }
+        },
+        {
+          "name": "Настройки пользователя",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/settings",
+            "description": ""
+          }
+        },
+        {
+          "name": "Обновить настройки",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/settings",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"string\",\n  \"notifications_enabled\": true,\n  \"online_visible\": true,\n  \"theme\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Установить статус",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{{{base_url}}}}/user/status",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Realtime (WebSocket / Socket.IO)",
+      "description": "Подключения реального времени. См. описание каждого запроса.",
+      "item": [
+        {
+          "name": "WS /ws (raw WebSocket, realtime)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_ws}}/ws?token={{access_token}}",
+            "description": "WebSocket (raw). В Postman откройте этот запрос как WebSocket-соединение (кнопка Connect). Токен передаётся в query-параметре token. После подключения отправляйте JSON-события, например:\n{\"type\":\"typing\",\"chat_id\":\"{{chat_id}}\"}\n{\"type\":\"call.signal\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
+          },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "name": "Socket.IO /socket.io (v2, realtime)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_ws}}/socket.io/?token={{access_token}}&EIO=4&transport=websocket",
+            "description": "Socket.IO v2 (только клиент socket.io-client@2.x). query-параметры: token + EIO=4 + transport=websocket.\nПосле handshake отправьте engine.io-фреймы, например '40' (probe), затем события в формате '42[\"message.new\",{...}]'."
+          },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "name": "WS /calls/ws (WebRTC-сигналинг)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_ws}}/calls/ws?token={{access_token}}",
+            "description": "WebSocket-сигналинг звонков. Подключитесь к /calls/ws с токеном и шлите {\"type\":\"offer\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
+          },
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "base_url_ws",
+      "value": "ws://localhost:8080"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "chat_id",
+      "value": ""
+    },
+    {
+      "key": "message_id",
+      "value": ""
+    },
+    {
+      "key": "call_id",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    }
+  ]
+}

@@ -99,15 +99,16 @@ docker exec -i jeogram-postgres psql -U jeogram -d jeogram < dump.sql
 
 ## 5. Импорт в Postman (готовая коллекция)
 
-1. Скачайте/склонируйте репозиторий, файл:
-   `postman/Jeogram.postman_collection.json`.
-2. В Postman: **Import** → выберите этот файл.
-3. В коллекции заданы переменные `baseUrl` (`http://localhost:8080`) и
-   `accessToken` (заполняется автоматически после Login).
+1. Скачайте/склонируйте репозиторий. Импортируйте сначала окружение
+   `postman/Jeogram.postman_environment.json`, затем коллекцию
+   `postman/Jeogram API.postman_collection.json`.
+2. В Postman: **Import** → выберите оба файла. В списке окружений выберите **Jeogram Local**.
+3. В коллекции заданы переменные `{{base_url}}` (`http://localhost:8080`) и
+   `{{access_token}}` (заполняется автоматически после Login).
 4. Порядок проверки:
    - **Auth → Register** → **Auth → Login** (токен захватывается скриптом).
-   - Далее любые защищённые запросы работают с `Bearer {{accessToken}}`.
-   - Realtime: см. папку **Realtime (WebSocket)** и файл [WEBSOCKET.md](WEBSOCKET.md).
+   - Далее любые защищённые запросы работают с `Bearer {{access_token}}`.
+   - Realtime: см. папку **Realtime (WebSocket / Socket.IO)** и файл [WEBSOCKET.md](WEBSOCKET.md).
 5. Swagger-спецификацию можно импортировать в Postman как OpenAPI:
    `http://<host>:8080/swagger/doc.json` (Postman → Import → Link).
 

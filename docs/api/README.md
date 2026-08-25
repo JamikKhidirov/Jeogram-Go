@@ -58,6 +58,7 @@ AccessToken живёт 1 час (настраивается `JWT_ACCESS_TTL`), R
 
 ## Быстрый старт (через Postman)
 
-Импортируй `postman/Jeogram.postman_collection.json`. Папка `Auth → Login` автоматически
-сохраняет токен в переменную `{{accessToken}}`, которая подставляется во все защищённые
+Импортируй сначала окружение `postman/Jeogram.postman_environment.json`, затем коллекцию
+`postman/Jeogram API.postman_collection.json`. Папка `Auth → Login` автоматически
+сохраняет токен в переменную `{{access_token}}`, которая подставляется во все защищённые
 запросы.

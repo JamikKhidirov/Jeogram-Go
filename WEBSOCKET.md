@@ -75,21 +75,22 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data));
 
 ## 3. Тестируем в Postman (пошагово)
 
-1. Импортируйте коллекцию `postman/Jeogram.postman_collection.json`
-   (`Import` → выберите файл).
+1. Импортируйте сначала окружение `postman/Jeogram.postman_environment.json`,
+   затем коллекцию `postman/Jeogram API.postman_collection.json`
+   (`Import` → выберите файлы). В Postman выберите окружение **Jeogram Local**.
 2. Откройте папку **Auth → Register**, нажмите **Send** (создаст пользователя).
 3. Откройте **Auth → Login**, нажмите **Send**. Скрипт `Tests` автоматически
-   сохранит `access_token` в переменную коллекции `{{accessToken}}`.
-4. Перейдите в папку **Realtime (WebSocket)** → запрос **Connect (WebSocket)**.
+   сохранит `access_token` в переменную коллекции `{{access_token}}`.
+4. Перейдите в папку **Realtime (WebSocket / Socket.IO)** → запрос **WS /ws (raw WebSocket, realtime)**.
 5. Postman откроет вкладку **WebSocket**. Убедитесь, что адрес:
-   `ws://{{baseUrl}}/ws?token={{accessToken}}` (переменная `baseUrl` = `http://localhost:8080`).
+   `ws://{{base_url_ws}}/ws?token={{access_token}}` (переменная `base_url_ws` = `ws://localhost:8080`).
 6. Нажмите **Connect**. В логе появится `[connection established]`.
 7. В **новой вкладке** выполните `POST /messages` (папка Messages) с телом
-   `{"chat_id":"<chatId>","text":"привет","type":"text"}`.
+   `{"chat_id":"{{chat_id}}","text":"привет","type":"text"}`.
 8. В окне WebSocket придёт событие `message.new` с этим сообщением — **realtime работает**.
 
-> Подсказка: `chatId` берётся из ответа `POST /chats/private` или `POST /chats/group`.
-> Сохраните его в переменную `{{chatId}}` вручную (Postman → Variables), либо скопируйте
+> Подсказка: `chat_id` берётся из ответа `POST /chats/private` или `POST /chats/group`.
+> Сохраните его в переменную `{{chat_id}}` вручную (Postman → Variables), либо скопируйте
 > из ответа в URL запроса.
 
 ---
