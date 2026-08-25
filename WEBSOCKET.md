@@ -83,7 +83,7 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data));
    сохранит `access_token` в переменную коллекции `{{access_token}}`.
 4. Перейдите в папку **Realtime (WebSocket / Socket.IO)** → запрос **WS /ws (raw WebSocket, realtime)**.
 5. Postman откроет вкладку **WebSocket**. Убедитесь, что адрес:
-   `ws://{{base_url_ws}}/ws?token={{access_token}}` (переменная `base_url_ws` = `ws://localhost:8080`).
+   `ws://{{ws_host}}/ws?token={{access_token}}` (переменная `ws_host` = `localhost:8080`).
 6. Нажмите **Connect**. В логе появится `[connection established]`.
 7. В **новой вкладке** выполните `POST /messages` (папка Messages) с телом
    `{"chat_id":"{{chat_id}}","text":"привет","type":"text"}`.

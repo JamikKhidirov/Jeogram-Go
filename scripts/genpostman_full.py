@@ -28,9 +28,12 @@ PUBLIC_PREFIXES = (
     "/auth/forgot-password",
     "/auth/reset-password",
     "/auth/2fa/verify",
-    "/ws",
-    "/socket.io",
 )
+
+# Это НЕ HTTP-эндпоинты, а WebSocket-соединения. Они описаны в Swagger как GET
+# только для документации, поэтому из HTTP-папок их исключаем и выносим в
+# отдельную папку Realtime как настоящие WebSocket-запросы.
+WS_PATHS = {"/ws", "/socket.io/", "/calls/ws"}
 
 
 def load_swagger():
@@ -116,6 +119,8 @@ def build_body(defs, operation):
 
 
 def make_item(defs, method, path, operation):
+    if path in WS_PATHS:
+        return None
     name = operation.get("summary") or (method.upper() + " " + path)
     url = build_url(path, operation)
     body = build_body(defs, operation)
@@ -164,48 +169,56 @@ def make_item(defs, method, path, operation):
 
 
 def make_ws_items():
+    # ВАЖНО: схема ws:// должна быть ЛИТЕРАЛЬНОЙ (а не в переменной), иначе Postman
+    # при импорте посчитает это обычным HTTP GET-запросом. Хост берётся из
+    # переменной {{ws_host}} (по умолчанию localhost:8080).
     ws_desc = (
-        "WebSocket (raw). В Postman откройте этот запрос как WebSocket-соединение "
-        "(кнопка Connect). Токен передаётся в query-параметре token. "
-        "После подключения отправляйте JSON-события, например:\n"
+        "ЭТО WEBSOCKET-ЗАПРОС, а не HTTP (Postman откроет вкладку WebSocket, не меняйте метод).\n"
+        "Нажмите Connect. Токен передаётся в query-параметре token.\n"
+        "После подключения сервер шлёт ping каждые 30с и push-события "
+        '{"type":"<event>","payload":{...}} (например new_message, message_edited, call_invite, user_status).\n'
+        "Примеры исходящих событий:\n"
         '{"type":"typing","chat_id":"{{chat_id}}"}\n'
         '{"type":"call.signal","chat_id":"{{chat_id}}","to":"{{user_id}}","payload":{}}'
     )
     ws = {
-        "name": "WS /ws (raw WebSocket, realtime)",
+        "name": "1. WS /ws — подключение (raw WebSocket)",
         "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/ws?token={{access_token}}",
+            "url": "ws://{{ws_host}}/ws?token={{access_token}}",
             "description": ws_desc,
         },
         "protocolProfileBehavior": {"disableBodyPruning": True},
     }
     sio_desc = (
-        "Socket.IO v2 (только клиент socket.io-client@2.x). query-параметры: token + EIO=4 + transport=websocket.\n"
-        "После handshake отправьте engine.io-фреймы, например '40' (probe), затем "
-        "события в формате '42[\"message.new\",{...}]'."
+        "ЭТО WEBSOCKET-ЗАПРОС (Socket.IO v2), а не обычный HTTP GET.\n"
+        "Подключение только для клиента socket.io-client@2.x. query-параметры: "
+        "token + EIO=4 + transport=websocket.\n"
+        "После handshake отправьте engine.io-фреймы: сначала '40' (probe), "
+        "затем события в формате '42[\"message.new\",{...}]'. События идентичны /ws."
     )
     sio = {
-        "name": "Socket.IO /socket.io (v2, realtime)",
+        "name": "2. Socket.IO /socket.io — подключение (v2)",
         "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/socket.io/?token={{access_token}}&EIO=4&transport=websocket",
+            "url": "ws://{{ws_host}}/socket.io/?token={{access_token}}&EIO=4&transport=websocket",
             "description": sio_desc,
         },
         "protocolProfileBehavior": {"disableBodyPruning": True},
     }
     calls_ws_desc = (
-        "WebSocket-сигналинг звонков. Подключитесь к /calls/ws с токеном и шлите "
+        "ЭТО WEBSOCKET-ЗАПРОС (WebRTC-сигналинг), а не HTTP GET.\n"
+        "Подключитесь к /calls/ws с токеном и шлите:\n"
         '{"type":"offer","chat_id":"{{chat_id}}","to":"{{user_id}}","payload":{}}'
     )
     calls_ws = {
-        "name": "WS /calls/ws (WebRTC-сигналинг)",
+        "name": "3. WS /calls/ws — сигналинг звонков (WebRTC)",
         "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/calls/ws?token={{access_token}}",
+            "url": "ws://{{ws_host}}/calls/ws?token={{access_token}}",
             "description": calls_ws_desc,
         },
         "protocolProfileBehavior": {"disableBodyPruning": True},
@@ -224,12 +237,15 @@ def main():
         for method, op in ops.items():
             if method.lower() not in ("get", "post", "put", "delete", "patch"):
                 continue
+            item = make_item(defs, method, path, op)
+            if item is None:
+                continue
             tags = op.get("tags") or ["other"]
             tag = tags[0]
             if tag not in folders:
                 folders[tag] = []
                 order.append(tag)
-            folders[tag].append(make_item(defs, method, path, op))
+            folders[tag].append(item)
 
     items = []
     # Предсказуемый порядок папок
@@ -237,6 +253,8 @@ def main():
                  "calls", "notifications", "phone", "admin", "realtime", "other"]
     tags_sorted = [t for t in preferred if t in folders] + [t for t in order if t not in preferred]
     for tag in tags_sorted:
+        if not folders[tag]:
+            continue
         items.append({
             "name": tag.capitalize(),
             "description": "Группа эндпоинтов: " + tag,
@@ -257,8 +275,10 @@ def main():
                 "(Jeogram.postman_environment.json), выберите его в Postman (Environment), "
                 "затем коллекцию. Войдите через /auth/login (или /auth/register) — токен "
                 "автоматически сохранится в переменную access_token и подставится во все запросы.\n\n"
-                "Переменные: {{base_url}}=http://localhost:8080, {{base_url_ws}}=ws://localhost:8080.\n"
-                "Для путей с {id}/{chat_id} и т.п. заполните соответствующие переменные коллекции."
+            "Переменные: {{base_url}}=http://localhost:8080, {{ws_host}}=localhost:8080 (для WebSocket).\n"
+            "Для путей с {id}/{chat_id} и т.п. заполните соответствующие переменные коллекции.\n"
+            "WebSocket-запросы находятся в папке 'Realtime (WebSocket / Socket.IO)' и имеют "
+            "литеральную схему ws:// — Postman откроет их как WebSocket, а не HTTP GET."
             ),
             "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         },
@@ -266,7 +286,7 @@ def main():
         "item": items,
         "variable": [
             {"key": "base_url", "value": "http://localhost:8080"},
-            {"key": "base_url_ws", "value": "ws://localhost:8080"},
+            {"key": "ws_host", "value": "localhost:8080"},
             {"key": "access_token", "value": ""},
             {"key": "refresh_token", "value": ""},
             {"key": "chat_id", "value": ""},
@@ -284,7 +304,7 @@ def main():
         "name": "Jeogram Local",
         "values": [
             {"key": "base_url", "value": "http://localhost:8080", "enabled": True},
-            {"key": "base_url_ws", "value": "ws://localhost:8080", "enabled": True},
+            {"key": "ws_host", "value": "localhost:8080", "enabled": True},
             {"key": "access_token", "value": "", "enabled": True},
             {"key": "refresh_token", "value": "", "enabled": True},
             {"key": "chat_id", "value": "", "enabled": True},

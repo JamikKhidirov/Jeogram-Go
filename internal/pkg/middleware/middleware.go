@@ -40,17 +40,27 @@ var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
 func JWTAuth(j *auth.JWT) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var token string
 			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
-				response.WriteError(w, http.StatusUnauthorized, "unauthorized", "missing authorization header")
+			if authHeader != "" {
+				parts := strings.SplitN(authHeader, " ", 2)
+				if len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
+					token = parts[1]
+				}
+			}
+			// Для WebSocket/Socket.IO токен также передаётся в query (?token=),
+			// т.к. браузерный WebSocket не может задать заголовок Authorization.
+			if token == "" {
+				token = r.URL.Query().Get("token")
+			}
+			if token == "" {
+				token = r.URL.Query().Get("access_token")
+			}
+			if token == "" {
+				response.WriteError(w, http.StatusUnauthorized, "unauthorized", "missing authorization token")
 				return
 			}
-			parts := strings.SplitN(authHeader, " ", 2)
-			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
-				response.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid authorization format")
-				return
-			}
-			claims, err := j.ParseAccess(parts[1])
+			claims, err := j.ParseAccess(token)
 			if err != nil {
 				response.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 				return

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Jeogram API",
-    "description": "Полная коллекция Jeogram Messenger. Импортируйте сначала файл окружения (Jeogram.postman_environment.json), выберите его в Postman (Environment), затем коллекцию. Войдите через /auth/login (или /auth/register) — токен автоматически сохранится в переменную access_token и подставится во все запросы.\n\nПеременные: {{base_url}}=http://localhost:8080, {{base_url_ws}}=ws://localhost:8080.\nДля путей с {id}/{chat_id} и т.п. заполните соответствующие переменные коллекции.",
+    "description": "Полная коллекция Jeogram Messenger. Импортируйте сначала файл окружения (Jeogram.postman_environment.json), выберите его в Postman (Environment), затем коллекцию. Войдите через /auth/login (или /auth/register) — токен автоматически сохранится в переменную access_token и подставится во все запросы.\n\nПеременные: {{base_url}}=http://localhost:8080, {{ws_host}}=localhost:8080 (для WebSocket).\nДля путей с {id}/{chat_id} и т.п. заполните соответствующие переменные коллекции.\nWebSocket-запросы находятся в папке 'Realtime (WebSocket / Socket.IO)' и имеют литеральную схему ws:// — Postman откроет их как WebSocket, а не HTTP GET.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -1426,26 +1426,6 @@
               }
             ],
             "url": "{{{{base_url}}}}/calls/ice-servers",
-            "description": ""
-          }
-        },
-        {
-          "name": "WebRTC-сигналинг (WebSocket)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{{{base_url}}}}/calls/ws",
             "description": ""
           }
         },
@@ -3266,48 +3246,6 @@
       ]
     },
     {
-      "name": "Realtime",
-      "description": "Группа эндпоинтов: realtime",
-      "item": [
-        {
-          "name": "Realtime Socket.IO (альтернатива WebSocket)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{{{base_url}}}}/socket.io/",
-            "description": "Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=<access_token>&EIO=4&transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же."
-          },
-          "auth": {
-            "type": "noauth"
-          }
-        },
-        {
-          "name": "Realtime WebSocket-соединение",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": "{{{{base_url}}}}/ws",
-            "description": "Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`. Сервер шлёт Ping каждые 30с и push-события в формате `{\"type\":\"<event>\",\"payload\":{...}}` (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`, `user_status`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя."
-          },
-          "auth": {
-            "type": "noauth"
-          }
-        }
-      ]
-    },
-    {
       "name": "Chat",
       "description": "Группа эндпоинтов: chat",
       "item": [
@@ -4051,36 +3989,36 @@
       "description": "Подключения реального времени. См. описание каждого запроса.",
       "item": [
         {
-          "name": "WS /ws (raw WebSocket, realtime)",
+          "name": "1. WS /ws — подключение (raw WebSocket)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/ws?token={{access_token}}",
-            "description": "WebSocket (raw). В Postman откройте этот запрос как WebSocket-соединение (кнопка Connect). Токен передаётся в query-параметре token. После подключения отправляйте JSON-события, например:\n{\"type\":\"typing\",\"chat_id\":\"{{chat_id}}\"}\n{\"type\":\"call.signal\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
+            "url": "ws://{{ws_host}}/ws?token={{access_token}}",
+            "description": "ЭТО WEBSOCKET-ЗАПРОС, а не HTTP (Postman откроет вкладку WebSocket, не меняйте метод).\nНажмите Connect. Токен передаётся в query-параметре token.\nПосле подключения сервер шлёт ping каждые 30с и push-события {\"type\":\"<event>\",\"payload\":{...}} (например new_message, message_edited, call_invite, user_status).\nПримеры исходящих событий:\n{\"type\":\"typing\",\"chat_id\":\"{{chat_id}}\"}\n{\"type\":\"call.signal\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
           },
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           }
         },
         {
-          "name": "Socket.IO /socket.io (v2, realtime)",
+          "name": "2. Socket.IO /socket.io — подключение (v2)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/socket.io/?token={{access_token}}&EIO=4&transport=websocket",
-            "description": "Socket.IO v2 (только клиент socket.io-client@2.x). query-параметры: token + EIO=4 + transport=websocket.\nПосле handshake отправьте engine.io-фреймы, например '40' (probe), затем события в формате '42[\"message.new\",{...}]'."
+            "url": "ws://{{ws_host}}/socket.io/?token={{access_token}}&EIO=4&transport=websocket",
+            "description": "ЭТО WEBSOCKET-ЗАПРОС (Socket.IO v2), а не обычный HTTP GET.\nПодключение только для клиента socket.io-client@2.x. query-параметры: token + EIO=4 + transport=websocket.\nПосле handshake отправьте engine.io-фреймы: сначала '40' (probe), затем события в формате '42[\"message.new\",{...}]'. События идентичны /ws."
           },
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           }
         },
         {
-          "name": "WS /calls/ws (WebRTC-сигналинг)",
+          "name": "3. WS /calls/ws — сигналинг звонков (WebRTC)",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url_ws}}/calls/ws?token={{access_token}}",
-            "description": "WebSocket-сигналинг звонков. Подключитесь к /calls/ws с токеном и шлите {\"type\":\"offer\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
+            "url": "ws://{{ws_host}}/calls/ws?token={{access_token}}",
+            "description": "ЭТО WEBSOCKET-ЗАПРОС (WebRTC-сигналинг), а не HTTP GET.\nПодключитесь к /calls/ws с токеном и шлите:\n{\"type\":\"offer\",\"chat_id\":\"{{chat_id}}\",\"to\":\"{{user_id}}\",\"payload\":{}}"
           },
           "protocolProfileBehavior": {
             "disableBodyPruning": true
@@ -4095,8 +4033,8 @@
       "value": "http://localhost:8080"
     },
     {
-      "key": "base_url_ws",
-      "value": "ws://localhost:8080"
+      "key": "ws_host",
+      "value": "localhost:8080"
     },
     {
       "key": "access_token",
