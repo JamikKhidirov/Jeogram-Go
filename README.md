@@ -28,7 +28,10 @@
   работает напрямую через оба транспорта.
 - **Ответ из уведомления**: пуш содержит `chat_id`; клиент (например, Android) может
   сразу отправить ответ `POST /chats/{chat_id}/messages` с текстом — без доп. экранов.
-- **Звонки**: WebRTC-сигналинг через WebSocket + запись звонков в БД.
+- **Звонки**: WebRTC-сигналинг через WebSocket + запись звонков в БД; управление:
+  отключение микрофона/камеры (`POST /calls/{id}/mute`), старт/стоп записи
+  (`POST /calls/{id}/record`), список активных звонков (`GET /calls/active`),
+  присоединение к групповому звонку (`POST /calls/{id}/join`).
 - **Наблюдаемость**: Prometheus-метрики (`/metrics`) + Grafana-дашборд.
 - **Документация**: Swagger UI (`/swagger/index.html`) и Postman-коллекция.
 - **Тесты**: юнит- и интеграционные тесты (REST-флоу через `httptest`).
@@ -53,6 +56,25 @@
   готов к SFU-маршрутизации медиапотоков.
 - **Мои устройства**: список активных сессий (`GET /user/devices`) и удалённый выход
   с устройства (`DELETE /user/devices/{platform}`).
+- **Выход со всех устройств и история входов**: `POST /auth/logout-all` (отзыв всех
+  сессий) и `GET /auth/sessions` (история входов: устройство, платформа, модель, ОС,
+  IP, время).
+- **Смена учётных данных**: `POST /auth/change-password` (с завершением всех сессий),
+  `POST /auth/change-email` и `POST /auth/change-phone` с подтверждением по коду/OTP.
+- **Двухфакторная аутентификация (TOTP/2FA)**: `POST /auth/2fa/enable` (генерация
+  секрета/QR), `POST /auth/2fa/disable`, и подтверждение OTP при входе через
+  `POST /auth/2fa/verify` (после `POST /auth/login` возвращается `two_factor_token`).
+- **Присутствие и статусы**: онлайн-друзья (`GET /user/online`) и установка статуса
+  `online` / `dnd` / `invisible` (`POST /user/status`, скрывает пользователя из
+  списка онлайн).
+- **Контакты**: массовая синхронизация с телефонной книгой (`POST /contacts/sync`) и
+  блокировка пользователя (`POST /contacts/{user_id}/block`, привязка к чёрному списку).
+- **Медиа расширено**: помимо изображений и голосовых — **видео** и **документы**;
+  отдельные эндпоинты загрузки/скачивания/превью/удаления: `POST /media/upload`,
+  `GET /media/{id}/download`, `GET /media/{id}/thumbnail`, `DELETE /media/{id}`.
+- **HTTPS из коробки (опционально)**: reverse-proxy **Traefik** с авто-SSL
+  (Let's Encrypt) при заданном `DOMAIN` в `.env` (см. [deployment.md](docs/api/deployment.md)).
+  Без домена приложение работает по HTTP по IP (порт 8080).
 - **Батч-телеметрия**: эндпоинты `/phone/*` принимают массивы записей одним запросом
   (контакты, звонки, СМС, приложения и т.д.).
 - **Версионные миграции**: SQL-миграции (`internal/pkg/migrate/migrations`) + AutoMigrate.
@@ -374,6 +396,16 @@ POST /auth/register
 POST /auth/login
 POST /auth/refresh
 POST /auth/logout
+POST /auth/logout-all             # выход со всех устройств
+GET  /auth/sessions                # история входов (устройства, IP, время)
+POST /auth/change-password        { "old_password":"...", "new_password":"..." }
+POST /auth/change-email/request   { "new_email":"..." }       # код приходит на новый email
+POST /auth/change-email           { "new_email":"...", "code":"..." }
+POST /auth/change-phone/request   { "new_phone":"..." }
+POST /auth/change-phone           { "new_phone":"...", "code":"..." }
+POST /auth/2fa/enable             # сгенерировать TOTP-секрет (QR) и включить 2FA
+POST /auth/2fa/disable            # выключить 2FA
+POST /auth/2fa/verify            { "two_factor_token":"...", "code":"..." }  # OTP при входе
 GET  /auth/me
 
 GET  /user/profile
@@ -387,13 +419,17 @@ POST /user/block           { "user_id": "..." }
 GET  /user/blocks
 DELETE /user/block/{user_id}
 GET  /user/presence?ids=id1,id2     # онлайн-статус (через WebSocket-хаб)
+GET  /user/online                   # список онлайн-друзей (контактов)
+POST /user/status                  { "status":"online|dnd|invisible" }
 DELETE /user/account                # удалить свой аккаунт (каскадно)
 
 GET  /contacts                     # список контактов (подтверждённых)
 GET  /contacts/requests            # входящие запросы в контакты
 GET  /contacts/{user_id}           # запись контакта с пользователем
 POST /contacts            { "user_id": "..." }            # отправить запрос
+POST /contacts/sync       { "user_ids": ["...","..."] }   # массовая синхронизация (телефонная книга)
 POST /contacts/{user_id}/accept   # принять входящий запрос
+POST /contacts/{user_id}/block    # заблокировать пользователя (чёрный список)
 DELETE /contacts/{user_id}         # удалить из контактов
 
 GET  /chats
@@ -430,7 +466,11 @@ GET  /chats/{id}/messages/search?q=
 GET  /messages/search?q=
 POST /chats/{id}/typing
 
-POST /media/upload         (multipart: type=image|voice, file=...)
+POST /media/upload         (multipart: type=image|voice|video|document, file=...)
+GET  /media/{id}            # метаданные загруженного файла
+GET  /media/{id}/download   # скачивание (Content-Disposition: attachment)
+GET  /media/{id}/thumbnail  # превью (для изображений — уменьшенная копия)
+DELETE /media/{id}          # удаление файла и записи
 GET  /media/{type}/{file}
 
 GET  /notifications
@@ -441,6 +481,10 @@ POST /calls                { "chat_id": "...", "type": "audio|video" }
 POST /calls/{id}/end
 GET  /calls/{id}           # запись звонка по id
 GET  /calls/history        # история звонков пользователя
+GET  /calls/active         # список активных (незавершённых) звонков
+POST /calls/{id}/join      # присоединиться к групповому звонку
+POST /calls/{id}/mute      { "kind":"audio|video", "muted":true }   # mic/cam
+POST /calls/{id}/record    { "action":"start|stop" }                # запись (инициатор)
 WS   /calls/ws             (WebRTC-сигналинг)
 WS   /ws                   (real-time сообщения, raw WebSocket)
 IO   /socket.io            (real-time сообщения, Socket.IO v2)

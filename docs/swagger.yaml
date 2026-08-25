@@ -103,6 +103,13 @@ definitions:
       password:
         type: string
     type: object
+  github_com_jeogram_messenger_internal_modules_auth_handler.verify2FARequest:
+    properties:
+      code:
+        type: string
+      two_factor_token:
+        type: string
+    type: object
   github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest:
     properties:
       code:
@@ -761,6 +768,13 @@ definitions:
       password:
         type: string
     type: object
+  modules_auth_handler.verify2FARequest:
+    properties:
+      code:
+        type: string
+      two_factor_token:
+        type: string
+    type: object
   modules_auth_handler.verifyEmailRequest:
     properties:
       code:
@@ -837,7 +851,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest'
+          $ref: '#/definitions/modules_admin_handler.broadcastRequest'
       produces:
       - application/json
       responses:
@@ -994,7 +1008,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest'
+          $ref: '#/definitions/modules_admin_handler.createUserRequest'
       produces:
       - application/json
       responses:
@@ -1101,7 +1115,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest'
+          $ref: '#/definitions/modules_admin_handler.setRoleRequest'
       produces:
       - application/json
       responses:
@@ -1158,6 +1172,55 @@ paths:
       summary: 'Admin: поиск пользователей'
       tags:
       - admin
+  /auth/2fa/disable:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Выключить 2FA
+      tags:
+      - auth
+  /auth/2fa/enable:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Включить 2FA
+      tags:
+      - auth
+  /auth/2fa/verify:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: two_factor_token, code
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/modules_auth_handler.verify2FARequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+      summary: Подтвердить 2FA (OTP) при входе
+      tags:
+      - auth
   /auth/change-email:
     post:
       consumes:
@@ -1168,7 +1231,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest'
+          $ref: '#/definitions/modules_auth_handler.changeEmailRequest'
       produces:
       - application/json
       responses:
@@ -1191,7 +1254,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest'
+          $ref: '#/definitions/modules_auth_handler.changeEmailRequest'
       produces:
       - application/json
       responses:
@@ -1214,7 +1277,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest'
+          $ref: '#/definitions/modules_auth_handler.changePasswordRequest'
       produces:
       - application/json
       responses:
@@ -1237,7 +1300,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest'
+          $ref: '#/definitions/modules_auth_handler.changePhoneRequest'
       produces:
       - application/json
       responses:
@@ -1260,7 +1323,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest'
+          $ref: '#/definitions/modules_auth_handler.changePhoneRequest'
       produces:
       - application/json
       responses:
@@ -1283,7 +1346,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest'
+          $ref: '#/definitions/modules_auth_handler.forgotPasswordRequest'
       produces:
       - application/json
       responses:
@@ -1409,7 +1472,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest'
+          $ref: '#/definitions/modules_auth_handler.otpRequest'
       produces:
       - application/json
       responses:
@@ -1444,7 +1507,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest'
+          $ref: '#/definitions/modules_auth_handler.resetPasswordRequest'
       produces:
       - application/json
       responses:
@@ -1479,7 +1542,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest'
+          $ref: '#/definitions/modules_auth_handler.verifyEmailRequest'
       produces:
       - application/json
       responses:
@@ -1502,7 +1565,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest'
+          $ref: '#/definitions/modules_auth_handler.verifyOTPRequest'
       produces:
       - application/json
       responses:
@@ -2471,7 +2534,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_contact_handler.syncRequest'
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest'
       produces:
       - application/json
       responses:
@@ -4085,7 +4148,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_user_handler.userStatusRequest'
+          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest'
       produces:
       - application/json
       responses:

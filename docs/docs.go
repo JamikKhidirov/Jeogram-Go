@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest"
+                            "$ref": "#/definitions/modules_admin_handler.broadcastRequest"
                         }
                     }
                 ],
@@ -297,7 +297,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest"
+                            "$ref": "#/definitions/modules_admin_handler.createUserRequest"
                         }
                     }
                 ],
@@ -511,7 +511,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest"
+                            "$ref": "#/definitions/modules_admin_handler.setRoleRequest"
                         }
                     }
                 ],
@@ -558,6 +558,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/2fa/disable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выключить 2FA",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/2fa/enable": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Включить 2FA",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/2fa/verify": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Подтвердить 2FA (OTP) при входе",
+                "parameters": [
+                    {
+                        "description": "two_factor_token, code",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/modules_auth_handler.verify2FARequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/change-email": {
             "post": {
                 "security": [
@@ -582,7 +663,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
+                            "$ref": "#/definitions/modules_auth_handler.changeEmailRequest"
                         }
                     }
                 ],
@@ -620,7 +701,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
+                            "$ref": "#/definitions/modules_auth_handler.changeEmailRequest"
                         }
                     }
                 ],
@@ -658,7 +739,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest"
+                            "$ref": "#/definitions/modules_auth_handler.changePasswordRequest"
                         }
                     }
                 ],
@@ -696,7 +777,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
+                            "$ref": "#/definitions/modules_auth_handler.changePhoneRequest"
                         }
                     }
                 ],
@@ -734,7 +815,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
+                            "$ref": "#/definitions/modules_auth_handler.changePhoneRequest"
                         }
                     }
                 ],
@@ -767,7 +848,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest"
+                            "$ref": "#/definitions/modules_auth_handler.forgotPasswordRequest"
                         }
                     }
                 ],
@@ -971,7 +1052,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest"
+                            "$ref": "#/definitions/modules_auth_handler.otpRequest"
                         }
                     }
                 ],
@@ -1028,7 +1109,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest"
+                            "$ref": "#/definitions/modules_auth_handler.resetPasswordRequest"
                         }
                     }
                 ],
@@ -1090,7 +1171,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest"
+                            "$ref": "#/definitions/modules_auth_handler.verifyEmailRequest"
                         }
                     }
                 ],
@@ -1123,7 +1204,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest"
+                            "$ref": "#/definitions/modules_auth_handler.verifyOTPRequest"
                         }
                     }
                 ],
@@ -2581,7 +2662,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_contact_handler.syncRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest"
                         }
                     }
                 ],
@@ -5383,7 +5464,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_user_handler.userStatusRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest"
                         }
                     }
                 ],
@@ -5574,6 +5655,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verify2FARequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "two_factor_token": {
                     "type": "string"
                 }
             }
@@ -6571,6 +6663,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.verify2FARequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "two_factor_token": {
                     "type": "string"
                 }
             }

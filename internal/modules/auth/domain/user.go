@@ -6,22 +6,24 @@ import (
 
 // User is the core account entity. Password hashes are never serialized to JSON.
 type User struct {
-	ID            string    `gorm:"type:uuid;primary_key" json:"id"`
-	Email         string    `gorm:"uniqueIndex;size:255" json:"email"`
-	Username      string    `gorm:"uniqueIndex;size:64" json:"username"`
-	Phone         string    `gorm:"size:32" json:"phone,omitempty"`
-	PasswordHash  string    `gorm:"size:255" json:"-"`
-	DisplayName   string    `gorm:"size:128" json:"display_name"`
-	AvatarURL     string    `gorm:"size:512" json:"avatar_url"`
-	EmailVerified bool      `json:"email_verified"`
-	PhoneVerified bool      `json:"phone_verified"`
-	Status        string    `gorm:"size:16;default:active" json:"status"`
-	Role          string    `gorm:"size:16;default:user" json:"role"`
-	LastSeenIP    string    `gorm:"size:64" json:"last_seen_ip,omitempty"`
-	UserAgent     string    `gorm:"size:256" json:"user_agent,omitempty"`
-	LastSeenAt    time.Time `json:"last_seen_at,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID               string    `gorm:"type:uuid;primary_key" json:"id"`
+	Email            string    `gorm:"uniqueIndex;size:255" json:"email"`
+	Username         string    `gorm:"uniqueIndex;size:64" json:"username"`
+	Phone            string    `gorm:"size:32" json:"phone,omitempty"`
+	PasswordHash     string    `gorm:"size:255" json:"-"`
+	DisplayName      string    `gorm:"size:128" json:"display_name"`
+	AvatarURL        string    `gorm:"size:512" json:"avatar_url"`
+	EmailVerified    bool      `json:"email_verified"`
+	PhoneVerified    bool      `json:"phone_verified"`
+	TwoFactorEnabled bool      `json:"two_factor_enabled"`
+	TOTPSecret       string    `gorm:"size:255" json:"-"`
+	Status           string    `gorm:"size:16;default:active" json:"status"`
+	Role             string    `gorm:"size:16;default:user" json:"role"`
+	LastSeenIP       string    `gorm:"size:64" json:"last_seen_ip,omitempty"`
+	UserAgent        string    `gorm:"size:256" json:"user_agent,omitempty"`
+	LastSeenAt       time.Time `json:"last_seen_at,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // User statuses and roles.
@@ -52,6 +54,13 @@ type LoginRequest struct {
 // RefreshRequest carries a refresh token.
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+// TwoFactorChallenge возвращается при логине, если у пользователя включён 2FA.
+// Клиент должен отправить two_factor_token + OTP-код в /auth/2fa/verify.
+type TwoFactorChallenge struct {
+	Required bool   `json:"two_factor_required"`
+	Token    string `json:"two_factor_token,omitempty"`
 }
 
 // AuthResult is returned after successful authentication.

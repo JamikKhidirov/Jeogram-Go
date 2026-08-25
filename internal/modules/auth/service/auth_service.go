@@ -16,6 +16,7 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/mail"
 	"github.com/jeogram/messenger/internal/pkg/webhook"
+	"github.com/pquerna/otp/totp"
 )
 
 // ErrInvalidCredentials is returned when login fails.
@@ -83,24 +84,34 @@ func (s *AuthService) Register(ctx context.Context, req domain.RegisterRequest) 
 }
 
 // Login authenticates a user by email + password.
-func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResult, error) {
+// Если у пользователя включён 2FA, вместо токенов возвращается TwoFactorChallenge
+// (two_factor_token), который нужно подтвердить через /auth/2fa/verify.
+func (s *AuthService) Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResult, *domain.TwoFactorChallenge, error) {
 	u, err := s.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
-			return nil, ErrInvalidCredentials
+			return nil, nil, ErrInvalidCredentials
 		}
-		return nil, err
+		return nil, nil, err
 	}
 	if !auth.CheckPassword(u.PasswordHash, req.Password) {
-		return nil, ErrInvalidCredentials
+		return nil, nil, ErrInvalidCredentials
 	}
 	if u.Status == domain.StatusBanned {
-		return nil, errors.New("account banned")
+		return nil, nil, errors.New("account banned")
 	}
 	if s.authCfg.RequireEmailVerified && !u.EmailVerified {
-		return nil, ErrEmailNotVerified
+		return nil, nil, ErrEmailNotVerified
 	}
-	return s.issue(ctx, u)
+	if u.TwoFactorEnabled && u.TOTPSecret != "" {
+		token, err := s.jwt.Generate2FA(u.ID, u.Email)
+		if err != nil {
+			return nil, nil, err
+		}
+		return nil, &domain.TwoFactorChallenge{Required: true, Token: token}, nil
+	}
+	res, err := s.issue(ctx, u)
+	return res, nil, err
 }
 
 // sendVerification генерирует и отправляет код подтверждения на email.
@@ -462,6 +473,58 @@ func (s *AuthService) ChangePhone(ctx context.Context, userID, newPhone, code st
 	u.Phone = newPhone
 	u.PhoneVerified = true
 	return s.repo.Update(ctx, u)
+}
+
+// Enable2FA генерирует TOTP-секрет и включает двухфакторную аутентификацию.
+// Возвращает секрет и otpauth-URL (для отображения QR-кода в клиенте).
+func (s *AuthService) Enable2FA(ctx context.Context, userID string) (string, string, error) {
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return "", "", err
+	}
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "Jeogram",
+		AccountName: u.Email,
+	})
+	if err != nil {
+		return "", "", err
+	}
+	u.TOTPSecret = key.Secret()
+	u.TwoFactorEnabled = true
+	if err := s.repo.Update(ctx, u); err != nil {
+		return "", "", err
+	}
+	return key.Secret(), key.URL(), nil
+}
+
+// Disable2FA выключает двухфакторную аутентификацию.
+func (s *AuthService) Disable2FA(ctx context.Context, userID string) error {
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	u.TwoFactorEnabled = false
+	u.TOTPSecret = ""
+	return s.repo.Update(ctx, u)
+}
+
+// Verify2FA подтверждает OTP-код и выдаёт пару токенов.
+func (s *AuthService) Verify2FA(ctx context.Context, challengeToken, code string) (*domain.AuthResult, error) {
+	claims, err := s.jwt.Parse2FA(challengeToken)
+	if err != nil {
+		return nil, errors.New("invalid or expired 2fa token")
+	}
+	u, err := s.repo.GetByID(ctx, claims.UserID)
+	if err != nil {
+		return nil, err
+	}
+	if !u.TwoFactorEnabled || u.TOTPSecret == "" {
+		return nil, errors.New("2fa not enabled")
+	}
+	if !totp.Validate(code, u.TOTPSecret) {
+		return nil, errors.New("invalid otp code")
+	}
+	return s.issue(ctx, u)
 }
 
 func (s *AuthService) issue(ctx context.Context, u *domain.User) (*domain.AuthResult, error) {

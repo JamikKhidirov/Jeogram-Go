@@ -43,16 +43,16 @@ func TestAuthService_RegisterLoginMe(t *testing.T) {
 	}
 
 	// Логин с верным паролем.
-	login, err := svc.Login(ctx, domain.LoginRequest{Email: "alice@example.com", Password: "password123"})
+	login, _, err := svc.Login(ctx, domain.LoginRequest{Email: "alice@example.com", Password: "password123"})
 	if err != nil {
 		t.Fatalf("логин не удался: %v", err)
 	}
-	if login.AccessToken == "" {
+	if login == nil || login.AccessToken == "" {
 		t.Fatal("access token пуст")
 	}
 
 	// Логин с неверным паролем.
-	if _, err := svc.Login(ctx, domain.LoginRequest{Email: "alice@example.com", Password: "wrong"}); err != ErrInvalidCredentials {
+	if _, _, err := svc.Login(ctx, domain.LoginRequest{Email: "alice@example.com", Password: "wrong"}); err != ErrInvalidCredentials {
 		t.Fatalf("ожидалась ошибка неверных учётных данных, получено: %v", err)
 	}
 

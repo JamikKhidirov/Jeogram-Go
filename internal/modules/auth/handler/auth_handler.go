@@ -53,6 +53,9 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-email", h.ChangeEmail)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-phone/request", h.RequestPhoneChange)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-phone", h.ChangePhone)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/2fa/enable", h.Enable2FA)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/2fa/disable", h.Disable2FA)
+	r.Post("/auth/2fa/verify", h.Verify2FA)
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -91,9 +94,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusUnprocessableEntity, "validation_error", firstErr(errs))
 		return
 	}
-	res, err := h.svc.Login(r.Context(), req)
+	res, challenge, err := h.svc.Login(r.Context(), req)
 	if err != nil {
 		handleAuthError(w, err)
+		return
+	}
+	if challenge != nil && challenge.Required {
+		response.WriteOK(w, challenge)
 		return
 	}
 	response.WriteOK(w, res)
@@ -460,6 +467,71 @@ func (h *AuthHandler) ChangePhone(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "phone_changed"})
+}
+
+type enable2FAResponse struct {
+	Secret     string `json:"secret"`
+	OTPAuthURL string `json:"otpauth_url"`
+}
+
+// Enable2FA генерирует TOTP-секрет и включает 2FA для аккаунта.
+// @Summary Включить 2FA
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /auth/2fa/enable [post]
+func (h *AuthHandler) Enable2FA(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	secret, url, err := h.svc.Enable2FA(r.Context(), userID)
+	if err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, enable2FAResponse{Secret: secret, OTPAuthURL: url})
+}
+
+// Disable2FA выключает 2FA.
+// @Summary Выключить 2FA
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /auth/2fa/disable [post]
+func (h *AuthHandler) Disable2FA(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	if err := h.svc.Disable2FA(r.Context(), userID); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "2fa_disabled"})
+}
+
+type verify2FARequest struct {
+	TwoFactorToken string `json:"two_factor_token"`
+	Code           string `json:"code"`
+}
+
+// Verify2FA подтверждает OTP-код, полученный после логина, и выдаёт токены.
+// @Summary Подтвердить 2FA (OTP) при входе
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param body body verify2FARequest true "two_factor_token, code"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/2fa/verify [post]
+func (h *AuthHandler) Verify2FA(w http.ResponseWriter, r *http.Request) {
+	var req verify2FARequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.TwoFactorToken == "" || req.Code == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "two_factor_token and code required")
+		return
+	}
+	res, err := h.svc.Verify2FA(r.Context(), req.TwoFactorToken, req.Code)
+	if err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, res)
 }
 
 func handleAuthError(w http.ResponseWriter, err error) {

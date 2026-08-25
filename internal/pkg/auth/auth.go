@@ -13,6 +13,7 @@ import (
 type Claims struct {
 	UserID string `json:"uid"`
 	Email  string `json:"email"`
+	Scope  string `json:"scope,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -68,6 +69,36 @@ func (j *JWT) GeneratePair(userID, email string) (TokenPair, error) {
 // ParseAccess validates an access token and returns its claims.
 func (j *JWT) ParseAccess(tokenStr string) (*Claims, error) {
 	return parse(tokenStr, j.cfg.AccessSecret)
+}
+
+// Generate2FA выпускает короткоживущий challenge-токен для подтверждения 2FA.
+// Подписывается access-секретом, но имеет scope="2fa" и TTL 5 минут.
+func (j *JWT) Generate2FA(userID, email string) (string, error) {
+	now := time.Now()
+	claims := Claims{
+		UserID: userID,
+		Email:  email,
+		Scope:  "2fa",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    j.cfg.Issuer,
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(5 * time.Minute)),
+		},
+	}
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return tok.SignedString([]byte(j.cfg.AccessSecret))
+}
+
+// Parse2FA проверяет challenge-токен 2FA и возвращает claims (scope должен быть "2fa").
+func (j *JWT) Parse2FA(tokenStr string) (*Claims, error) {
+	c, err := parse(tokenStr, j.cfg.AccessSecret)
+	if err != nil {
+		return nil, err
+	}
+	if c.Scope != "2fa" {
+		return nil, errors.New("invalid 2fa token")
+	}
+	return c, nil
 }
 
 // ParseRefresh validates a refresh token and returns its claims.

@@ -118,6 +118,33 @@ email отправляет код.
 - `POST /auth/change-phone` — `{ "new_phone": "...", "code": "123456" }`.
   Подтверждает смену, проставляет `phone_verified=true`.
 
+## Двухфакторная аутентификация (TOTP / 2FA)
+
+- `POST /auth/2fa/enable` (Bearer) — генерирует TOTP-секрет и включает 2FA.
+  Возвращает `{ "secret": "...", "otpauth_url": "otpauth://..." }` (покажите
+  QR-код из `otpauth_url` в приложении-аутентификаторе).
+- `POST /auth/2fa/disable` (Bearer) — выключает 2FA.
+- После `POST /auth/login` у пользователя с включённым 2FA вместо токенов
+  возвращается `{ "two_factor_required": true, "two_factor_token": "..." }`.
+- `POST /auth/2fa/verify` (публичный) — `{ "two_factor_token": "...", "code": "123456" }`.
+  Подтверждает OTP-код и возвращает пару токенов (`access_token`/`refresh_token`).
+
+Пример потока:
+
+```bash
+# 1) включить 2FA (получить secret / qr)
+curl -X POST http://localhost:8080/auth/2fa/enable -H "Authorization: Bearer $TOKEN"
+
+# 2) логин — получаем challenge
+curl -X POST http://localhost:8080/auth/login -d '{"email":"a@b.com","password":"..."}'
+# => {"two_factor_required":true,"two_factor_token":"<CHAL>"}
+
+# 3) подтвердить OTP из приложения-аутентификатора
+curl -X POST http://localhost:8080/auth/2fa/verify \
+  -d '{"two_factor_token":"<CHAL>","code":"123456"}'
+# => {"access_token":"...","refresh_token":"..."}
+```
+
 ## Конфигурация (env)
 
 | Переменная | По умолчанию | Назначение |
