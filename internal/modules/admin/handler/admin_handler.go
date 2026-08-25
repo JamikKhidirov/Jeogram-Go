@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	authdomain "github.com/jeogram/messenger/internal/modules/auth/domain"
 	calldomain "github.com/jeogram/messenger/internal/modules/calls/domain"
 	chatdomain "github.com/jeogram/messenger/internal/modules/chat/domain"
@@ -329,7 +330,7 @@ func (h *AdminHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Status:       authdomain.StatusActive,
 		Role:         role,
 	}
-	// Проверка уникальности перед вставкой.
+	u.ID = uuid.NewString()
 	var dup int64
 	h.db.WithContext(r.Context()).Model(&authdomain.User{}).
 		Where("email = ? OR username = ?", req.Email, req.Username).Count(&dup)
