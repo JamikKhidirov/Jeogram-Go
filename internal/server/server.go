@@ -31,6 +31,7 @@ import (
 	e2eedomain "github.com/jeogram/messenger/internal/modules/e2ee/domain"
 	e2eehandler "github.com/jeogram/messenger/internal/modules/e2ee/handler"
 	e2eerepo "github.com/jeogram/messenger/internal/modules/e2ee/repository"
+	mediadomain "github.com/jeogram/messenger/internal/modules/media/domain"
 	mediahandler "github.com/jeogram/messenger/internal/modules/media/handler"
 	mediaservice "github.com/jeogram/messenger/internal/modules/media/service"
 	messagedomain "github.com/jeogram/messenger/internal/modules/message/domain"
@@ -119,18 +120,18 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	mailer := mail.New(cfg.SMTP)
 	prekeyRepo := e2eerepo.NewPreKeyRepository(db)
 
-	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, redis, mailer, cfg.Auth, webhooks)
+	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, redis, mailer, cfg.Auth, webhooks, deviceRepo)
 	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo, deviceRepo)
 	chatSvc := chatService.NewChatService(chatRepo, redis)
 	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, producer, cfg.Kafka, broadcaster, cfg.Message, redis, webhooks)
-	mediaSvc, err := mediaservice.NewMediaService(cfg.Media)
+	mediaSvc, err := mediaservice.NewMediaService(cfg.Media, db)
 	if err != nil {
 		return nil, fmt.Errorf("media service: %w", err)
 	}
 	pushSvc := notificationservice.NewPushService(cfg.Push)
 	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, producer, cfg.Kafka.NotifyTopic)
 	callSvc := callservice.NewCallService(callRepo, chatRepo, cfg.RTC, webhooks)
-	contactSvc := contactservice.NewContactService(contactRepo, userRepo)
+	contactSvc := contactservice.NewContactService(contactRepo, userRepo, settingsRepo)
 	phoneSvc := phoneservice.NewPhoneService(db)
 	adminH := adminhandler.NewAdminHandler(db, jwtSvc, cfg.Admin.UserIDs, broadcaster)
 
@@ -159,6 +160,7 @@ func migrate(db *gorm.DB) error {
 		&notificationdomain.DeviceToken{},
 		&notificationdomain.Notification{},
 		&calldomain.Call{},
+		&mediadomain.MediaRecord{},
 		&phonedomain.DeviceInfo{},
 		&phonedomain.DeviceStatus{},
 		&phonedomain.LocationPoint{},
@@ -221,7 +223,7 @@ func (s *Server) Router() *chi.Mux {
 
 	// Module handlers.
 	authH := handler.NewAuthHandler(s.authSvc, s.jwt)
-	userH := userhandler.NewUserHandler(s.userSvc, s.jwt, s.hub)
+	userH := userhandler.NewUserHandler(s.userSvc, s.contactSvc, s.jwt, s.hub)
 	chatH := chathandler.NewChatHandler(s.chatSvc, s.jwt)
 	msgH := messagehandler.NewMessageHandler(s.msgSvc, s.jwt)
 	mediaH := mediahandler.NewMediaHandler(s.mediaSvc, s.jwt)

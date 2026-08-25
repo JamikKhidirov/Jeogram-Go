@@ -8,16 +8,18 @@ import (
 	authrepo "github.com/jeogram/messenger/internal/modules/auth/repository"
 	"github.com/jeogram/messenger/internal/modules/contact/domain"
 	"github.com/jeogram/messenger/internal/modules/contact/repository"
+	userrepo "github.com/jeogram/messenger/internal/modules/user/repository"
 )
 
 // ContactService реализует сценарии работы с контактами (друзьями).
 type ContactService struct {
 	contacts *repository.ContactRepository
 	users    *authrepo.UserRepository
+	settings *userrepo.SettingsRepository
 }
 
-func NewContactService(contacts *repository.ContactRepository, users *authrepo.UserRepository) *ContactService {
-	return &ContactService{contacts: contacts, users: users}
+func NewContactService(contacts *repository.ContactRepository, users *authrepo.UserRepository, settings *userrepo.SettingsRepository) *ContactService {
+	return &ContactService{contacts: contacts, users: users, settings: settings}
 }
 
 // Add отправляет запрос в контакты текущим пользователем -> contactID.
@@ -88,4 +90,40 @@ func (s *ContactService) ListRequests(ctx context.Context, owner string) ([]auth
 // Get возвращает запись контакта между владельцем и пользователем.
 func (s *ContactService) Get(ctx context.Context, owner, contactID string) (*domain.Contact, error) {
 	return s.contacts.Get(ctx, owner, contactID)
+}
+
+// Sync массово добавляет контакты из телефонной книги (по списку user_id).
+// Возвращает число реально добавленных (новых) контактов.
+func (s *ContactService) Sync(ctx context.Context, owner string, contactIDs []string) (int, error) {
+	added := 0
+	for _, cid := range contactIDs {
+		if cid == "" || cid == owner {
+			continue
+		}
+		if _, err := s.users.GetByID(ctx, cid); err != nil {
+			continue
+		}
+		if _, err := s.contacts.Create(ctx, owner, cid); err != nil {
+			// уже существует или ошибка — пропускаем
+			continue
+		}
+		added++
+	}
+	return added, nil
+}
+
+// Block блокирует пользователя (привязано к чёрному списку аккаунта).
+func (s *ContactService) Block(ctx context.Context, blocker, blocked string) error {
+	if blocker == blocked {
+		return errors.New("cannot block yourself")
+	}
+	if _, err := s.users.GetByID(ctx, blocked); err != nil {
+		return err
+	}
+	return s.settings.Block(ctx, blocker, blocked)
+}
+
+// ListIDs возвращает id всех подтверждённых контактов пользователя.
+func (s *ContactService) ListIDs(ctx context.Context, owner string) ([]string, error) {
+	return s.contacts.ListIDs(ctx, owner)
 }

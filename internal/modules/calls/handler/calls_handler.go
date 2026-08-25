@@ -48,6 +48,10 @@ func (h *CallsHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/history", h.History)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/ice-servers", h.ICEServers)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/recording", h.SetRecording)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/mute", h.Mute)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/record", h.Record)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/calls/{id}/join", h.Join)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/calls/active", h.Active)
 }
 
 type startCallRequest struct {
@@ -235,6 +239,15 @@ type setRecordingRequest struct {
 	URL string `json:"url" validate:"required"`
 }
 
+type muteRequest struct {
+	Kind  string `json:"kind"` // audio | video
+	Muted bool   `json:"muted"`
+}
+
+type recordRequest struct {
+	Action string `json:"action"` // start | stop
+}
+
 // SetRecording прикрепляет ссылку на запись звонка (только инициатор).
 // @Summary Сохранить запись звонка
 // @Tags calls
@@ -263,4 +276,121 @@ func (h *CallsHandler) SetRecording(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, call)
+}
+
+// Mute отключает/включает микрофон или камеру участника во время звонка.
+// @Summary Мьют микрофона/камеры
+// @Tags calls
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id звонка"
+// @Param body body muteRequest true "kind + muted"
+// @Success 200 {object} response.APIResponse
+// @Router /calls/{id}/mute [post]
+func (h *CallsHandler) Mute(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	var req muteRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid json")
+		return
+	}
+	kind := req.Kind
+	if kind != "video" {
+		kind = "audio"
+	}
+	if err := h.svc.SetMute(r.Context(), id, userID, kind, req.Muted); err != nil {
+		if err == service.ErrForbidden {
+			response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())
+			return
+		}
+		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
+		return
+	}
+	if call, err := h.svc.Get(r.Context(), id); err == nil {
+		if participants, err := h.chats.Participants(r.Context(), call.ChatID); err == nil {
+			h.hub.SendToUsers(participants, ws.Outbound{
+				Type:    "call.participant_muted",
+				Payload: map[string]interface{}{"call_id": id, "user_id": userID, "kind": kind, "muted": req.Muted},
+			})
+		}
+	}
+	response.WriteOK(w, map[string]string{"status": "ok"})
+}
+
+// Record запускает/останавливает запись звонка (только инициатор).
+// @Summary Старт/стоп записи звонка
+// @Tags calls
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id звонка"
+// @Param body body recordRequest true "action: start|stop"
+// @Success 200 {object} response.APIResponse
+// @Router /calls/{id}/record [post]
+func (h *CallsHandler) Record(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	var req recordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || (req.Action != "start" && req.Action != "stop") {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "action must be start|stop")
+		return
+	}
+	call, err := h.svc.SetRecordingState(r.Context(), id, userID, req.Action == "start")
+	if err != nil {
+		if err == service.ErrForbidden {
+			response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())
+			return
+		}
+		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
+		return
+	}
+	response.WriteOK(w, call)
+}
+
+// Join добавляет участника в групповой звонок.
+// @Summary Присоединиться к групповому звонку
+// @Tags calls
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "id звонка"
+// @Success 200 {object} response.APIResponse
+// @Router /calls/{id}/join [post]
+func (h *CallsHandler) Join(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	if err := h.svc.Join(r.Context(), id, userID); err != nil {
+		if err == service.ErrForbidden {
+			response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())
+			return
+		}
+		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
+		return
+	}
+	if call, err := h.svc.Get(r.Context(), id); err == nil {
+		if participants, err := h.chats.Participants(r.Context(), call.ChatID); err == nil {
+			h.hub.SendToUsers(participants, ws.Outbound{
+				Type:    "call.joined",
+				Payload: map[string]interface{}{"call_id": id, "user_id": userID},
+			})
+		}
+	}
+	response.WriteOK(w, map[string]string{"status": "joined"})
+}
+
+// Active возвращает список активных (незавершённых) звонков.
+// @Summary Активные звонки
+// @Tags calls
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /calls/active [get]
+func (h *CallsHandler) Active(w http.ResponseWriter, r *http.Request) {
+	calls, err := h.svc.ListActive(r.Context())
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, calls)
 }

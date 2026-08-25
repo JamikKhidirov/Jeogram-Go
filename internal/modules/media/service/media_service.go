@@ -1,55 +1,96 @@
 package service
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jeogram/messenger/internal/config"
 	"github.com/jeogram/messenger/internal/modules/media/domain"
+	"github.com/jeogram/messenger/internal/modules/media/repository"
+	"gorm.io/gorm"
 )
 
-// MediaService stores uploaded files on local disk and returns public URLs.
+// MediaService stores uploaded files on local disk and tracks metadata by UUID.
 type MediaService struct {
-	cfg config.MediaConfig
+	cfg  config.MediaConfig
+	repo *repository.MediaRepository
 }
 
-func NewMediaService(cfg config.MediaConfig) (*MediaService, error) {
+// NewMediaService builds a MediaService.
+func NewMediaService(cfg config.MediaConfig, db *gorm.DB) (*MediaService, error) {
 	if err := os.MkdirAll(cfg.UploadDir, 0o755); err != nil {
 		return nil, err
 	}
-	return &MediaService{cfg: cfg}, nil
+	return &MediaService{cfg: cfg, repo: repository.NewMediaRepository(db)}, nil
 }
 
-// Save validates and persists an uploaded file, returning its public URL.
-func (s *MediaService) Save(mediaType domain.MediaType, contentType, filename string, data []byte) (string, error) {
+// Save validates and persists an uploaded file, returning its metadata (with id).
+func (s *MediaService) Save(ctx context.Context, ownerID string, mediaType domain.MediaType, contentType, filename string, data []byte) (*domain.MediaRecord, error) {
 	if !allowed(s.AllowedTypes(mediaType), contentType) {
-		return "", fmt.Errorf("unsupported content type %q for %s", contentType, mediaType)
+		return nil, fmt.Errorf("unsupported content type %q for %s", contentType, mediaType)
 	}
 	ext := strings.ToLower(filepath.Ext(filename))
 	if !allowed(s.AllowedExts(mediaType), ext) {
-		return "", fmt.Errorf("unsupported extension %q for %s", ext, mediaType)
+		return nil, fmt.Errorf("unsupported extension %q for %s", ext, mediaType)
 	}
 	if int64(len(data)) > s.cfg.MaxFileSize {
-		return "", fmt.Errorf("file too large: max %d bytes", s.cfg.MaxFileSize)
+		return nil, fmt.Errorf("file too large: max %d bytes", s.cfg.MaxFileSize)
 	}
 
-	// Hash content to avoid duplicates and provide a stable name.
-	sum := sha256.Sum256(data)
-	stored := fmt.Sprintf("%s_%s%s", uuid.NewString()[:8], hex.EncodeToString(sum[:])[:16], ext)
+	id := uuid.NewString()
+	stored := fmt.Sprintf("%s%s", id, ext)
 	dir := filepath.Join(s.cfg.UploadDir, string(mediaType))
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", err
+		return nil, err
 	}
 	dst := filepath.Join(dir, stored)
 	if err := os.WriteFile(dst, data, 0o600); err != nil {
-		return "", err
+		return nil, err
 	}
-	return fmt.Sprintf("%s/%s/%s", strings.TrimRight(s.cfg.BaseURL, "/"), mediaType, stored), nil
+	url := fmt.Sprintf("%s/%s/%s", strings.TrimRight(s.cfg.BaseURL, "/"), mediaType, stored)
+	rec := &domain.MediaRecord{
+		OwnerID:     ownerID,
+		Type:        mediaType,
+		ContentType: contentType,
+		Filename:    filename,
+		URL:         url,
+		Size:        int64(len(data)),
+		CreatedAt:   time.Now(),
+	}
+	if s.repo != nil {
+		if err := s.repo.Create(ctx, rec); err != nil {
+			return nil, err
+		}
+	}
+	return rec, nil
+}
+
+// Get returns media metadata by id.
+func (s *MediaService) Get(ctx context.Context, id string) (*domain.MediaRecord, error) {
+	if s.repo == nil {
+		return nil, repository.ErrMediaNotFound
+	}
+	return s.repo.Get(ctx, id)
+}
+
+// Delete removes the media record and the underlying file.
+func (s *MediaService) Delete(ctx context.Context, id string) error {
+	if s.repo == nil {
+		return repository.ErrMediaNotFound
+	}
+	rec, err := s.repo.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+	if p, err := s.PathFor(rec.URL); err == nil {
+		_ = os.Remove(p)
+	}
+	return s.repo.Delete(ctx, id)
 }
 
 // PathFor resolves a stored URL back to a filesystem path (for serving).
@@ -66,11 +107,16 @@ func (s *MediaService) PathFor(url string) (string, error) {
 	return p, nil
 }
 
+// AllowedTypes returns the allowed MIME types for a media type.
 func (s *MediaService) AllowedTypes(m domain.MediaType) []string {
 	return domain.AllowedContentTypes[m]
 }
+
+// AllowedExts returns the allowed file extensions for a media type.
 func (s *MediaService) AllowedExts(m domain.MediaType) []string { return domain.AllowedExtensions[m] }
-func (s *MediaService) BaseURL() string                         { return s.cfg.BaseURL }
+
+// BaseURL returns the configured public base URL for media.
+func (s *MediaService) BaseURL() string { return s.cfg.BaseURL }
 
 func allowed(list []string, val string) bool {
 	for _, v := range list {

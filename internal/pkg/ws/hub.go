@@ -35,6 +35,7 @@ type Client struct {
 type Hub struct {
 	mu         sync.RWMutex
 	clients    map[string][]*Client
+	statuses   map[string]string
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan broadcastMsg
@@ -49,6 +50,7 @@ type broadcastMsg struct {
 func NewHub() *Hub {
 	return &Hub{
 		clients:    make(map[string][]*Client),
+		statuses:   make(map[string]string),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		broadcast:  make(chan broadcastMsg, 256),
@@ -116,6 +118,53 @@ func (h *Hub) IsOnline(userID string) bool {
 	defer h.mu.RUnlock()
 	_, ok := h.clients[userID]
 	return ok
+}
+
+// SetStatus сохраняет пользовательский статус присутствия (online|dnd|invisible)
+// и оповещает текущие соединения пользователя событием user_status.
+func (h *Hub) SetStatus(userID, status string) {
+	h.mu.Lock()
+	h.statuses[userID] = status
+	h.mu.Unlock()
+	h.SendToUsers([]string{userID}, Outbound{
+		Type:    "user_status",
+		Payload: map[string]interface{}{"user_id": userID, "status": status},
+	})
+}
+
+// PresenceStatus возвращает статус присутствия пользователя. Для неподключённых —
+// "offline". Для подключённых без явного статуса — "online".
+func (h *Hub) PresenceStatus(userID string) string {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	if _, ok := h.clients[userID]; !ok {
+		return "offline"
+	}
+	if s, ok := h.statuses[userID]; ok {
+		return s
+	}
+	return "online"
+}
+
+// OnlineFriends возвращает подключённых контактов, чей статус не "invisible".
+func (h *Hub) OnlineFriends(contacts []string) []map[string]string {
+	h.mu.RLock()
+	out := make([]map[string]string, 0, len(contacts))
+	for _, id := range contacts {
+		if _, ok := h.clients[id]; !ok {
+			continue
+		}
+		st := "online"
+		if s, ok := h.statuses[id]; ok {
+			st = s
+		}
+		if st == "invisible" {
+			continue
+		}
+		out = append(out, map[string]string{"user_id": id, "status": st})
+	}
+	h.mu.RUnlock()
+	return out
 }
 
 // SendToUsers delivers a payload to all connections of the given users.

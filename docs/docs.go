@@ -577,7 +577,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest"
+                            "$ref": "#/definitions/modules_auth_handler.forgotPasswordRequest"
                         }
                     }
                 ],
@@ -638,6 +638,30 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Выход",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout-all": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход со всех устройств",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -757,7 +781,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest"
+                            "$ref": "#/definitions/modules_auth_handler.otpRequest"
                         }
                     }
                 ],
@@ -814,10 +838,34 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest"
+                            "$ref": "#/definitions/modules_auth_handler.resetPasswordRequest"
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "История входов",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -852,7 +900,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest"
+                            "$ref": "#/definitions/modules_auth_handler.verifyEmailRequest"
                         }
                     }
                 ],
@@ -885,7 +933,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest"
+                            "$ref": "#/definitions/modules_auth_handler.verifyOTPRequest"
                         }
                     }
                 ],
@@ -923,13 +971,37 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_calls_handler.startCallRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/calls/active": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Активные звонки",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
@@ -1086,6 +1158,129 @@ const docTemplate = `{
                 }
             }
         },
+        "/calls/{id}/join": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Присоединиться к групповому звонку",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id звонка",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/calls/{id}/mute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Мьют микрофона/камеры",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id звонка",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "kind + muted",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.muteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/calls/{id}/record": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calls"
+                ],
+                "summary": "Старт/стоп записи звонка",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id звонка",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "action: start|stop",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.recordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/calls/{id}/recording": {
             "post": {
                 "security": [
@@ -1117,7 +1312,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_calls_handler.setRecordingRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest"
                         }
                     }
                 ],
@@ -2172,6 +2367,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/contacts/sync": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Синхронизация контактов (массовое добавление)",
+                "parameters": [
+                    {
+                        "description": "user_ids",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/contacts/{user_id}": {
             "get": {
                 "security": [
@@ -2254,6 +2487,39 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "id отправителя запроса",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/contacts/{user_id}/block": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Заблокировать пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id пользователя",
                         "name": "user_id",
                         "in": "path",
                         "required": true
@@ -2366,7 +2632,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "image or voice",
+                        "description": "image|voice|video|document",
                         "name": "type",
                         "in": "formData",
                         "required": true
@@ -2389,6 +2655,89 @@ const docTemplate = `{
                 }
             }
         },
+        "/media/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "media"
+                ],
+                "summary": "Удалить медиафайл",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id медиафайла",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/media/{id}/download": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "media"
+                ],
+                "summary": "Скачать файл по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id медиафайла",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/media/{id}/thumbnail": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "media"
+                ],
+                "summary": "Получить превью/миниатюру",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id медиафайла",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/media/{type}/{file}": {
             "get": {
                 "produces": [
@@ -2401,7 +2750,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "image or voice",
+                        "description": "image|voice|video|document",
                         "name": "type",
                         "in": "path",
                         "required": true
@@ -4611,6 +4960,30 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/online": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Список онлайн-друзей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/presence": {
             "get": {
                 "security": [
@@ -4796,6 +5169,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/status": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Установить статус",
+                "parameters": [
+                    {
+                        "description": "статус",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ws": {
             "get": {
                 "security": [
@@ -4963,6 +5374,27 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.muteRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "audio | video",
+                    "type": "string"
+                },
+                "muted": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.recordRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "start | stop",
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest": {
             "type": "object",
             "required": [
@@ -5040,6 +5472,20 @@ const docTemplate = `{
             "properties": {
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest": {
+            "type": "object",
+            "required": [
+                "user_ids"
+            ],
+            "properties": {
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -5153,7 +5599,9 @@ const docTemplate = `{
                     "enum": [
                         "text",
                         "voice",
-                        "image"
+                        "image",
+                        "video",
+                        "document"
                     ]
                 }
             }
@@ -5753,6 +6201,14 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_jeogram_messenger_internal_pkg_response.APIError": {
             "type": "object",
             "properties": {
@@ -5882,6 +6338,27 @@ const docTemplate = `{
                 }
             }
         },
+        "modules_calls_handler.muteRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "audio | video",
+                    "type": "string"
+                },
+                "muted": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "modules_calls_handler.recordRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "start | stop",
+                    "type": "string"
+                }
+            }
+        },
         "modules_calls_handler.setRecordingRequest": {
             "type": "object",
             "required": [
@@ -5913,6 +6390,28 @@ const docTemplate = `{
                         "audio",
                         "video"
                     ]
+                }
+            }
+        },
+        "modules_contact_handler.syncRequest": {
+            "type": "object",
+            "required": [
+                "user_ids"
+            ],
+            "properties": {
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "modules_user_handler.userStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
                 }
             }
         }

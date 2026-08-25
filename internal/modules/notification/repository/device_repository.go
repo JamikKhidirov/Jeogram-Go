@@ -59,3 +59,10 @@ func (r *DeviceRepository) Delete(ctx context.Context, userID, platform string) 
 		Where("user_id = ? AND platform = ?", userID, platform).
 		Delete(&domain.DeviceToken{}).Error
 }
+
+// DeleteAll removes every device registration for a user (logout from all devices).
+func (r *DeviceRepository) DeleteAll(ctx context.Context, userID string) error {
+	return r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Delete(&domain.DeviceToken{}).Error
+}

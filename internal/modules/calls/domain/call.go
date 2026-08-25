@@ -34,6 +34,7 @@ type Call struct {
 	Type         CallType   `gorm:"size:16" json:"type"`
 	Mode         CallMode   `gorm:"size:16;not null;default:'peer'" json:"mode"`
 	Status       CallStatus `gorm:"size:16" json:"status"`
+	Recording    bool       `json:"recording,omitempty"`
 	StartedAt    time.Time  `json:"started_at"`
 	EndedAt      *time.Time `json:"ended_at,omitempty"`
 	RecordingURL string     `json:"recording_url,omitempty"`

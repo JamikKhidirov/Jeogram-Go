@@ -10,7 +10,8 @@
 { "chat_id": "uuid", "type": "text", "text": "Привет!", "reply_to": "uuid" }
 ```
 
-Поддерживаемые `type`: `text`, `voice`, `image`. Для `voice`/`image` обязателен `media_url`.
+Поддерживаемые `type`: `text`, `voice`, `image`, `video`, `document`.
+Для `voice`/`image`/`video`/`document` обязателен `media_url`.
 После отправки всем участникам чата через WebSocket приходит событие `message.new`.
 
 ### Отложенная отправка (scheduled)
@@ -49,6 +50,25 @@
 - `POST /messages/{id}/reactions` — `{ "emoji": "👍" }`.
 - `DELETE /messages/{id}/reactions`.
 - `GET /messages/{id}/reactions`.
+
+## Медиа-файлы
+
+Префикс `/media`. Все эндпоинты требуют `Bearer` (кроме публичной раздачи по
+`/media/{type}/{file}`, если storage публичный).
+
+- `POST /media/upload` — загрузка файла (multipart `file` + `type`:
+  `image`/`voice`/`video`/`document`). Возвращает `{ "id": "uuid", "url": "/media/{type}/{file}" }`.
+  Поддерживаются изображения, голосовые, **видео** и **документы** (любые типы из
+  `MEDIA_ALLOWED_TYPES`/`MEDIA_ALLOWED_EXT`). Имя файла генерируется как UUID, чтобы
+  исключить коллизии и path-traversal.
+- `GET /media/{id}` — метаданные загруженного файла (по записи `media`).
+- `GET /media/{id}/download` — скачивание файла (устанавливает `Content-Disposition: attachment`).
+- `GET /media/{id}/thumbnail` — отдача миниатюры (для изображений — уменьшенная копия;
+  для остальных типов — сам файл/заглушка).
+- `DELETE /media/{id}` — удаление файла и записи `media`.
+- `GET /media/{type}/{file}` — прямая отдача файла (обратная совместимость).
+
+Конфигурация env: `MEDIA_DIR`, `MEDIA_MAX_SIZE`, `MEDIA_ALLOWED_TYPES`, `MEDIA_ALLOWED_EXT`.
 
 ## Пересылка и поиск
 

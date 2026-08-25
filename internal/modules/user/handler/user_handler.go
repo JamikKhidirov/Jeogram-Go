@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	contactservice "github.com/jeogram/messenger/internal/modules/contact/service"
 	"github.com/jeogram/messenger/internal/modules/user/domain"
 	"github.com/jeogram/messenger/internal/modules/user/service"
 	"github.com/jeogram/messenger/internal/pkg/auth"
@@ -17,13 +18,14 @@ import (
 
 // UserHandler exposes profile/settings/search endpoints.
 type UserHandler struct {
-	svc *service.UserService
-	jwt *auth.JWT
-	hub *ws.Hub
+	svc      *service.UserService
+	contacts *contactservice.ContactService
+	jwt      *auth.JWT
+	hub      *ws.Hub
 }
 
-func NewUserHandler(svc *service.UserService, jwt *auth.JWT, hub *ws.Hub) *UserHandler {
-	return &UserHandler{svc: svc, jwt: jwt, hub: hub}
+func NewUserHandler(svc *service.UserService, contacts *contactservice.ContactService, jwt *auth.JWT, hub *ws.Hub) *UserHandler {
+	return &UserHandler{svc: svc, contacts: contacts, jwt: jwt, hub: hub}
 }
 
 // RegisterRoutes mounts user endpoints.
@@ -50,6 +52,8 @@ func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/export", h.Export)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/devices", h.ListDevices)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/user/devices/{platform}", h.RemoveDevice)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/user/online", h.OnlineFriends)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/user/status", h.SetStatus)
 }
 
 // GetProfile возвращает профиль текущего пользователя.
@@ -330,4 +334,52 @@ func (h *UserHandler) RemoveDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "device_removed", "platform": platform})
+}
+
+// OnlineFriends возвращает подключённых контактов (онлайн/невидимка скрыта).
+// @Summary Список онлайн-друзей
+// @Tags user
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /user/online [get]
+func (h *UserHandler) OnlineFriends(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	friends, err := h.contacts.ListIDs(r.Context(), userID)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, h.hub.OnlineFriends(friends))
+}
+
+// SetStatus устанавливает статус присутствия (online|dnd|invisible).
+// @Summary Установить статус
+// @Tags user
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body userStatusRequest true "статус"
+// @Success 200 {object} response.APIResponse
+// @Router /user/status [post]
+func (h *UserHandler) SetStatus(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req userStatusRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Status == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "status required")
+		return
+	}
+	switch req.Status {
+	case "online", "dnd", "invisible":
+		// ok
+	default:
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "status must be online|dnd|invisible")
+		return
+	}
+	h.hub.SetStatus(userID, req.Status)
+	response.WriteOK(w, map[string]string{"status": req.Status})
+}
+
+type userStatusRequest struct {
+	Status string `json:"status"`
 }

@@ -71,3 +71,13 @@ func (r *CallRepository) ListByUser(ctx context.Context, userID string, limit, o
 		Find(&calls).Error
 	return calls, err
 }
+
+// ListActive возвращает все активные (незавершённые) звонки.
+func (r *CallRepository) ListActive(ctx context.Context) ([]domain.Call, error) {
+	var calls []domain.Call
+	err := r.db.WithContext(ctx).
+		Where("status = ?", domain.CallStatusActive).
+		Order("calls.started_at DESC").
+		Find(&calls).Error
+	return calls, err
+}

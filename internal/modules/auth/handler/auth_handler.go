@@ -41,6 +41,8 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/auth/request-otp", h.RequestOTP)
 	r.Post("/auth/verify-otp", h.VerifyOTP)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/logout", h.Logout)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/logout-all", h.LogoutAll)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/auth/sessions", h.Sessions)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/auth/me", h.Me)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/verify-email", h.VerifyEmail)
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/resend-verification", h.ResendVerification)
@@ -128,6 +130,39 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "logged_out"})
+}
+
+// LogoutAll выход из всех устройств (отзыв всех сессий).
+// @Summary Выход со всех устройств
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /auth/logout-all [post]
+func (h *AuthHandler) LogoutAll(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	if err := h.svc.LogoutAll(r.Context(), userID); err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", "could not logout all")
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "logged_out_all"})
+}
+
+// Sessions возвращает историю входов пользователя (устройства, IP, время).
+// @Summary История входов
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} response.APIResponse
+// @Router /auth/sessions [get]
+func (h *AuthHandler) Sessions(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	tokens, err := h.svc.Sessions(r.Context(), userID)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, tokens)
 }
 
 // Me возвращает профиль текущего пользователя.

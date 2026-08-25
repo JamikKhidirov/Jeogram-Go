@@ -6,9 +6,11 @@ import "time"
 type MessageType string
 
 const (
-	TypeText  MessageType = "text"
-	TypeVoice MessageType = "voice"
-	TypeImage MessageType = "image"
+	TypeText     MessageType = "text"
+	TypeVoice    MessageType = "voice"
+	TypeImage    MessageType = "image"
+	TypeVideo    MessageType = "video"
+	TypeDocument MessageType = "document"
 )
 
 // Message status values.
@@ -63,7 +65,7 @@ func (PinnedMessage) TableName() string { return "pinned_messages" }
 // SendMessageRequest is the payload for sending a message.
 type SendMessageRequest struct {
 	ChatID      string `json:"chat_id" validate:"required"`
-	Type        string `json:"type" validate:"required,oneof=text voice image"`
+	Type        string `json:"type" validate:"required,oneof=text voice image video document"`
 	Text        string `json:"text"`
 	MediaURL    string `json:"media_url"`
 	ReplyTo     string `json:"reply_to,omitempty"`

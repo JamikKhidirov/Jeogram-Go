@@ -100,3 +100,13 @@ func (r *ContactRepository) DeleteAllForUser(ctx context.Context, userID string)
 		Where("owner_id = ? OR contact_id = ?", userID, userID).
 		Delete(&domain.Contact{}).Error
 }
+
+// ListIDs возвращает id всех подтверждённых контактов владельца.
+func (r *ContactRepository) ListIDs(ctx context.Context, owner string) ([]string, error) {
+	var ids []string
+	err := r.db.WithContext(ctx).
+		Model(&domain.Contact{}).
+		Where("owner_id = ? AND status = ?", owner, domain.ContactAccepted).
+		Pluck("contact_id", &ids).Error
+	return ids, err
+}

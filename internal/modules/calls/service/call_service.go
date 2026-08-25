@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/jeogram/messenger/internal/config"
@@ -21,6 +22,9 @@ type CallService struct {
 	chats    *chatrepo.ChatRepository
 	rtc      config.RTCConfig
 	webhooks *webhook.Dispatcher
+
+	mu    sync.Mutex
+	mutes map[string]map[string]bool // callID -> (userID -> muted)
 }
 
 func NewCallService(repo *repository.CallRepository, chats *chatrepo.ChatRepository, rtc config.RTCConfig, webhooks *webhook.Dispatcher) *CallService {
@@ -119,4 +123,68 @@ func (s *CallService) History(ctx context.Context, userID string, limit, offset 
 		limit = 50
 	}
 	return s.repo.ListByUser(ctx, userID, limit, offset)
+}
+
+// ListActive возвращает все активные звонки (для отображения в UI).
+func (s *CallService) ListActive(ctx context.Context) ([]domain.Call, error) {
+	return s.repo.ListActive(ctx)
+}
+
+// SetMute запоминает состояние микрофона/камеры участника во время звонка.
+// Возвращает ошибку, если пользователь не участвует в чате звонка.
+func (s *CallService) SetMute(ctx context.Context, callID, userID, kind string, muted bool) error {
+	call, err := s.repo.Get(ctx, callID)
+	if err != nil {
+		return err
+	}
+	ok, err := s.chats.IsParticipant(ctx, call.ChatID, userID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrForbidden
+	}
+	s.mu.Lock()
+	if s.mutes == nil {
+		s.mutes = make(map[string]map[string]bool)
+	}
+	if s.mutes[callID] == nil {
+		s.mutes[callID] = make(map[string]bool)
+	}
+	key := userID + ":" + kind
+	s.mutes[callID][key] = muted
+	s.mu.Unlock()
+	return nil
+}
+
+// SetRecordingState включает/выключает запись звонка (только инициатор).
+func (s *CallService) SetRecordingState(ctx context.Context, callID, userID string, recording bool) (*domain.Call, error) {
+	call, err := s.repo.Get(ctx, callID)
+	if err != nil {
+		return nil, err
+	}
+	if call.Initiator != userID {
+		return nil, ErrForbidden
+	}
+	call.Recording = recording
+	if err := s.repo.Update(ctx, call); err != nil {
+		return nil, err
+	}
+	return call, nil
+}
+
+// Join добавляет участника в групповой звонок (проверка членства в чате).
+func (s *CallService) Join(ctx context.Context, callID, userID string) error {
+	call, err := s.repo.Get(ctx, callID)
+	if err != nil {
+		return err
+	}
+	ok, err := s.chats.IsParticipant(ctx, call.ChatID, userID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrForbidden
+	}
+	return nil
 }

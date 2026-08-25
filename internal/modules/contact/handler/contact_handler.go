@@ -40,6 +40,8 @@ func (h *ContactHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/contacts/{user_id}/accept", h.Accept)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/contacts/{user_id}", h.Remove)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/contacts/{user_id}", h.Get)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/contacts/sync", h.Sync)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/contacts/{user_id}/block", h.BlockContact)
 }
 
 // Add отправляет запрос в контакты.
@@ -158,6 +160,52 @@ func (h *ContactHandler) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "removed"})
+}
+
+type syncRequest struct {
+	UserIDs []string `json:"user_ids" validate:"required"`
+}
+
+// Sync массово добавляет контакты из телефонной книги по списку user_id.
+// @Summary Синхронизация контактов (массовое добавление)
+// @Tags contacts
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body syncRequest true "user_ids"
+// @Success 200 {object} response.APIResponse
+// @Router /contacts/sync [post]
+func (h *ContactHandler) Sync(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req syncRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || len(req.UserIDs) == 0 {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "user_ids required")
+		return
+	}
+	added, err := h.svc.Sync(r.Context(), userID, req.UserIDs)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
+		return
+	}
+	response.WriteOK(w, map[string]int{"added": added})
+}
+
+// BlockContact блокирует пользователя (привязка к чёрному списку аккаунта).
+// @Summary Заблокировать пользователя
+// @Tags contacts
+// @Produce json
+// @Security BearerAuth
+// @Param user_id path string true "id пользователя"
+// @Success 200 {object} response.APIResponse
+// @Router /contacts/{user_id}/block [post]
+func (h *ContactHandler) BlockContact(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	target := chi.URLParam(r, "user_id")
+	if err := h.svc.Block(r.Context(), userID, target); err != nil {
+		writeContactError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "blocked"})
 }
 
 func writeContactError(w http.ResponseWriter, err error) {

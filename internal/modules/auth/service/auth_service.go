@@ -10,6 +10,8 @@ import (
 	"github.com/jeogram/messenger/internal/config"
 	"github.com/jeogram/messenger/internal/modules/auth/domain"
 	"github.com/jeogram/messenger/internal/modules/auth/repository"
+	notifdomain "github.com/jeogram/messenger/internal/modules/notification/domain"
+	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/mail"
@@ -31,10 +33,11 @@ type AuthService struct {
 	mailer   *mail.Mailer
 	authCfg  config.AuthConfig
 	webhooks *webhook.Dispatcher
+	devices  *notificationrepo.DeviceRepository
 }
 
-func NewAuthService(repo *repository.UserRepository, vrfRepo *repository.VerificationRepository, jwt *auth.JWT, c *cache.Redis, mailer *mail.Mailer, authCfg config.AuthConfig, webhooks *webhook.Dispatcher) *AuthService {
-	return &AuthService{repo: repo, vrfRepo: vrfRepo, jwt: jwt, cache: c, mailer: mailer, authCfg: authCfg, webhooks: webhooks}
+func NewAuthService(repo *repository.UserRepository, vrfRepo *repository.VerificationRepository, jwt *auth.JWT, c *cache.Redis, mailer *mail.Mailer, authCfg config.AuthConfig, webhooks *webhook.Dispatcher, devices *notificationrepo.DeviceRepository) *AuthService {
+	return &AuthService{repo: repo, vrfRepo: vrfRepo, jwt: jwt, cache: c, mailer: mailer, authCfg: authCfg, webhooks: webhooks, devices: devices}
 }
 
 // generateCode возвращает случайный числовой код заданной длины.
@@ -305,6 +308,29 @@ func (s *AuthService) Logout(ctx context.Context, userID string) error {
 		return nil
 	}
 	return s.cache.Del(ctx, refreshKey(userID))
+}
+
+// LogoutAll выходит из всех устройств: отзывает refresh-токен и удаляет все
+// регистрации устройств пользователя (эффективный удалённый выход везде).
+func (s *AuthService) LogoutAll(ctx context.Context, userID string) error {
+	if s.cache != nil {
+		_ = s.cache.Del(ctx, refreshKey(userID))
+	}
+	if s.devices != nil {
+		if err := s.devices.DeleteAll(ctx, userID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Sessions возвращает историю активных устройств/входов пользователя
+// (платформа, модель, ОС, IP, время) — основа функции «история входов».
+func (s *AuthService) Sessions(ctx context.Context, userID string) ([]notifdomain.DeviceToken, error) {
+	if s.devices == nil {
+		return []notifdomain.DeviceToken{}, nil
+	}
+	return s.devices.TokensForUser(ctx, userID)
 }
 
 // Me returns the current user profile.

@@ -13,6 +13,14 @@
 - `POST /calls/{id}/end` — завершить (только инициатор).
 - `GET /calls/{id}` — информация о звонке.
 - `GET /calls/history?limit=50&offset=0` — история звонков пользователя.
+- `GET /calls/active` — список **активных** (незавершённых) звонков (`status=active`).
+- `POST /calls/{id}/join` — присоединиться к групповому звонку (проверяется членство в чате,
+  участникам чата рассылается `call.joined`).
+- `POST /calls/{id}/mute` — отключить/включить микрофон или камеру во время звонка:
+  `{ "kind": "audio" | "video", "muted": true }`. Участникам рассылается
+  `call.participant_muted`.
+- `POST /calls/{id}/record` — запустить/остановить запись (только инициатор):
+  `{ "action": "start" | "stop" }`. Обновляет поле `recording` звонка.
 
 ## WebRTC-сигналинг
 
