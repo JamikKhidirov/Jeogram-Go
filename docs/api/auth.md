@@ -105,6 +105,19 @@ email отправляет код.
 - `GET /auth/sessions` (Bearer) — история активных входов/устройств: список `DeviceToken`
   (платформа, модель, ОС, IP, время входа). Основа функции «история входов».
 
+## Смена учётных данных (требует Bearer)
+
+- `POST /auth/change-password` — `{ "old_password": "...", "new_password": "..." }`.
+  После смены все сессии завершаются (`logout-all`).
+- `POST /auth/change-email/request` — `{ "new_email": "new@example.com" }`.
+  Код подтверждения отправляется на **новый** email (и уведомление на текущий).
+- `POST /auth/change-email` — `{ "new_email": "...", "code": "123456" }`.
+  Подтверждает смену, проставляет `email_verified=true`.
+- `POST /auth/change-phone/request` — `{ "new_phone": "+7900..." }`. OTP уходит
+  на email пользователя (или в лог сервера в dev-режиме).
+- `POST /auth/change-phone` — `{ "new_phone": "...", "code": "123456" }`.
+  Подтверждает смену, проставляет `phone_verified=true`.
+
 ## Конфигурация (env)
 
 | Переменная | По умолчанию | Назначение |

@@ -342,6 +342,128 @@ func (s *AuthService) Me(ctx context.Context, userID string) (*domain.PublicUser
 	return domain.ToPublic(u), nil
 }
 
+// ChangePassword меняет пароль при известном старом пароле.
+func (s *AuthService) ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
+	if len(newPassword) < 8 {
+		return errors.New("password must be at least 8 characters")
+	}
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !auth.CheckPassword(u.PasswordHash, oldPassword) {
+		return errors.New("invalid current password")
+	}
+	hash, err := auth.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	u.PasswordHash = hash
+	if err := s.repo.Update(ctx, u); err != nil {
+		return err
+	}
+	// Завершаем все сессии после смены пароля.
+	return s.LogoutAll(ctx, userID)
+}
+
+// RequestEmailChange отправляет код подтверждения на новый email
+// (и уведомление о смене — на текущий).
+func (s *AuthService) RequestEmailChange(ctx context.Context, userID, newEmail string) error {
+	if newEmail == "" {
+		return errors.New("new email required")
+	}
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if u.Email == newEmail {
+		return errors.New("new email must differ from current")
+	}
+	code := generateCode(s.authCfg.OTPLength)
+	vc := &domain.VerificationCode{
+		UserID:    userID,
+		Target:    newEmail,
+		Purpose:   domain.PurposeEmailChange,
+		Code:      code,
+		ExpiresAt: time.Now().Add(s.authCfg.CodeTTL),
+	}
+	if err := s.vrfRepo.Create(ctx, vc); err != nil {
+		return err
+	}
+	_ = s.mailer.SendCode(ctx, newEmail, code, "подтверждение смены email")
+	if u.Email != "" {
+		_ = s.mailer.Send(ctx, u.Email, "Смена email", "На ваш аккаунт запрошена смена email на "+newEmail)
+	}
+	return nil
+}
+
+// ChangeEmail подтверждает смену email кодом, отправленным на новый адрес.
+func (s *AuthService) ChangeEmail(ctx context.Context, userID, newEmail, code string) error {
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	vc, err := s.vrfRepo.FindValid(ctx, newEmail, domain.PurposeEmailChange, code)
+	if err != nil {
+		return errors.New("invalid or expired code")
+	}
+	_ = s.vrfRepo.MarkUsed(ctx, vc.ID)
+	u.Email = newEmail
+	u.EmailVerified = true
+	return s.repo.Update(ctx, u)
+}
+
+// RequestPhoneChange отправляет OTP для подтверждения смены номера телефона.
+func (s *AuthService) RequestPhoneChange(ctx context.Context, userID, newPhone string) error {
+	if newPhone == "" {
+		return errors.New("new phone required")
+	}
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if u.Phone == newPhone {
+		return errors.New("new phone must differ from current")
+	}
+	target := newPhone
+	if u.Email != "" {
+		target = u.Email
+	}
+	code := generateCode(s.authCfg.OTPLength)
+	vc := &domain.VerificationCode{
+		UserID:    userID,
+		Target:    target,
+		Purpose:   domain.PurposePhoneChange,
+		Code:      code,
+		ExpiresAt: time.Now().Add(s.authCfg.CodeTTL),
+	}
+	if err := s.vrfRepo.Create(ctx, vc); err != nil {
+		return err
+	}
+	_ = s.mailer.SendCode(ctx, target, code, "подтверждение смены телефона")
+	return nil
+}
+
+// ChangePhone подтверждает смену телефона кодом.
+func (s *AuthService) ChangePhone(ctx context.Context, userID, newPhone, code string) error {
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	target := newPhone
+	if u.Email != "" {
+		target = u.Email
+	}
+	vc, err := s.vrfRepo.FindValid(ctx, target, domain.PurposePhoneChange, code)
+	if err != nil {
+		return errors.New("invalid or expired code")
+	}
+	_ = s.vrfRepo.MarkUsed(ctx, vc.ID)
+	u.Phone = newPhone
+	u.PhoneVerified = true
+	return s.repo.Update(ctx, u)
+}
+
 func (s *AuthService) issue(ctx context.Context, u *domain.User) (*domain.AuthResult, error) {
 	pair, err := s.jwt.GeneratePair(u.ID, u.Email)
 	if err != nil {

@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_admin_handler.broadcastRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest"
                         }
                     }
                 ],
@@ -297,7 +297,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_admin_handler.createUserRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest"
                         }
                     }
                 ],
@@ -511,7 +511,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_admin_handler.setRoleRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest"
                         }
                     }
                 ],
@@ -558,6 +558,196 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/change-email": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Подтвердить смену email",
+                "parameters": [
+                    {
+                        "description": "new_email, code",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/change-email/request": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Запрос смены email",
+                "parameters": [
+                    {
+                        "description": "new_email",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/change-password": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Сменить пароль",
+                "parameters": [
+                    {
+                        "description": "old_password, new_password",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/change-phone": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Подтвердить смену телефона",
+                "parameters": [
+                    {
+                        "description": "new_phone, code",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/change-phone/request": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Запрос смены телефона",
+                "parameters": [
+                    {
+                        "description": "new_phone",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/forgot-password": {
             "post": {
                 "consumes": [
@@ -577,7 +767,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_auth_handler.forgotPasswordRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest"
                         }
                     }
                 ],
@@ -781,7 +971,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_auth_handler.otpRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest"
                         }
                     }
                 ],
@@ -838,7 +1028,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_auth_handler.resetPasswordRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest"
                         }
                     }
                 ],
@@ -900,7 +1090,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_auth_handler.verifyEmailRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest"
                         }
                     }
                 ],
@@ -933,7 +1123,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/modules_auth_handler.verifyOTPRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest"
                         }
                     }
                 ],
@@ -971,7 +1161,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest"
+                            "$ref": "#/definitions/modules_calls_handler.startCallRequest"
                         }
                     }
                 ],
@@ -1222,7 +1412,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.muteRequest"
+                            "$ref": "#/definitions/modules_calls_handler.muteRequest"
                         }
                     }
                 ],
@@ -1267,7 +1457,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.recordRequest"
+                            "$ref": "#/definitions/modules_calls_handler.recordRequest"
                         }
                     }
                 ],
@@ -1312,7 +1502,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest"
+                            "$ref": "#/definitions/modules_calls_handler.setRecordingRequest"
                         }
                     }
                 ],
@@ -2391,7 +2581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest"
+                            "$ref": "#/definitions/modules_contact_handler.syncRequest"
                         }
                     }
                 ],
@@ -5193,7 +5383,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest"
+                            "$ref": "#/definitions/modules_user_handler.userStatusRequest"
                         }
                     }
                 ],
@@ -5322,6 +5512,39 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 3
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_phone": {
+                    "type": "string"
                 }
             }
         },
@@ -6285,6 +6508,39 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changeEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changePhoneRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_phone": {
                     "type": "string"
                 }
             }

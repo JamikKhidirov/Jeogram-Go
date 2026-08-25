@@ -9,6 +9,8 @@ const (
 	PurposeEmailVerify   VerificationPurpose = "email_verify"
 	PurposePhoneOTP      VerificationPurpose = "phone_otp"
 	PurposePasswordReset VerificationPurpose = "password_reset"
+	PurposeEmailChange   VerificationPurpose = "email_change"
+	PurposePhoneChange   VerificationPurpose = "phone_change"
 )
 
 // VerificationCode — одноразовый код (email/phone) с ограниченным сроком.

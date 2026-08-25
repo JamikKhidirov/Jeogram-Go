@@ -48,6 +48,11 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/resend-verification", h.ResendVerification)
 	r.Post("/auth/forgot-password", h.ForgotPassword)
 	r.Post("/auth/reset-password", h.ResetPassword)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-password", h.ChangePassword)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-email/request", h.RequestEmailChange)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-email", h.ChangeEmail)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-phone/request", h.RequestPhoneChange)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/auth/change-phone", h.ChangePhone)
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -325,6 +330,136 @@ func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteOK(w, map[string]string{"status": "password_reset"})
+}
+
+type changePasswordRequest struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+// ChangePassword меняет пароль при известном старом.
+// @Summary Сменить пароль
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body changePasswordRequest true "old_password, new_password"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/change-password [post]
+func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req changePasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.OldPassword == "" || req.NewPassword == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "old_password and new_password required")
+		return
+	}
+	if err := h.svc.ChangePassword(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "password_changed"})
+}
+
+type changeEmailRequest struct {
+	NewEmail string `json:"new_email"`
+	Code     string `json:"code"`
+}
+
+// RequestEmailChange запрашивает смену email (код приходит на новый email).
+// @Summary Запрос смены email
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body changeEmailRequest true "new_email"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/change-email/request [post]
+func (h *AuthHandler) RequestEmailChange(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req changeEmailRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NewEmail == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "new_email required")
+		return
+	}
+	if err := h.svc.RequestEmailChange(r.Context(), userID, req.NewEmail); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "code_sent"})
+}
+
+// ChangeEmail подтверждает смену email кодом.
+// @Summary Подтвердить смену email
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body changeEmailRequest true "new_email, code"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/change-email [post]
+func (h *AuthHandler) ChangeEmail(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req changeEmailRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NewEmail == "" || req.Code == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "new_email and code required")
+		return
+	}
+	if err := h.svc.ChangeEmail(r.Context(), userID, req.NewEmail, req.Code); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "email_changed"})
+}
+
+type changePhoneRequest struct {
+	NewPhone string `json:"new_phone"`
+	Code     string `json:"code"`
+}
+
+// RequestPhoneChange запрашивает смену телефона (OTP приходит на email/лог).
+// @Summary Запрос смены телефона
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body changePhoneRequest true "new_phone"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/change-phone/request [post]
+func (h *AuthHandler) RequestPhoneChange(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req changePhoneRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NewPhone == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "new_phone required")
+		return
+	}
+	if err := h.svc.RequestPhoneChange(r.Context(), userID, req.NewPhone); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "code_sent"})
+}
+
+// ChangePhone подтверждает смену телефона кодом.
+// @Summary Подтвердить смену телефона
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param body body changePhoneRequest true "new_phone, code"
+// @Success 200 {object} response.APIResponse
+// @Router /auth/change-phone [post]
+func (h *AuthHandler) ChangePhone(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	var req changePhoneRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.NewPhone == "" || req.Code == "" {
+		response.WriteError(w, http.StatusBadRequest, "bad_request", "new_phone and code required")
+		return
+	}
+	if err := h.svc.ChangePhone(r.Context(), userID, req.NewPhone, req.Code); err != nil {
+		handleAuthError(w, err)
+		return
+	}
+	response.WriteOK(w, map[string]string{"status": "phone_changed"})
 }
 
 func handleAuthError(w http.ResponseWriter, err error) {

@@ -134,9 +134,45 @@ services:
       ADMIN_USER_IDS: "*"
     volumes:
       - uploads-data:/data/uploads
+    # Лейблы Traefik (используются только при запуске профиля `ssl`).
+    # Если DOMAIN пустой — Host(localhost); приложение всё равно доступно по IP:8080.
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.app-http.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.app-http.entrypoints=web"
+      - "traefik.http.routers.app-http.middlewares=app-redirect"
+      - "traefik.http.middlewares.app-redirect.redirectscheme.scheme=https"
+      - "traefik.http.services.app.loadbalancer.server.port=8080"
+
+  # Reverse proxy с автоматическим SSL (Let's Encrypt).
+  # Запуск: docker compose --profile ssl up -d  (при этом DOMAIN должен быть задан в .env)
+  traefik:
+    image: traefik:v3.1
+    container_name: jeogram-traefik
+    profiles: ["ssl"]
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8081"
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+      ACME_CA_SERVER: ${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - letsencrypt-data:/letsencrypt
+    depends_on:
+      - app
 
 volumes:
   postgres-data:
   grafana-data:
   uploads-data:
   pgadmin-data:
+  letsencrypt-data:
+

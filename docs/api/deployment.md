@@ -53,3 +53,42 @@ AutoMigrate для создания недостающих таблиц. На SQ
 
 - `GET /health` → `{"status":"ok"}`
 - `GET /ready` → проверка БД.
+
+## HTTPS через Traefik (авто-SSL, Let's Encrypt)
+
+Сервер работает по HTTP (порт 8080). Для продакшена добавлен reverse-proxy
+**Traefik**, который автоматически получает SSL-сертификат Let's Encrypt и
+терминирует HTTPS, читая Docker-лейблы сервиса `app`.
+
+1. В `.env` задайте домен и почту для ACME:
+
+   ```dotenv
+   DOMAIN=jeogram.example.com
+   ACME_EMAIL=admin@example.com
+   # ACME_CA_SERVER=https://acme-staging-v02.api.letsencrypt.org/directory  # для тестов (не банит лимиты)
+   ```
+
+2. Запустите стек с профилем `ssl`:
+
+   ```bash
+   docker compose --profile ssl up -d --build
+   ```
+
+   - Трафик на `80/443` принимает Traefik, `443` — HTTPS с авто-сертификатом.
+   - `:8081` — дашборд Traefik (в `traefik.yml` включен `api.insecure`, для
+     продакшена отключите и защитите).
+   - Сертификаты хранятся в Volume `letsencrypt-data` (`/letsencrypt/acme.json`).
+
+3. Если `DOMAIN` **пустой** — просто не используйте профиль `ssl`:
+
+   ```bash
+   docker compose up -d --build app postgres
+   ```
+
+   Приложение будет доступно по HTTP по IP/порту `8080` (для локальной разработки
+   и тестов этого достаточно). Лейблы Traefik на сервисе `app` без запущенного
+   Traefik игнорируются.
+
+> Домен должен указывать (A/AAAA-запись) на публичный IP хоста, иначе Let's Encrypt
+> не выпустит сертификат (HTTP-челлендж через порт 80).
+

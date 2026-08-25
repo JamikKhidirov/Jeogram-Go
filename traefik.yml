@@ -1,0 +1,29 @@
+# Статический конфиг Traefik.
+# Traefik читает Docker-лейблы сервисов и автоматически маршрутизирует трафик.
+# Если DOMAIN не задан в .env — запускайте без профиля `ssl` (приложение по HTTP по IP).
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "${ACME_EMAIL}"
+      storage: /letsencrypt/acme.json
+      caServer: "${ACME_CA_SERVER}"
+      httpChallenge:
+        entryPoint: web
+
+api:
+  dashboard: true
+  insecure: true
+
+log:
+  level: INFO
