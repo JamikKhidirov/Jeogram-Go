@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/googollee/go-socket.io"
 	"github.com/jeogram/messenger/internal/config"
 	adminhandler "github.com/jeogram/messenger/internal/modules/admin/handler"
 	"github.com/jeogram/messenger/internal/modules/auth/domain"
@@ -20,6 +18,7 @@ import (
 	callhandler "github.com/jeogram/messenger/internal/modules/calls/handler"
 	callrepo "github.com/jeogram/messenger/internal/modules/calls/repository"
 	callservice "github.com/jeogram/messenger/internal/modules/calls/service"
+	livekitsvc "github.com/jeogram/messenger/internal/modules/calls/livekit"
 	chatdomain "github.com/jeogram/messenger/internal/modules/chat/domain"
 	chathandler "github.com/jeogram/messenger/internal/modules/chat/handler"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
@@ -66,27 +65,27 @@ import (
 
 // Server объединяет HTTP-сервер и его зависимости.
 type Server struct {
-	cfg            *config.Config
-	db             *gorm.DB
-	redis          *cache.Redis
-	producer       *events.Producer
-	hub            *ws.Hub
-	jwt            *auth.JWT
-	socketIOServer *socketio.Server
-	broadcaster    realtime.Broadcaster
-	webhooks       *webhook.Dispatcher
-
-	authSvc    *service.AuthService
-	userSvc    *userservice.UserService
-	chatSvc    *chatService.ChatService
-	mediaSvc   *mediaservice.MediaService
-	msgSvc     *messageservice.MessageService
-	notifSvc   *notificationservice.NotificationService
-	callSvc    *callservice.CallService
-	contactSvc *contactservice.ContactService
-	phoneSvc   *phoneservice.PhoneService
-	adminH     *adminhandler.AdminHandler
-	prekeyRepo *e2eerepo.PreKeyRepository
+	cfg          *config.Config
+	db           *gorm.DB
+	redis        *cache.Redis
+	producer     *events.Producer
+	hub          *ws.Hub
+	jwt          *auth.JWT
+	broadcaster  realtime.Broadcaster
+	webhooks     *webhook.Dispatcher
+	livekitSvc   *livekitsvc.Service
+	livekitH     *livekitsvc.Handler
+	authSvc      *service.AuthService
+	userSvc      *userservice.UserService
+	chatSvc      *chatService.ChatService
+	mediaSvc     *mediaservice.MediaService
+	msgSvc       *messageservice.MessageService
+	notifSvc     *notificationservice.NotificationService
+	callSvc      *callservice.CallService
+	contactSvc   *contactservice.ContactService
+	phoneSvc     *phoneservice.PhoneService
+	adminH       *adminhandler.AdminHandler
+	prekeyRepo   *e2eerepo.PreKeyRepository
 }
 
 // New создаёт сервер: выполняет миграции и инициализирует модули.
@@ -101,12 +100,11 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	}
 
 	jwtSvc := auth.NewJWT(cfg.JWT)
-	socketIOServer := newSocketIOServer(jwtSvc, hub)
+	webhooks := webhook.New(cfg.Webhooks.URLs, cfg.Webhooks.Timeout)
+
 	broadcaster := &realtime.MultiBroadcaster{Broadcasters: []realtime.Broadcaster{
 		&realtime.WSBroadcaster{Hub: hub},
-		&realtime.SocketIOBroadcaster{Server: socketIOServer},
 	}}
-	webhooks := webhook.New(cfg.Webhooks.URLs, cfg.Webhooks.Timeout)
 
 	userRepo := repository.NewUserRepository(db)
 	settingsRepo := userrepo.NewSettingsRepository(db)
@@ -135,12 +133,25 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	phoneSvc := phoneservice.NewPhoneService(db)
 	adminH := adminhandler.NewAdminHandler(db, jwtSvc, cfg.Admin.UserIDs, broadcaster)
 
+	// LiveKit integration
+	var livekitSvc *livekitsvc.Service
+	var livekitH *livekitsvc.Handler
+	if cfg.LiveKit.Enabled {
+		livekitSvc, err = livekitsvc.NewService(cfg.LiveKit, cfg.RTC, callRepo, chatRepo, webhooks)
+		if err != nil {
+			log.Warn().Err(err).Msg("livekit init failed; falling back to WebRTC-only mode")
+		} else {
+			livekitH = livekitsvc.NewHandler(livekitSvc, jwtSvc, redis, hub)
+		}
+	}
+
 	return &Server{
-		cfg: cfg, db: db, redis: redis, producer: producer, hub: hub,
-		jwt: jwtSvc, socketIOServer: socketIOServer, broadcaster: broadcaster,
-		webhooks: webhooks, authSvc: authSvc, userSvc: userSvc, chatSvc: chatSvc,
-		mediaSvc: mediaSvc, msgSvc: msgSvc, notifSvc: notifSvc, callSvc: callSvc,
-		contactSvc: contactSvc, phoneSvc: phoneSvc, adminH: adminH, prekeyRepo: prekeyRepo,
+		cfg:        cfg, db: db, redis: redis, producer: producer, hub: hub,
+		jwt:         jwtSvc, broadcaster: broadcaster, webhooks: webhooks,
+		livekitSvc:  livekitSvc, livekitH: livekitH,
+		authSvc:     authSvc, userSvc: userSvc, chatSvc: chatSvc,
+		mediaSvc:    mediaSvc, msgSvc: msgSvc, notifSvc: notifSvc, callSvc: callSvc,
+		contactSvc:  contactSvc, phoneSvc: phoneSvc, adminH: adminH, prekeyRepo: prekeyRepo,
 	}, nil
 }
 
@@ -215,11 +226,13 @@ func (s *Server) Router() *chi.Mux {
 	// Swagger UI.
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
-	// Realtime: Socket.IO transport (auth via ?token=, one room per user).
-	r.Handle("/socket.io/*", s.socketIOServer)
-
-	// Realtime websocket (raw, Postman-testable).
+	// Realtime: raw WebSocket (1-on-1 messages, call signaling).
 	r.With(middleware.JWTAuth(s.jwt)).Get("/ws", s.hub.Handler())
+
+	// LiveKit call endpoints (audio/video 1-on-1 and group).
+	if s.livekitH != nil {
+		s.livekitH.RegisterRoutes(r)
+	}
 
 	// Module handlers.
 	authH := handler.NewAuthHandler(s.authSvc, s.jwt)
@@ -275,33 +288,6 @@ func (s *Server) StartWorkers(ctx context.Context) {
 // chatRepo возвращает репозиторий чатов (нужен обработчикам звонков для доступа).
 func (s *Server) chatRepo() *chatrepo.ChatRepository {
 	return chatrepo.NewChatRepository(s.db)
-}
-
-// newSocketIOServer строит Socket.IO-сервер: каждое подключение
-// аутентифицируется по JWT (?token=) и попадает в приватную комнату "u:<userID>".
-func newSocketIOServer(jwtSvc *auth.JWT, _ *ws.Hub) *socketio.Server {
-	io := socketio.NewServer(nil)
-
-	io.OnConnect("/", func(c socketio.Conn) error {
-		u := c.URL()
-		token := u.Query().Get("token")
-		if token == "" {
-			token = strings.TrimPrefix(c.RemoteHeader().Get("Authorization"), "Bearer ")
-		}
-		claims, err := jwtSvc.ParseAccess(token)
-		if err != nil {
-			log.Warn().Err(err).Msg("socket.io: rejected unauthorized connection")
-			return err
-		}
-		c.Join(realtime.SocketIORoom(claims.UserID))
-		return nil
-	})
-
-	io.OnError("/", func(_ socketio.Conn, err error) {
-		log.Error().Err(err).Msg("socket.io error")
-	})
-
-	return io
 }
 
 // Run starts the HTTP server and blocks until the context is cancelled.

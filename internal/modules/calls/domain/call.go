@@ -1,6 +1,12 @@
 package domain
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
+
+// ErrForbidden indicates the user may not act on the call.
+var ErrForbidden = fmt.Errorf("forbidden")
 
 // CallType distinguishes audio and video calls.
 type CallType string
@@ -45,7 +51,7 @@ func (Call) TableName() string { return "calls" }
 
 // SignalMessage is exchanged over the call websocket for WebRTC negotiation.
 type SignalMessage struct {
-	Type    string      `json:"type"` // offer | answer | ice | call | hangup
+	Type    string      `json:"type"`
 	ChatID  string      `json:"chat_id"`
 	To      string      `json:"to,omitempty"`
 	Payload interface{} `json:"payload,omitempty"`

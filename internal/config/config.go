@@ -23,6 +23,7 @@ type Config struct {
 	Metrics  MetricsConfig
 	Admin    AdminConfig
 	RTC      RTCConfig
+	LiveKit  LiveKitConfig
 	Message  MessageConfig
 	SMTP     SMTPConfig
 	Auth     AuthConfig
@@ -149,6 +150,15 @@ type RTCConfig struct {
 	RecordingDir     string
 }
 
+// LiveKitConfig holds LiveKit server configuration for audio/video calls.
+type LiveKitConfig struct {
+	Enabled    bool
+	ServerURL  string
+	APIKey     string
+	APISecret  string
+	RoomPrefix string
+}
+
 // MessageConfig holds message edit/delete-for-all behaviour.
 type MessageConfig struct {
 	DeleteForAllWindow time.Duration
@@ -223,6 +233,13 @@ func Load() (*Config, error) {
 			TURNPassword:     getEnv("RTC_TURN_PASSWORD", ""),
 			RecordingEnabled: getEnvBool("RTC_RECORDING_ENABLED", false),
 			RecordingDir:     getEnv("RTC_RECORDING_DIR", "./recordings"),
+		},
+		LiveKit: LiveKitConfig{
+			Enabled:    getEnvBool("LIVEKIT_ENABLED", false),
+			ServerURL:  getEnv("LIVEKIT_SERVER_URL", "ws://localhost:7800"),
+			APIKey:     getEnv("LIVEKIT_API_KEY", "devkey"),
+			APISecret:  getEnv("LIVEKIT_API_SECRET", "secret"),
+			RoomPrefix: getEnv("LIVEKIT_ROOM_PREFIX", "jeogram_"),
 		},
 		Message: MessageConfig{
 			DeleteForAllWindow: getEnvDuration("MESSAGE_DELETE_FOR_ALL_WINDOW", 24*time.Hour),

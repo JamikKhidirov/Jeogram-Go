@@ -1575,6 +1575,225 @@
               }
             }
           }
+        },
+        {
+          "name": "LiveKit",
+          "description": "Группа эндпоинтов: LiveKit (audio/video звонки с записью)",
+          "item": [
+            {
+              "name": "Начать звонок LiveKit",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/start",
+                "description": "Создать LiveKit комнату и начать звонок",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chat_id\": \"string\",\n  \"type\": \"audio|video\",\n  \"group\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Завершить звонок LiveKit",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/end",
+                "description": "Завершить звонок и удалить комнату LiveKit"
+              }
+            },
+            {
+              "name": "Присоединиться к LiveKit звонку",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/join",
+                "description": "Присоединиться к групповому LiveKit звонку, получить token"
+              }
+            },
+            {
+              "name": "Получить токен LiveKit",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/token",
+                "description": "Получить JWT-токен для входа в LiveKit комнату"
+              }
+            },
+            {
+              "name": "Участники звонка LiveKit",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/participants",
+                "description": "Список активных участников LiveKit комнаты"
+              }
+            },
+            {
+              "name": "Запустить запись (LiveKit)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/record/start",
+                "description": "Запустить серверную запись LiveKit комнаты"
+              }
+            },
+            {
+              "name": "Остановить запись (LiveKit)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/record/stop",
+                "description": "Остановить запись и получить URL"
+              }
+            },
+            {
+              "name": "Получить ссылку на запись",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/recording",
+                "description": "Получить URL записи звонка"
+              }
+            },
+            {
+              "name": "Активные комнаты LiveKit",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/rooms",
+                "description": "Список активных LiveKit комнат"
+              }
+            },
+            {
+              "name": "Мьют в LiveKit комнате",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/{{call_id}}/mute",
+                "description": "Включить/выключить микрофон или камеру",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"audio|video\",\n  \"muted\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "STUN/TURN серверы LiveKit",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": "{{base_url}}/calls/livekit/ice-servers",
+                "description": "Получить ICE-серверы для LiveKit звонков"
+              }
+            }
+          ]
         }
       ]
     },

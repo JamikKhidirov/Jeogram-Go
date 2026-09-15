@@ -72,6 +72,12 @@ services:
       METRICS_ENABLED: "true"
       METRICS_PATH: /metrics
       PUSH_ENABLED: "false"
+      RTC_STUN_SERVERS: "stun:stun.l.google.com:19302"
+      LIVEKIT_ENABLED: "true"
+      LIVEKIT_SERVER_URL: "ws://localhost:7800"
+      LIVEKIT_API_KEY: "devkey"
+      LIVEKIT_API_SECRET: "secret"
+      LIVEKIT_ROOM_PREFIX: "jeogram_"
     volumes:
       - uploads-data:/data/uploads
 

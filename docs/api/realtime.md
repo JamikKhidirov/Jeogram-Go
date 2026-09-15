@@ -1,7 +1,6 @@
-# Realtime: WebSocket и Socket.IO
+# Realtime: Raw WebSocket
 
-Сервер поддерживает **два** транспорта для одних и тех же событий. Функционально
-они эквивалентны — используйте то, что удобнее для клиента.
+Сервер поддерживает **один** транспорт для событий в реальном времени — **raw WebSocket**. Socket.IO удалён.
 
 ## WebSocket (`/ws`)
 
@@ -11,10 +10,7 @@
 ws://localhost:8080/ws?token=<access_token>
 ```
 
-Аутентификация: заголовок `Authorization: Bearer <token>` либо query-параметр `?token=`.
-После подключения сервер шлёт Ping каждые 30с. Клиент может просто держать
-соединение — это обеспечивает синхронизацию между всеми устройствами пользователя
-(один пользователь может быть подключён с телефона и десктопа одновременно).
+Аутентификация: заголовок `Authorization: Bearer <token>` либо query-параметр `?token=`. После подключения сервер шлёт Ping каждые 30с. Клиент может просто держать соединение — это обеспечивает синхронизацию между всеми устройствами пользователя (один пользователь может быть подключён с телефона и десктопа одновременно).
 
 Входящее событие (JSON):
 
@@ -22,14 +18,9 @@ ws://localhost:8080/ws?token=<access_token>
 { "type": "<event>", "payload": { ... } }
 ```
 
-## Socket.IO (`/socket.io/`)
+## LiveKit звонки
 
-```
-http://localhost:8080/socket.io/?token=<access_token>&EIO=4&transport=websocket
-```
-
-События идентичны WebSocket. Каждый пользователь подключается в приватную
-комнату `u:<userID>`.
+LiveKit предоставляет собственную систему realtime для звонков через WebRTC. Клиент получает JWT-токен через `GET /calls/livekit/{id}/token` и подключается к LiveKit напрямую. Серверные события (`call.started`, `call.ended`, `call.participant_muted`) рассылаются через WebSocket-хаб.
 
 ## События
 
@@ -42,6 +33,7 @@ http://localhost:8080/socket.io/?token=<access_token>&EIO=4&transport=websocket
 | `message.read` | прочтение | `{chat_id, user_id}` |
 | `call.started` | начало звонка | запись звонка |
 | `call.signal` | WebRTC-сигналинг | `{from, type, chat_id, data}` |
+| `call.participant_muted` | мьют участника | `{call_id, user_id, kind, muted}` |
 | `notification` | новое уведомление | уведомление |
 | `user.status` | изменение статуса | `{user_id, online}` |
 | `admin.broadcast` | рассылка от админа | `{title, body}` |
@@ -50,4 +42,4 @@ http://localhost:8080/socket.io/?token=<access_token>&EIO=4&transport=websocket
 
 В коллекции `postman/Jeogram API.postman_collection.json` есть папка
 **Realtime (WebSocket / Socket.IO)** с готовыми запросами подключения (`WS /ws`,
-`Socket.IO /socket.io`, `WS /calls/ws`).
+`WS /calls/ws`).

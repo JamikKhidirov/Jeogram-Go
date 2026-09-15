@@ -132,6 +132,11 @@ services:
       # Личный/self-hosted доступ: "*" = админ для любого авторизованного.
       # В продакшене замените на свой ID: ADMIN_USER_IDS: "ваш-uuid"
       ADMIN_USER_IDS: "*"
+      LIVEKIT_ENABLED: "true"
+      LIVEKIT_SERVER_URL: "ws://localhost:7800"
+      LIVEKIT_API_KEY: "devkey"
+      LIVEKIT_API_SECRET: "secret"
+      LIVEKIT_ROOM_PREFIX: "jeogram_"
     volumes:
       - uploads-data:/data/uploads
     # Лейблы Traefik (используются только при запуске профиля `ssl`).

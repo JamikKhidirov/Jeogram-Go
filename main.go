@@ -130,6 +130,9 @@ func printBanner(cfg *config.Config) {
 		{"Metrics (Prometheus)", base + "/metrics"},
 		{"WebSocket (realtime)", "ws://" + host + ":" + strconv.Itoa(cfg.HTTP.Port) + "/ws"},
 	}
+	if cfg.LiveKit.Enabled {
+		links = append(links, [2]string{"LiveKit calls", base + "/calls/livekit/start"})
+	}
 	fmt.Fprintln(os.Stdout, line)
 	fmt.Fprintln(os.Stdout, "  Jeogram Messenger API — сервер запущен")
 	fmt.Fprintln(os.Stdout, line)

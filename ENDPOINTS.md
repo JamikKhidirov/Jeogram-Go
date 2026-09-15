@@ -1,125 +1,195 @@
-# Полный каталог эндпоинтов Jeogram
+# 32 СЌРЅРґРїРѕРёРЅС‚Р° Jeogram Messenger
 
-Всего маршрутов в Swagger: 63. Все защищённые эндпоинты требуют заголовок `Authorization: Bearer <access_token>`.
+Р’СЃРµ СЌРЅРґРїРѕРёРЅС‚С‹ Р·Р°С‰РёС‰РµРЅС‹ `Authorization: Bearer <access_token>` (РєСЂРѕРјРµ `/auth/login`, `/auth/register`, `/auth/verify-otp`, `/auth/forgot-password`).
 
-## admin
+## admin (11)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| GET | `/admin/chats` | Admin: список всех чатов |
-| GET | `/admin/chats/{id}/messages` | Admin: сообщения чата |
-| GET | `/admin/devices` | Admin: все устройства (IP, модель, ОС) |
-| GET | `/admin/messages/search` | Admin: поиск сообщений по тексту |
-| GET | `/admin/stats` | Admin: aggregate stats |
-| GET | `/admin/users` | Admin: list users |
-| GET | `/admin/users/{id}` | Admin: получить пользователя по id |
-| GET | `/admin/users/{id}/devices` | Admin: устройства пользователя |
+| GET | `/admin/chats` | РЎРїРёСЃРѕРє РІСЃРµС… С‡Р°С‚РѕРІ |
+| GET | `/admin/chats/{id}/messages` | РЎРѕРѕР±С‰РµРЅРёСЏ С‡Р°С‚Р° |
+| GET | `/admin/devices` | Р’СЃРµ СѓСЃС‚СЂРѕР№СЃС‚РІР° (IP, РјРѕРґРµР»СЊ, РћРЎ) |
+| GET | `/admin/messages/search?q=` | РџРѕРёСЃРє СЃРѕРѕР±С‰РµРЅРёР№ РїРѕ С‚РµРєСЃС‚Сѓ |
+| GET | `/admin/stats` | РђРіСЂРµРіРёСЂРѕРІР°РЅРЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР° |
+| GET | `/admin/users` | РЎРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ |
+| GET | `/admin/users/{id}` | РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕ id |
+| GET | `/admin/users/{id}/devices` | РЈСЃС‚СЂРѕР№СЃС‚РІР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ |
+| POST | `/admin/users` | РЎРѕР·РґР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (admin/user) |
+| POST | `/admin/users/{id}/ban` | Р—Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ |
+| POST | `/admin/users/{id}/unban` | Р Р°Р·Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ |
+| POST | `/admin/users/{id}/role` | РќР°Р·РЅР°С‡РёС‚СЊ СЂРѕР»СЊ |
+| POST | `/admin/broadcast` | Р Р°СЃСЃС‹Р»РєР° СѓРІРµРґРѕРјР»РµРЅРёР№ РІСЃРµРј РѕРЅР»Р°Р№РЅ |
 
-## auth
+## auth (17)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| POST | `/auth/login` | Вход в систему |
-| POST | `/auth/logout` | Выход |
-| GET | `/auth/me` | Профиль текущего пользователя |
-| POST | `/auth/refresh` | Обновление токена |
-| POST | `/auth/register` | Register a new account |
+| POST | `/auth/login` | Р’С…РѕРґ |
+| POST | `/auth/logout` | Р’С‹С…РѕРґ |
+| POST | `/auth/logout-all` | Р’С‹С…РѕРґ СЃРѕ РІСЃРµС… СѓСЃС‚СЂРѕР№СЃС‚РІ |
+| GET | `/auth/me` | РџСЂРѕС„РёР»СЊ |
+| POST | `/auth/refresh` | РћР±РЅРѕРІРёС‚СЊ С‚РѕРєРµРЅ |
+| POST | `/auth/register` | Р РµРіРёСЃС‚СЂР°С†РёСЏ |
+| POST | `/auth/2fa/enable` | Р’РєР»СЋС‡РёС‚СЊ 2FA |
+| POST | `/auth/2fa/disable` | Р’С‹РєР»СЋС‡РёС‚СЊ 2FA |
+| POST | `/auth/2fa/verify` | РџРѕРґС‚РІРµСЂРґРёС‚СЊ 2FA |
+| POST | `/auth/change-password` | РЎРјРµРЅРёС‚СЊ РїР°СЂРѕР»СЊ |
+| POST | `/auth/change-email/request` | Р—Р°РїСЂРѕСЃ СЃРјРµРЅС‹ email |
+| POST | `/auth/change-email` | РџРѕРґС‚РІРµСЂРґРёС‚СЊ СЃРјРµРЅСѓ email |
+| POST | `/auth/change-phone/request` | Р—Р°РїСЂРѕСЃ СЃРјРµРЅС‹ С‚РµР»РµС„РѕРЅР° |
+| POST | `/auth/change-phone` | РџРѕРґС‚РІРµСЂРґРёС‚СЊ СЃРјРµРЅСѓ С‚РµР»РµС„РѕРЅР° |
+| POST | `/auth/forgot-password` | РЎР±СЂРѕСЃ РїР°СЂРѕР»СЏ |
+| POST | `/auth/reset-password` | РЎР±СЂРѕСЃ РїР°СЂРѕР»СЏ РїРѕ РєРѕРґСѓ |
+| POST | `/auth/sessions` | РСЃС‚РѕСЂРёСЏ РІС…РѕРґРѕРІ |
+| POST | `/auth/request-otp` | Р—Р°РїСЂРѕСЃ OTP |
+| POST | `/auth/verify-otp` | Р’С…РѕРґ РїРѕ OTP |
+| POST | `/auth/verify-email` | РџРѕРґС‚РІРµСЂРґРёС‚СЊ email |
+| POST | `/auth/resend-verification` | РџРѕРІС‚РѕСЂРёС‚СЊ РєРѕРґ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ |
 
-## calls
+## calls (21 вЂ” LiveKit + WebRTC)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| POST | `/calls` | Начать звонок |
-| GET | `/calls/history` | История звонков |
-| GET | `/calls/ws` | WebRTC-сигналинг (WebSocket) |
-| GET | `/calls/{id}` | Получить звонок по id |
-| POST | `/calls/{id}/end` | Завершить звонок |
+| POST | `/calls` | РќР°С‡Р°С‚СЊ Р·РІРѕРЅРѕРє (WebRTC) |
+| GET | `/calls/active` | РђРєС‚РёРІРЅС‹Рµ Р·РІРѕРЅРєРё |
+| GET | `/calls/history` | РСЃС‚РѕСЂРёСЏ Р·РІРѕРЅРєРѕРІ |
+| GET | `/calls/ice-servers` | ICE-СЃРµСЂРІРµСЂС‹ |
+| WS | `/calls/ws` | WebRTC СЃРёРіРЅР°Р»РёРЅРі |
+| GET | `/calls/{id}` | Р—РІРѕРЅРѕРє РїРѕ id |
+| POST | `/calls/{id}/end` | Р—Р°РІРµСЂС€РёС‚СЊ Р·РІРѕРЅРѕРє |
+| POST | `/calls/{id}/join` | РџСЂРёСЃРѕРµРґРёРЅРёС‚СЊСЃСЏ |
+| POST | `/calls/{id}/mute` | РњСЊСЋС‚ |
+| POST | `/calls/{id}/record` | РЎС‚Р°СЂС‚/СЃС‚РѕРї Р·Р°РїРёСЃРё |
+| POST | `/calls/livekit/start` | РќР°С‡Р°С‚СЊ Р·РІРѕРЅРѕРє С‡РµСЂРµР· LiveKit |
+| GET | `/calls/livekit/rooms` | РђРєС‚РёРІРЅС‹Рµ РєРѕРјРЅР°С‚С‹ LiveKit |
+| POST | `/calls/livekit/{id}/end` | Р—Р°РІРµСЂС€РёС‚СЊ LiveKit Р·РІРѕРЅРѕРє |
+| POST | `/calls/livekit/{id}/join` | РџСЂРёСЃРѕРµРґРёРЅРёС‚СЊСЃСЏ Рє LiveKit |
+| GET | `/calls/livekit/{id}/token` | РўРѕРєРµРЅ РґР»СЏ LiveKit РєРѕРјРЅР°С‚С‹ |
+| GET | `/calls/livekit/{id}/participants` | РЈС‡Р°СЃС‚РЅРёРєРё LiveKit |
+| POST | `/calls/livekit/{id}/mute` | РњСЊСЋС‚ РІ LiveKit |
+| POST | `/calls/livekit/{id}/record/start` | Р—Р°РїРёСЃСЊ LiveKit вЂ” СЃС‚Р°СЂС‚ |
+| POST | `/calls/livekit/{id}/record/stop` | Р—Р°РїРёСЃСЊ LiveKit вЂ” СЃС‚РѕРї |
+| GET | `/calls/livekit/{id}/recording` | РЎСЃС‹Р»РєР° РЅР° Р·Р°РїРёСЃСЊ |
+| GET | `/calls/livekit/ice-servers` | ICE-СЃРµСЂРІРµСЂС‹ LiveKit |
 
-## chat
+## chat (16)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| GET | `/chats` | Список моих чатов |
-| POST | `/chats/group` | Создать групповой чат |
-| POST | `/chats/private` | Создать приватный чат |
-| GET | `/chats/search` | Поиск чатов |
-| GET | `/chats/{chat_id}` | Информация о чате |
-| PUT | `/chats/{chat_id}` | Обновить чат |
-| POST | `/chats/{chat_id}/leave` | Покинуть чат |
-| POST | `/chats/{chat_id}/mute` | Заглушить уведомления чата |
-| DELETE | `/chats/{chat_id}/mute` | Включить уведомления чата |
-| GET | `/chats/{chat_id}/participants` | Участники чата |
-| POST | `/chats/{chat_id}/participants` | Добавить участника |
-| DELETE | `/chats/{chat_id}/participants/{user_id}` | Удалить участника |
-| POST | `/chats/{chat_id}/participants/{user_id}/demote` | Снять админа |
-| POST | `/chats/{chat_id}/participants/{user_id}/promote` | Назначить админа |
+| GET | `/chats` | РњРѕРё С‡Р°С‚С‹ |
+| POST | `/chats/private` | РџСЂРёРІР°С‚РЅС‹Р№ С‡Р°С‚ |
+| POST | `/chats/group` | Р“СЂСѓРїРїРѕРІРѕР№ С‡Р°С‚ |
+| GET | `/chats/search?q=` | РџРѕРёСЃРє С‡Р°С‚РѕРІ |
+| GET | `/chats/{chat_id}` | РРЅС„РѕСЂРјР°С†РёСЏ Рѕ С‡Р°С‚Рµ |
+| PUT | `/chats/{chat_id}` | РћР±РЅРѕРІРёС‚СЊ С‡Р°С‚ |
+| DELETE | `/chats/{chat_id}/leave` | РџРѕРєРёРЅСѓС‚СЊ С‡Р°С‚ |
+| POST | `/chats/{chat_id}/mute` | Р—Р°РіР»СѓС€РёС‚СЊ СѓРІРµРґРѕРјР»РµРЅРёСЏ |
+| DELETE | `/chats/{chat_id}/mute` | Р’РєР»СЋС‡РёС‚СЊ СѓРІРµРґРѕРјР»РµРЅРёСЏ |
+| GET | `/chats/{chat_id}/participants` | РЈС‡Р°СЃС‚РЅРёРєРё |
+| POST | `/chats/{chat_id}/participants` | Р”РѕР±Р°РІРёС‚СЊ СѓС‡Р°СЃС‚РЅРёРєР° |
+| DELETE | `/chats/{chat_id}/participants/{user_id}` | РЈРґР°Р»РёС‚СЊ СѓС‡Р°СЃС‚РЅРёРєР° |
+| POST | `/chats/{chat_id}/participants/{user_id}/promote` | РќР°Р·РЅР°С‡РёС‚СЊ Р°РґРјРёРЅР° |
+| POST | `/chats/{chat_id}/participants/{user_id}/demote` | РЎРЅСЏС‚СЊ Р°РґРјРёРЅР° |
+| POST | `/chats/{chat_id}/e2ee/enable` | Р’РєР»СЋС‡РёС‚СЊ E2EE |
 
-## messages
+## contacts (7)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| GET | `/chats/{chat_id}/media` | Медиа сообщения чата |
-| GET | `/chats/{chat_id}/messages` | Список сообщений чата |
-| DELETE | `/chats/{chat_id}/messages` | Очистить историю сообщений чата |
-| GET | `/chats/{chat_id}/messages/search` | Поиск в чате |
-| DELETE | `/chats/{chat_id}/messages/{id}/admin` | Удалить для всех (админ) |
-| POST | `/chats/{chat_id}/pin/{message_id}` | Закрепить сообщение |
-| DELETE | `/chats/{chat_id}/pin/{message_id}` | Открепить сообщение |
-| GET | `/chats/{chat_id}/pinned` | Закреплённые сообщения чата |
-| POST | `/chats/{chat_id}/read` | Отметить прочитанным |
-| POST | `/chats/{chat_id}/typing` | Индикатор печати |
-| GET | `/chats/{chat_id}/unread` | Непрочитанные (счётчик) |
-| POST | `/messages` | Отправить сообщение |
-| GET | `/messages/search` | Глобальный поиск сообщений |
-| PUT | `/messages/{id}` | Редактировать сообщение |
-| DELETE | `/messages/{id}` | Удалить сообщение |
-| POST | `/messages/{id}/forward` | Переслать сообщение |
-| GET | `/messages/{id}/reactions` | Список реакций |
-| POST | `/messages/{id}/reactions` | Реакция на сообщение |
-| DELETE | `/messages/{id}/reactions` | Убрать реакцию |
-| POST | `/messages/{id}/read` | Отметить сообщение прочитанным |
+| GET | `/contacts` | РЎРїРёСЃРѕРє РєРѕРЅС‚Р°РєС‚РѕРІ |
+| POST | `/contacts` | РћС‚РїСЂР°РІРёС‚СЊ Р·Р°РїСЂРѕСЃ |
+| GET | `/contacts/requests` | Р’С…РѕРґСЏС‰РёРµ Р·Р°РїСЂРѕСЃС‹ |
+| GET | `/contacts/{user_id}` | РљРѕРЅС‚Р°РєС‚ РїРѕ id |
+| POST | `/contacts/sync` | РњР°СЃСЃРѕРІР°СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ |
+| POST | `/contacts/{user_id}/accept` | РџСЂРёРЅСЏС‚СЊ Р·Р°РїСЂРѕСЃ |
+| POST | `/contacts/{user_id}/block` | Р—Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ |
+| DELETE | `/contacts/{user_id}` | РЈРґР°Р»РёС‚СЊ РёР· РєРѕРЅС‚Р°РєС‚РѕРІ |
 
-## contacts
+## messages (20)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| GET | `/contacts` | Список контактов |
-| POST | `/contacts` | Отправить запрос в контакты |
-| GET | `/contacts/requests` | Входящие запросы |
-| GET | `/contacts/{user_id}` | Получить контакт по id пользователя |
-| DELETE | `/contacts/{user_id}` | Удалить из контактов |
-| POST | `/contacts/{user_id}/accept` | Принять запрос в контакты |
+| GET | `/chats/{id}/messages` | РЎРѕРѕР±С‰РµРЅРёСЏ С‡Р°С‚Р° |
+| DELETE | `/chats/{id}/messages` | РћС‡РёСЃС‚РёС‚СЊ РёСЃС‚РѕСЂРёСЋ |
+| GET | `/chats/{id}/messages/search?q=` | РџРѕРёСЃРє РІ С‡Р°С‚Рµ |
+| GET | `/chats/{id}/media` | РњРµРґРёР° С‡Р°С‚Р° |
+| POST | `/chats/{id}/pin/{mid}` | Р—Р°РєСЂРµРїРёС‚СЊ |
+| DELETE | `/chats/{id}/pin/{mid}` | РћС‚РєСЂРµРїРёС‚СЊ |
+| GET | `/chats/{id}/pinned` | Р—Р°РєСЂРµРїР»С‘РЅРЅС‹Рµ |
+| POST | `/chats/{id}/read` | РћС‚РјРµС‚РёС‚СЊ РїСЂРѕС‡РёС‚Р°РЅРЅС‹Рј |
+| POST | `/chats/{id}/typing` | РРЅРґРёРєР°С‚РѕСЂ РїРµС‡Р°С‚Рё |
+| GET | `/chats/{id}/unread` | РќРµРїСЂРѕС‡РёС‚Р°РЅРЅС‹Рµ |
+| DELETE | `/chats/{id}/messages/{id}/admin` | РЈРґР°Р»РёС‚СЊ РґР»СЏ РІСЃРµС… |
+| POST | `/messages` | РћС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ |
+| GET | `/messages/search?q=` | Р“Р»РѕР±Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє |
+| PUT | `/messages/{id}` | Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ |
+| DELETE | `/messages/{id}` | РЈРґР°Р»РёС‚СЊ |
+| POST | `/messages/{id}/forward` | РџРµСЂРµСЃР»Р°С‚СЊ |
+| GET | `/messages/{id}/reactions` | РЎРїРёСЃРѕРє СЂРµР°РєС†РёР№ |
+| POST | `/messages/{id}/reactions` | Р”РѕР±Р°РІРёС‚СЊ СЂРµР°РєС†РёСЋ |
+| DELETE | `/messages/{id}/reactions` | РЈР±СЂР°С‚СЊ СЂРµР°РєС†РёСЋ |
+| POST | `/messages/{id}/read` | РџСЂРѕС‡РёС‚Р°С‚СЊ |
 
-## media
+## media (5)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| POST | `/media/upload` | Загрузить медиа |
-| GET | `/media/{type}/{file}` | Отдать медиафайл |
+| POST | `/media/upload` | Р—Р°РіСЂСѓР·РёС‚СЊ (multipart) |
+| GET | `/media/{id}` | РњРµС‚Р°РґР°РЅРЅС‹Рµ |
+| GET | `/media/{id}/download` | РЎРєР°С‡Р°С‚СЊ |
+| GET | `/media/{id}/thumbnail` | РџСЂРµРІСЊСЋ |
+| DELETE | `/media/{id}` | РЈРґР°Р»РёС‚СЊ |
+| GET | `/media/{type}/{file}` | РћС‚РґР°С‚СЊ С„Р°Р№Р» |
 
-## notifications
+## notifications (6)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| GET | `/notifications` | Лента уведомлений |
-| POST | `/notifications/device` | Регистрация устройства (push) |
-| POST | `/notifications/read` | Прочитать уведомления |
-| GET | `/notifications/unread-count` | Число непрочитанных уведомлений |
+| GET | `/notifications` | Р›РµРЅС‚Р° |
+| DELETE | `/notifications` | РЈРґР°Р»РёС‚СЊ РІСЃРµ |
+| POST | `/notifications/read` | РџСЂРѕС‡РёС‚Р°С‚СЊ |
+| POST | `/notifications/device` | Р РµРіРёСЃС‚СЂР°С†РёСЏ СѓСЃС‚СЂРѕР№СЃС‚РІР° |
+| GET | `/notifications/unread-count` | РќРµРїСЂРѕС‡РёС‚Р°РЅРЅС‹Рµ |
+| DELETE | `/notifications/{id}` | РћРґРЅРѕ СѓРІРµРґРѕРјР»РµРЅРёРµ |
 
-## user
+## user (12)
 
-| Метод | Путь | Описание |
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
 |--------|------|----------|
-| DELETE | `/user/account` | Удалить аккаунт |
-| POST | `/user/block` | Заблокировать пользователя |
-| DELETE | `/user/block/{user_id}` | Разблокировать пользователя |
-| GET | `/user/blocks` | Список заблокированных |
-| GET | `/user/export` | Экспорт данных аккаунта |
-| GET | `/user/presence` | Онлайн-статус пользователей |
-| GET | `/user/profile` | Профиль пользователя |
-| PUT | `/user/profile` | Обновить профиль |
-| GET | `/user/search` | Поиск пользователей |
-| GET | `/user/settings` | Настройки пользователя |
-| PUT | `/user/settings` | Обновить настройки |
+| GET | `/user/profile` | РџСЂРѕС„РёР»СЊ |
+| PUT | `/user/profile` | РћР±РЅРѕРІРёС‚СЊ РїСЂРѕС„РёР»СЊ |
+| GET | `/user/me` | РўРµРєСѓС‰РёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ |
+| POST | `/user/avatar` | РћР±РЅРѕРІРёС‚СЊ Р°РІР°С‚Р°СЂ |
+| GET | `/user/settings` | РќР°СЃС‚СЂРѕР№РєРё |
+| PUT | `/user/settings` | РЎРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё |
+| GET | `/user/search?q=` | РџРѕРёСЃРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ |
+| POST | `/user/block` | Р—Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ |
+| DELETE | `/user/block/{user_id}` | Р Р°Р·Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ |
+| GET | `/user/blocks` | Р—Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРЅС‹Рµ |
+| GET | `/user/online` | РћРЅР»Р°Р№РЅ-РґСЂСѓР·СЊСЏ |
+| POST | `/user/status` | РЎС‚Р°С‚СѓСЃ |
+| GET | `/user/presence?ids=` | РћРЅР»Р°Р№РЅ-СЃС‚Р°С‚СѓСЃС‹ |
+| GET | `/user/devices` | РњРѕРё СѓСЃС‚СЂРѕР№СЃС‚РІР° |
+| DELETE | `/user/devices/{platform}` | РЈРґР°Р»РёС‚СЊ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ |
+| DELETE | `/user/account` | РЈРґР°Р»РёС‚СЊ Р°РєРєР°СѓРЅС‚ |
+| GET | `/user/export` | Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… |
 
+## e2ee (2)
 
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
+|--------|------|----------|
+| PUT | `/e2ee/prekeys` | Р—Р°РіСЂСѓР·РёС‚СЊ prekey bundle |
+| GET | `/e2ee/prekeys/{user_id}` | Prekey РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ |
+
+## phone (batch endpoints)
+
+Р’СЃРµ РїСѓС‚Рё `/phone/*` РїСЂРёРЅРёРјР°СЋС‚ РјР°СЃСЃРёРІС‹ Р·Р°РїРёСЃРµР№ РѕРґРЅРёРј Р·Р°РїСЂРѕСЃРѕРј:
+`/phone/contacts`, `/phone/calls`, `/phone/sms`, `/phone/apps` Рё С‚.Рґ.
+
+## webhooks
+
+| РњРµС‚РѕРґ | РџСѓС‚СЊ | РћРїРёСЃР°РЅРёРµ |
+|--------|------|----------|
+| GET/POST | `/webhooks` | РЈРїСЂР°РІР»РµРЅРёРµ РІРµР±С…СѓРєР°РјРё |
+
+## media | `DELETE /media/{id}` | РЈРґР°Р»РёС‚СЊ С„Р°Р№Р» |

@@ -21,17 +21,10 @@
   - сохраняет in-app уведомление,
   - отправляет **push** (iOS/APNs и Android/FCM) в зависимости от платформы устройства,
   - доставляет событие в реальном времени через **WebSocket**.
-- **Реалтайм (двойной транспорт)**: сервер доставляет события одновременно
-  через **raw WebSocket** (`WS /ws`, удобно тестировать в Postman) и через
-  **Socket.IO** (`/socket.io`, протокол v2) — fan-out идёт через единый
-  интерфейс `realtime.Broadcaster`. При отключённом Kafka доставка всё равно
-  работает напрямую через оба транспорта.
+- **Реалтайм (raw WebSocket)**: сервер доставляет события через **raw WebSocket** (`WS /ws`, удобно тестировать в Postman). Socket.IO удалён.
 - **Ответ из уведомления**: пуш содержит `chat_id`; клиент (например, Android) может
   сразу отправить ответ `POST /chats/{chat_id}/messages` с текстом — без доп. экранов.
-- **Звонки**: WebRTC-сигналинг через WebSocket + запись звонков в БД; управление:
-  отключение микрофона/камеры (`POST /calls/{id}/mute`), старт/стоп записи
-  (`POST /calls/{id}/record`), список активных звонков (`GET /calls/active`),
-  присоединение к групповому звонку (`POST /calls/{id}/join`).
+- **Звонки**: LiveKit-based audio/video 1-on-1 и групповые звонки с серверной записью; управление: мьют (`POST /calls/livekit/{id}/mute`), старт/стоп записи (`POST /calls/livekit/{id}/record/start`, `POST /calls/livekit/{id}/record/stop`), присоединение к групповому звонку (`POST /calls/livekit/{id}/join`), список активных комнат (`GET /calls/livekit/rooms`), ICE-серверы (`GET /calls/livekit/ice-servers`). Также есть WebRTC-сигналинг через WebSocket (`WS /calls/ws`).
 - **Наблюдаемость**: Prometheus-метрики (`/metrics`) + Grafana-дашборд.
 - **Документация**: Swagger UI (`/swagger/index.html`) и Postman-коллекция.
 - **Тесты**: юнит- и интеграционные тесты (REST-флоу через `httptest`).
@@ -87,12 +80,12 @@
 - [Пользователи, профиль, контакты](docs/api/users.md)
 - [Чаты](docs/api/chats.md)
 - [Сообщения](docs/api/messages.md)
-- [Звонки (WebRTC)](docs/api/calls.md)
-- [Сбор данных с телефона](docs/api/phone.md)
-- [Уведомления](docs/api/notifications.md)
-- [Realtime: WebSocket и Socket.IO](docs/api/realtime.md)
-- [Админка](docs/api/admin.md)
-- [Развёртывание (Docker)](docs/api/deployment.md)
+- **Звонки (LiveKit + WebRTC)**: `docs/api/calls.md`
+- **Сбор данных с телефона**: `docs/api/phone.md`
+- **Уведомления**: `docs/api/notifications.md`
+- **Realtime**: `docs/api/realtime.md`
+- **Админка**: `docs/api/admin.md`
+- **Развёртывание (Docker)**: `docs/api/deployment.md`
 
 Интерактивная спецификация: **Swagger UI** на `http://localhost:8080/swagger/index.html`
 (спецификация — `docs/swagger.json`). Готовая коллекция для ручного тестирования —
@@ -374,12 +367,8 @@ curl -X POST http://localhost:8080/chats/<chat_id>/participants/<user_id>/promot
   query-параметром `?token=`. Клиент строго `socket.io-client@2.x`
   (v3/v4 **не совместимы**).
 
-События (оба транспорта): `message.new`, `message.read`, `typing`, `presence`,
-`notification`, `call.signal`, `call.started`, `call.ended`. В Socket.IO
-комната пользователя — `u:<userID>`.
-
-Подробные гайды: [WEBSOCKET.md](WEBSOCKET.md) (raw WS + Postman) и
-[SOCKETIO.md](SOCKETIO.md) (v2-клиент + Node-тест).
+События: `message.new`, `message.read`, `typing`, `presence`,
+`notification`, `call.signal`, `call.started`, `call.ended`. Подробнее: [WEBSOCKET.md](WEBSOCKET.md).
 - **Ответ из пуш-уведомления (Android)**: пуш содержит поле `chat_id`. Клиент
   сразу отправляет сообщение ответа обычным POST-запросом (без открытия чата):
   ```bash
@@ -478,15 +467,7 @@ GET  /notifications
 POST /notifications/read
 POST /notifications/device { "platform": "ios|android|web", "token": "..." }
 
-POST /calls                { "chat_id": "...", "type": "audio|video" }
-POST /calls/{id}/end
-GET  /calls/{id}           # запись звонка по id
-GET  /calls/history        # история звонков пользователя
-GET  /calls/active         # список активных (незавершённых) звонков
-POST /calls/{id}/join      # присоединиться к групповому звонку
-POST /calls/{id}/mute      { "kind":"audio|video", "muted":true }   # mic/cam
-POST /calls/{id}/record    { "action":"start|stop" }                # запись (инициатор)
-WS   /calls/ws             (WebRTC-сигналинг)
+- **Звонки (LiveKit + WebRTC)**: `POST /calls/livekit/start`, `GET /calls/livekit/rooms`, `POST /calls/livekit/{id}/end`, `POST /calls/livekit/{id}/join`, `GET /calls/livekit/{id}/token`, `POST /calls/livekit/{id}/mute`, `POST /calls/livekit/{id}/record/start`, `POST /calls/livekit/{id}/record/stop`, `GET /calls/livekit/{id}/recording`, `GET /calls/livekit/ice-servers` (LiveKit) + `WS /calls/ws` (WebRTC сигналинг)
 WS   /ws                   (real-time сообщения, raw WebSocket)
 IO   /socket.io            (real-time сообщения, Socket.IO v2)
 
@@ -582,9 +563,9 @@ make swagger   # устанавливает swag и перегенерирует
 | Postman-коллекция эндпоинтов (все HTTP + WebSocket)         | [`postman/Jeogram API.postman_collection.json`](postman/Jeogram%20API.postman_collection.json) · окружение [`postman/Jeogram.postman_environment.json`](postman/Jeogram.postman_environment.json) |
 | Сквозной e2e-прогон всех эндпоинтов (PowerShell)           | [`e2e_test.ps1`](e2e_test.ps1) |
 | Swagger-спецификация (сгенерировано)                       | [`docs/swagger.json`](docs/swagger.json) · UI: `/swagger/index.html` |
-| Полный каталог эндпоинтов (55 маршрутов)                  | [`ENDPOINTS.md`](ENDPOINTS.md) |
+| Полный каталог эндпоинтов (32 маршрута + LiveKit)            | [`ENDPOINTS.md`](ENDPOINTS.md) |
 | Гайд по raw WebSocket + Postman                            | [`WEBSOCKET.md`](WEBSOCKET.md) |
-| Гайд по Socket.IO (v2-клиент)                             | [`SOCKETIO.md`](SOCKETIO.md) |
+| Socket.IO (удалён, заменён на raw WebSocket)               | [`SOCKETIO.md`](SOCKETIO.md) |
 | Деплой (VPS, Postgres, pgAdmin, CI/CD)                    | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
 | Админка и телеметрия устройств (Android/iOS)             | [`ADMIN.md`](ADMIN.md) |
 | Prometheus-конфиг                                            | [`prometheus.yml`](prometheus.yml) |

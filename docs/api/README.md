@@ -10,10 +10,10 @@
 - [Пользователи, профиль, настройки, контакты](users.md)
 - [Чаты](chats.md)
 - [Сообщения](messages.md)
-- [Звонки (WebRTC)](calls.md)
+- [Звонки (LiveKit + WebRTC)](calls.md)
 - [Сбор данных с телефона](phone.md)
 - [Уведомления](notifications.md)
-- [Realtime: WebSocket и Socket.IO](realtime.md)
+- [Realtime: Raw WebSocket](realtime.md)
 - [Админка](admin.md)
 - [Webhook-уведомления](webhooks.md)
 - [Развёртывание (Docker)](deployment.md)
@@ -61,4 +61,4 @@ AccessToken живёт 1 час (настраивается `JWT_ACCESS_TTL`), R
 Импортируй сначала окружение `postman/Jeogram.postman_environment.json`, затем коллекцию
 `postman/Jeogram API.postman_collection.json`. Папка `Auth → Login` автоматически
 сохраняет токен в переменную `{{access_token}}`, которая подставляется во все защищённые
-запросы.
+запросы. В папке `Calls → LiveKit` — все эндпоинты LiveKit для аудио/видео звонков.
