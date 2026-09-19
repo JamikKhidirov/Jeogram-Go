@@ -1,10 +1,15 @@
 # 🚀 Jeogram
 
 <p align="center">
-  <br>
+  <img src="docs/assets/hero.svg" width="100%" alt="Jeogram — анимированный логотип и название" />
+</p>
+
+<p align="center">
   <sub>Профессиональный бэкенд мессенджера на Go с чистой архитектурой</sub>
-  <br>
-  <br>
+</p>
+
+<p align="center">
+  <img src="docs/assets/typing.svg" width="100%" alt="Возможности Jeogram — печатающаяся анимированная строка" />
 </p>
 
 <p align="center">
@@ -19,6 +24,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/divider.svg" width="100%" alt="Анимированный разделитель" />
+</p>
+
 ## ✨ Главное
 
 - **Спецпроект:** Jeogram — это мессенджер будущего
@@ -31,6 +40,14 @@
 - **Полностью готов к продакшну:** архитектура, документация, тесты
 
 ## 🏗️ Архитектура
+
+<p align="center">
+  <img src="docs/assets/architecture.svg" width="100%" alt="Анимированная схема архитектуры Jeogram" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/divider.svg" width="100%" alt="Анимированный разделитель" />
+</p>
 
 ```
 Cmd (entry)
@@ -59,6 +76,14 @@ Cmd (entry)
 
 ## 🌟 Возможности
 
+<p align="center">
+  <img src="docs/assets/messenger.svg" width="100%" alt="Анимированный чат Jeogram: сообщения, голосовые, реакции" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/calls.svg" width="100%" alt="Анимированные звонки LiveKit: комната, запись, WebRTC-сигналинг" />
+</p>
+
 - **Аутентификация**: регистрация, вход, обновление токена (JWT access/refresh), выход
 - **Пользователи**: профиль, настройки (тема, язык, уведомления, видимость), поиск, блокировки
 - **Чаты**: приватные (1-на-1, дедупликация) и групповые
@@ -82,6 +107,10 @@ Cmd (entry)
 
 ## 📦 Стэк технологий
 
+<p align="center">
+  <img src="docs/assets/stack.svg" width="100%" alt="Анимированный технологический стек Jeogram" />
+</p>
+
 | Категория | Инструмент | Версия |
 |----------|------------|-------|
 | Язык    | Go         | 1.26  |
@@ -92,6 +121,10 @@ Cmd (entry)
 | Контейнеризация | Docker + Kubernetes | —    |
 
 ## 🚀 Быстрый старт
+
+<p align="center">
+  <img src="docs/assets/flow.svg" width="100%" alt="Анимированный быстрый старт: 5 шагов до первого сообщения" />
+</p>
 
 ### Docker (полный стек)
 
@@ -120,6 +153,10 @@ REDIS_ENABLED=false KAFKA_ENABLED=false \
 JWT_ACCESS_SECRET=dev-secret JWT_REFRESH_SECRET=dev-secret \
 HTTP_PORT=8080 go run .
 ```
+
+<p align="center">
+  <img src="docs/assets/divider.svg" width="100%" alt="Анимированный разделитель" />
+</p>
 
 ## 📚 Документация
 
@@ -156,6 +193,12 @@ Jeogram — это **полностью готовый к продакшну б�
 
 ## ⭐ Стартовые звёзды
 
+<p align="center">
+  <a href="https://github.com/JamikKhidirov/Jeogram-Go/stargazers">
+    <img src="docs/assets/star-cta.svg" width="100%" alt="Поставьте звезду проекту Jeogram" />
+  </a>
+</p>
+
 *Команда пока небольшая, но активно растёт!* 🚀
 
 ## 📸 Галерея проекта
@@ -188,6 +231,10 @@ Jeogram — это **полностью готовый к продакшну б�
 - **Безопасный HTTP headers** (CSP, HSTS)
 
 ## 🎯 Принцип работы
+
+<p align="center">
+  <img src="docs/assets/realtime.svg" width="100%" alt="Анимированная realtime-доставка событий через Broadcaster" />
+</p>
 
 1. **Клиент регистрируется/входит** → получает JWT токены
 2. **HTTP API** обрабатывает все запросы → база данных PostgreSQL + Redis кэш
@@ -227,4 +274,12 @@ MIT © 2024 Jeogram Dev
 
 ---
 
-*Jeogram — это начало, а не конец. Твоя помощь сделает его лучше!* 🌟
+<p align="center">
+  <img src="docs/assets/divider.svg" width="100%" alt="Анимированный разделитель" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/logo.svg" width="120" alt="Анимированный логотип Jeogram" />
+  <br>
+  <sub>Jeogram — это начало, а не конец. Твоя помощь сделает его лучше! 🌟</sub>
+</p>

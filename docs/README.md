@@ -10,6 +10,12 @@
 
 <p align="center"><img src="assets/divider.svg" width="100%" alt=""/></p>
 
+<p align="center">
+  <img src="assets/typing.svg" width="100%" alt="Ключевые возможности Jeogram — анимированная строка"/>
+</p>
+
+<p align="center"><img src="assets/divider.svg" width="100%" alt=""/></p>
+
 ## 🗺️ Карта документации
 
 <p align="center">

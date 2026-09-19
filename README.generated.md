@@ -17,6 +17,8 @@
 времени, звонки через **LiveKit**, 2FA, сквозное шифрование (E2EE-prekeys),
 push-уведомления и админка.
 
+<p align="center"><img src="docs/assets/typing.svg" width="100%" alt="Анимированные возможности Jeogram"/></p>
+
 <p align="center"><img src="docs/assets/divider.svg" width="100%" alt=""/></p>
 
 ## ⚡ Быстрый старт
@@ -188,6 +190,12 @@ CI (GitHub Actions): `lint → test → build (+swagger check) → docker build 
 ## 📄 Лицензия
 
 MIT © 2024 Jeogram Dev · автор — [JamikKhidirov](https://github.com/JamikKhidirov)
+
+<p align="center">
+  <a href="https://github.com/JamikKhidirov/Jeogram-Go/stargazers">
+    <img src="docs/assets/star-cta.svg" width="100%" alt="Поставьте звезду проекту Jeogram"/>
+  </a>
+</p>
 
 <p align="center">
   <img src="docs/assets/divider.svg" width="100%" alt=""/>
