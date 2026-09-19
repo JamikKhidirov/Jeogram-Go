@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="docs/assets/hdr-admin.svg" width="100%" alt="Админка и телеметрия"/>
+</p>
 # Админка и телеметрия устройств (Android / iOS)
 
 ## Назначение админа
@@ -69,13 +72,13 @@ curl "http://localhost:8080/admin/messages/search?q=привет" -H "Authorizat
 curl http://localhost:8080/admin/stats -H "Authorization: Bearer <admin_token>"
 ```
 
-## Реалтайм (WebSocket + Socket.IO)
+## Реалтайм (WebSocket)
 
-Оба транспорта доставляют одни и те же события:
-- **Raw WebSocket**: `WS /ws` (Bearer в заголовке или `?token=`) — удобно тестить в Postman.
-- **Socket.IO v2**: `http://localhost:8080` path `/socket.io`, query `?token=`,
-  клиент строго `socket.io-client@2.x`.
+Единственный транспорт событий — **raw WebSocket**:
+
+- `WS /ws` (Bearer в заголовке или `?token=`) — удобно тестить прямо в Postman.
+- Socket.IO из проекта удалён (см. [SOCKETIO.md](SOCKETIO.md)).
 
 События: `message.new`, `message.read`, `typing`, `presence`, `notification`,
 `call.signal`, `call.started`, `call.ended`. Подробнее: [WEBSOCKET.md](WEBSOCKET.md),
-[SOCKETIO.md](SOCKETIO.md).
+[docs/api/realtime.md](docs/api/realtime.md).

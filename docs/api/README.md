@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hero.svg" width="100%" alt="Документация API Jeogram"/>
+</p>
 # Документация API Jeogram Messenger
 
 Полная интерактивная спецификация доступна в Swagger UI: `http://localhost:8080/swagger/index.html`

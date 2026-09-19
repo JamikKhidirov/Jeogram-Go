@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-chat.svg" width="100%" alt="Чаты"/>
+</p>
 # Чаты
 
 Префикс: `/chats`. Все эндпоинты требуют `Bearer`.

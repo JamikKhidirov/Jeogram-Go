@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-labelledby="heroTitle">
+  <title id="heroTitle">Jeogram — мессенджер на Go</title>
+  <defs>
+    <linearGradient id="heroBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b18"/>
+      <stop offset="0.5" stop-color="#101a35"/>
+      <stop offset="1" stop-color="#070b18"/>
+    </linearGradient>
+    <linearGradient id="heroNeon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee">
+        <animate attributeName="stop-color" values="#22d3ee;#8b5cf6;#f472b6;#34d399;#22d3ee" dur="10s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="0.5" stop-color="#8b5cf6">
+        <animate attributeName="stop-color" values="#8b5cf6;#f472b6;#34d399;#22d3ee;#8b5cf6" dur="10s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="1" stop-color="#f472b6">
+        <animate attributeName="stop-color" values="#f472b6;#34d399;#22d3ee;#8b5cf6;#f472b6" dur="10s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <pattern id="heroGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="1"/>
+    </pattern>
+    <filter id="heroGlow" x="-30%" y="-60%" width="160%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="heroReveal">
+      <rect x="70" y="96" width="0" height="120">
+        <animate attributeName="width" values="0;700;700;0" keyTimes="0;0.45;0.9;1" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.3 0 0.2 1;0 0 1 1;0.4 0 1 1"/>
+      </rect>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="320" rx="24" fill="url(#heroBg)"/>
+  <rect width="1200" height="320" rx="24" fill="url(#heroGrid)" opacity="0.5">
+    <animate attributeName="opacity" values="0.25;0.6;0.25" dur="7s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="0" y="0" width="1200" height="320" rx="24" fill="none" stroke="#233050" stroke-width="2"/>
+
+<rect y="0" width="4" height="320" fill="url(#heroNeon)" opacity="0.7">
+    <animate attributeName="x" values="-20;1216" dur="6s" repeatCount="indefinite"/>
+  </rect>
+
+  <g clip-path="url(#heroReveal)">
+    <text x="70" y="186" font-family="Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="104" font-weight="800" fill="url(#heroNeon)" filter="url(#heroGlow)" letter-spacing="2">Jeogram</text>
+  </g>
+  <rect x="70" y="96" width="6" height="104" rx="3" fill="#22d3ee">
+    <animate attributeName="x" values="70;770;770;70" keyTimes="0;0.45;0.9;1" dur="8s" repeatCount="indefinite" calcMode="spline" keySplines="0.3 0 0.2 1;0 0 1 1;0.4 0 1 1"/>
+    <animate attributeName="opacity" values="1;0;1;0;1" dur="1.1s" repeatCount="indefinite"/>
+  </rect>
+
+  <text x="72" y="238" font-family="Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="24" fill="#94a3b8">
+    Мессенджер на Go · чистая архитектура · realtime
+    <animate attributeName="opacity" values="0.55;1;0.55" dur="5s" repeatCount="indefinite"/>
+  </text>
+
+  <g font-family="Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="16" font-weight="700">
+    <g>
+      <rect x="72" y="258" width="150" height="36" rx="18" fill="#0f1a30" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="147" y="281" fill="#22d3ee" text-anchor="middle">HTTP API</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="3.4s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <rect x="236" y="258" width="170" height="36" rx="18" fill="#0f1a30" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="321" y="281" fill="#8b5cf6" text-anchor="middle">WebSocket</text>
+      <animateTransform attributeName="transform" type="translate" values="0 -5;0 0;0 -5" dur="3.4s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <rect x="420" y="258" width="150" height="36" rx="18" fill="#0f1a30" stroke="#34d399" stroke-width="1.5"/>
+      <text x="495" y="281" fill="#34d399" text-anchor="middle">LiveKit</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="2.8s" repeatCount="indefinite"/>
+    </g>
+  </g>
+<g fill="#22d3ee">
+    <circle cx="980" cy="80" r="4">
+      <animate attributeName="cy" values="80;40;80" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.9;0.2" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1030" cy="150" r="3" fill="#8b5cf6">
+      <animate attributeName="cy" values="150;110;150" dur="7.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="7.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1090" cy="230" r="4" fill="#f472b6">
+      <animate attributeName="cy" values="230;190;230" dur="5.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="5.2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1140" cy="110" r="3" fill="#34d399">
+      <animate attributeName="cy" values="110;70;110" dur="8.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.25;0.85;0.25" dur="8.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <g transform="translate(880 92)" opacity="0.95">
+    <rect width="250" height="140" rx="18" fill="#0b1428" stroke="#233050" stroke-width="1.5"/>
+    <rect x="18" y="20" width="96" height="26" rx="13" fill="#16223c"/>
+    <rect x="70" y="58" width="126" height="26" rx="13" fill="#1c2c52" stroke="#22d3ee" stroke-width="1"/>
+    <rect x="18" y="96" width="82" height="22" rx="11" fill="#16223c">
+      <animate attributeName="opacity" values="1;0.45;1" dur="2.6s" repeatCount="indefinite"/>
+    </rect>
+    <circle cx="216" cy="71" r="5" fill="#34d399">
+      <animate attributeName="r" values="3;6;3" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="216" cy="71" r="5" fill="#34d399" opacity="0.5">
+      <animate attributeName="r" values="5;13;5" dur="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0;0.5" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

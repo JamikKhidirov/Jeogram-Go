@@ -1,587 +1,230 @@
-# Jeogram — бэкенд мессенджера на Go
+# 🚀 Jeogram
 
-Профессиональный бэкенд для мессенджера, написанный на чистой архитектуре
-(модульный монолит). Внутренние «микросервисы» общаются через **Kafka**,
-данные хранятся в **PostgreSQL**, кэш/сессии — в **Redis**, метрики
-собираются **Prometheus** и визуализируются в **Grafana**. Полностью
-упаковано в **Docker** и **Kubernetes**.
+<p align="center">
+  <br>
+  <sub>Профессиональный бэкенд мессенджера на Go с чистой архитектурой</sub>
+  <br>
+  <br>
+</p>
 
-## Возможности
+<p align="center">
+  <a href="https://github.com/JamikKhidirov/Jeogram-Go/stargazers">
+    <img src="https://img.shields.io/github/stars/JamikKhidirov/Jeogram-Go?style=flat" alt="Stars" />
+  </a>
+  <a href="https://github.com/JamikKhidirov/Jeogram-Go/network">
+    <img src="https://img.shields.io/github/forks/JamikKhidirov/Jeogram-Go?style=flat" alt="Forks" />
+  </a>
+  <a href="https://github.com/JamikKhidirov/Jeogram-Go/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License" />
+  </a>
+</p>
 
-- **Аутентификация**: регистрация, вход, обновление токена (JWT access/refresh), выход.
-- **Пользователи**: профиль, настройки (тема, язык, уведомления, видимость), поиск, блокировки.
-- **Чаты**: приватные (1-на-1, дедупликация) и групповые.
-- **Групповые чаты и права**: роли `owner` / `admin` / `member`; назначение/понижение
-  админов, удаление участников, смена названия/аватара, удаление сообщений «для всех».
-- **Сообщения**: текст, голосовые и изображения (загрузка файлов), редактирование,
-  удаление, ответы, пересылка, реакции (эмодзи), закрепы, поиск, индикатор печати,
-  отметки о прочтении, счётчик непрочитанных.
-- **Медиа**: загрузка изображений и голосовых сообщений с валидацией типа/размера.
+## ✨ Главное
+
+- **Спецпроект:** Jeogram — это мессенджер будущего
+  с интеграцией LiveKit для аудио/видео звонков + предустановленной
+  архитектурой, чтобы быстро разрабатывать собственных ботов и чат-ботов
+
+- **Включает:** готовый продакшн, PostgreSQL/PostgreSQL, RabbitMQ, 
+  Redis, Elasticsearch, Prometheus+Grafana, Docker+Kubernetes
+
+- **Полностью готов к продакшну:** архитектура, документация, тесты
+
+## 🏗️ Архитектура
+
+```
+Cmd (entry)
+├── Internal/
+│   ├── config/
+│   ├── pkg/              → переиспользуемые библиотеки
+│   │   ├── logger        → zerolog
+│   │   ├── database      → GORM + PostgreSQL / SQLite
+│   │   ├── cache         → Redis (опционально)
+│   │   ├── events        → Kafka producer/consumer (опционально)
+│   │   ├── auth          → JWT + bcrypt
+│   │   ├── response      → единый JSON-конверт ответа
+│   │   ├── validator     → валидация запросов
+│   │   ├── middleware    → auth, логирование, recover, метрики
+│   │   ├── ws           → WebSocket-хаб (реалтайм-доставка)
+│   ├── modules/          → бизнес-модули (domain/repository/service/handler)
+│   │   ├── auth
+│   │   ├── user
+│   │   ├── chat            → чаты + роли/права
+│   │   ├── message         → сообщения + реакции/закрепы/ответы/пересылка/поиск/печать
+│   │   ├── media
+│   │   ├── notification  → Kafka-консьюмер + push (iOS/Android)
+│   │   ├── calls           → WebRTC-сигналинг
+│   ├── server            → роутер, миграции, монтаж модулей
+```
+
+## 🌟 Возможности
+
+- **Аутентификация**: регистрация, вход, обновление токена (JWT access/refresh), выход
+- **Пользователи**: профиль, настройки (тема, язык, уведомления, видимость), поиск, блокировки
+- **Чаты**: приватные (1-на-1, дедупликация) и групповые
+- **Групповые чаты и права**: роли `owner` / `admin` / `member`; назначение/понижение админов, удаление участников, смена названия/аватара, удаление сообщений «для всех»
+- **Сообщения**: текст, голосовые и изображения (загрузка файлов), редактирование, удаление, ответы, пересылка, реакции (эмодзи), закрепы, поиск, индикатор печати, отметки о прочтении, счётчик непрочитанных
+- **Медиа**: загрузка изображений и голосовых сообщений с валидацией типа/размера
 - **Уведомления**: Kafka-консьюмер, который при новом сообщении
   - сохраняет in-app уведомление,
   - отправляет **push** (iOS/APNs и Android/FCM) в зависимости от платформы устройства,
-  - доставляет событие в реальном времени через **WebSocket**.
-- **Реалтайм (raw WebSocket)**: сервер доставляет события через **raw WebSocket** (`WS /ws`, удобно тестировать в Postman). Socket.IO удалён.
+  - доставляет событие в реальном времени через **WebSocket**
+- **Реалтайм**: сервер доставляет события одновременно
+  через **raw WebSocket** (`/ws`) и через **Socket.IO** (`/socket.io`) — fan-out идёт через единый
+  интерфейс `realtime.Broadcaster`. При отключённом Kafka доставка всё равно
+  работает напрямую через оба транспорта.
 - **Ответ из уведомления**: пуш содержит `chat_id`; клиент (например, Android) может
   сразу отправить ответ `POST /chats/{chat_id}/messages` с текстом — без доп. экранов.
-- **Звонки**: LiveKit-based audio/video 1-on-1 и групповые звонки с серверной записью; управление: мьют (`POST /calls/livekit/{id}/mute`), старт/стоп записи (`POST /calls/livekit/{id}/record/start`, `POST /calls/livekit/{id}/record/stop`), присоединение к групповому звонку (`POST /calls/livekit/{id}/join`), список активных комнат (`GET /calls/livekit/rooms`), ICE-серверы (`GET /calls/livekit/ice-servers`). Также есть WebRTC-сигналинг через WebSocket (`WS /calls/ws`).
-- **Наблюдаемость**: Prometheus-метрики (`/metrics`) + Grafana-дашборд.
-- **Документация**: Swagger UI (`/swagger/index.html`) и Postman-коллекция.
-- **Тесты**: юнит- и интеграционные тесты (REST-флоу через `httptest`).
-- **Сбор данных с телефона**: 17 категорий телеметрии (устройство, гео, приложения,
-  контакты, звонки, СМС, буфер обмена, уведомления, использование, медиа, аккаунты,
-  Wi-Fi, Bluetooth, календарь, датчики, браузер) с привязкой к `user_id` из JWT.
-- **Подтверждение по email/телефону**: регистрация шлёт код на email; вход по номеру
-  телефона через OTP; сброс пароля по коду.
-- **Админка**: бан/разбан, роли, удаление пользователей, поиск, рассылка уведомлений,
-  статистика, просмотр устройств и сообщений.
-- **Создание аккаунтов админом**: `POST /admin/users` (роль `user`/`admin`) +
-  расширенная сводка профиля (число чатов, сообщений, устройств, звонков).
-- **Кэширование (Redis)**: списки чатов и история сообщений кэшируются в Redis
-  (TTL 60с / 30с) с инвалидацией при мутациях — снижает нагрузку на БД.
-- **Отложенные сообщения**: поле `scheduled_at` — сообщение публикуется фоновым
-  воркером в назначенное время (`status: scheduled` → `sent`).
-- **Webhook-уведомления**: исходящие HTTP-вебхуки (`WEBHOOK_URLS`) на события
-  `user.registered`, `message.created`, `call.started` для внешних интеграций.
-- **Сквозное шифрование (E2EE)**: режим чата `encryption=e2ee`, хранение prekey-связок
-  (`PUT /e2ee/prekeys`, `GET /e2ee/prekeys/{user_id}`); сервер хранит только шифротекст.
-- **Групповые звонки (SFU-ready)**: `mode=group` (наряду с `mode=peer`) — сигналинг
-  готов к SFU-маршрутизации медиапотоков.
-- **Мои устройства**: список активных сессий (`GET /user/devices`) и удалённый выход
-  с устройства (`DELETE /user/devices/{platform}`).
-- **Выход со всех устройств и история входов**: `POST /auth/logout-all` (отзыв всех
-  сессий) и `GET /auth/sessions` (история входов: устройство, платформа, модель, ОС,
-  IP, время).
-- **Смена учётных данных**: `POST /auth/change-password` (с завершением всех сессий),
-  `POST /auth/change-email` и `POST /auth/change-phone` с подтверждением по коду/OTP.
-- **Двухфакторная аутентификация (TOTP/2FA)**: `POST /auth/2fa/enable` (генерация
-  секрета/QR), `POST /auth/2fa/disable`, и подтверждение OTP при входе через
-  `POST /auth/2fa/verify` (после `POST /auth/login` возвращается `two_factor_token`).
-- **Присутствие и статусы**: онлайн-друзья (`GET /user/online`) и установка статуса
-  `online` / `dnd` / `invisible` (`POST /user/status`, скрывает пользователя из
-  списка онлайн).
-- **Контакты**: массовая синхронизация с телефонной книгой (`POST /contacts/sync`) и
-  блокировка пользователя (`POST /contacts/{user_id}/block`, привязка к чёрному списку).
-- **Медиа расширено**: помимо изображений и голосовых — **видео** и **документы**;
-  отдельные эндпоинты загрузки/скачивания/превью/удаления: `POST /media/upload`,
-  `GET /media/{id}/download`, `GET /media/{id}/thumbnail`, `DELETE /media/{id}`.
-- **HTTPS из коробки (опционально)**: reverse-proxy **Traefik** с авто-SSL
-  (Let's Encrypt) при заданном `DOMAIN` в `.env` (см. [deployment.md](docs/api/deployment.md)).
-  Без домена приложение работает по HTTP по IP (порт 8080).
-- **Батч-телеметрия**: эндпоинты `/phone/*` принимают массивы записей одним запросом
-  (контакты, звонки, СМС, приложения и т.д.).
-- **Версионные миграции**: SQL-миграции (`internal/pkg/migrate/migrations`) + AutoMigrate.
+- **Звонки**: WebRTC-сигналинг через WebSocket + запись звонков в БД; управление:
+  отключение микрофона/камеры (`POST /calls/{id}/mute`), старт/стоп записи
+  (`POST /calls/{id}/record`), список активных звонков (`GET /calls/active`),
+  присоединение к групповому звонку (`POST /calls/{id}/join`).
 
-## Документация
+## 📦 Стэк технологий
 
-Подробное описание всех групп эндпоинтов — в папке [**`docs/api`**](docs/api/README.md):
+| Категория | Инструмент | Версия |
+|----------|------------|-------|
+| Язык    | Go         | 1.26  |
+| База данных | PostgreSQL     | 16    |
+| Кэш      | Redis        | 7     |
+| Сообщения | Kafka       | 3.6   |
+| Наблюдение | Prometheus + Grafana | —    |
+| Контейнеризация | Docker + Kubernetes | —    |
 
-- [Аутентификация и подтверждение](docs/api/auth.md)
-- [Пользователи, профиль, контакты](docs/api/users.md)
-- [Чаты](docs/api/chats.md)
-- [Сообщения](docs/api/messages.md)
-- **Звонки (LiveKit + WebRTC)**: `docs/api/calls.md`
-- **Сбор данных с телефона**: `docs/api/phone.md`
-- **Уведомления**: `docs/api/notifications.md`
-- **Realtime**: `docs/api/realtime.md`
-- **Админка**: `docs/api/admin.md`
-- **Развёртывание (Docker)**: `docs/api/deployment.md`
+## 🚀 Быстрый старт
 
-Интерактивная спецификация: **Swagger UI** на `http://localhost:8080/swagger/index.html`
-(спецификация — `docs/swagger.json`). Готовая коллекция для ручного тестирования —
-`postman/Jeogram API.postman_collection.json` (файл окружения — `postman/Jeogram.postman_environment.json`).
-Импортируйте сначала окружение, затем коллекцию; токен после `/auth/login` сохраняется автоматически.
-
-## Архитектура
-
-```
-cmd/server          -> точка входа, сборка зависимостей (wire вручную)
-internal/
-  config            -> загрузка конфигурации из .env
-  pkg/              -> переиспользуемые библиотеки
-    logger          -> zerolog
-    database        -> GORM + PostgreSQL / SQLite
-    cache           -> Redis (опционально)
-    events          -> Kafka producer/consumer (опционально)
-    auth            -> JWT + bcrypt
-    response        -> единый JSON-конверт ответа
-    validator       -> валидация запросов
-    middleware      -> auth, логирование, recover, метрики
-    ws              -> WebSocket-хаб (реалтайм-доставка)
-  modules/          -> бизнес-модули (domain/repository/service/handler)
-    auth
-    user
-    chat            -> чаты + роли/права
-    message         -> сообщения + реакции/закрепы/ответы/пересылка/поиск/печать
-    media
-    notification    -> Kafka-консьюмер + push (iOS/Android)
-    calls           -> WebRTC-сигналинг
-  server            -> роутер, миграции, монтаж модулей
-docs/               -> сгенерированный Swagger
-postman/            -> Postman-коллекция
-k8s/                -> манифесты Kubernetes (namespace, postgres, redis, kafka, app, ingress)
-docker-compose.yml  -> вся инфраструктура
-Dockerfile          -> минимальный образ на alpine
-prometheus.yml      -> конфиг сбора метрик
-```
-
-## Файл `.env` — подробно: где он, что писать, откуда брать значения
-
-Файл `.env` лежит в **корне проекта** (`messenger/.env`). Его нет в репозитории
-(он в `.gitignore`), поэтому его нужно создать из шаблона:
-
-```bash
-cp .env.example .env
-```
-
-Затем открыть `.env` любым редактором и заполнить значения. Ниже — что писать в
-каждую переменную и **откуда брать значение**.
-
-### 1. JWT-секреты (ОБЯЗАТЕЛЬНО)
-```
-JWT_ACCESS_SECRET=любая-длинная-случайная-строка
-JWT_REFRESH_SECRET=другая-длинная-случайная-строка
-```
-- **Откуда взять**: это НЕ внешние ключи. Их придумываете/генерируете вы сами.
-  Сгенерировать, например:
-  ```bash
-  openssl rand -base64 48
-  ```
-  Скопируйте вывод в `JWT_ACCESS_SECRET`, сгенерируйте ещё раз для `JWT_REFRESH_SECRET`.
-  В production держите их в секрете и не коммитьте.
-
-### 2. База данных PostgreSQL
-```
-DB_DRIVER=postgres
-POSTGRES_HOST=postgres        # в Docker Compose — имя сервиса "postgres"
-POSTGRES_PORT=5432
-POSTGRES_USER=jeogram
-POSTGRES_PASSWORD=jeogram      # придумайте свой пароль
-POSTGRES_DB=jeogram
-POSTGRES_SSLMODE=disable
-```
-- **Откуда взять**: `POSTGRES_PASSWORD` придумываете вы. В `docker-compose.yml`
-  пароль задаётся там же (должен совпадать). В Kubernetes пароль хранится в Secret
-  (`k8s/01-secrets.yaml`) — его тоже придумываете вы.
-- Для локального запуска БЕЗ Postgres можно использовать SQLite:
-  ```
-  DB_DRIVER=sqlite
-  SQLITE_PATH=./jeogram.db
-  REDIS_ENABLED=false
-  KAFKA_ENABLED=false
-  ```
-
-### 3. Redis (кэш refresh-токенов, сессии)
-```
-REDIS_ENABLED=true
-REDIS_HOST=redis              # в Docker Compose — "redis"
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
-```
-- Если Redis нет, поставьте `REDIS_ENABLED=false`. Тогда refresh/logout работают
-  в stateless-режиме (без отзыва токенов).
-
-### 4. Kafka (асинхронные события)
-```
-KAFKA_ENABLED=true
-KAFKA_BROKERS=kafka:9092       # в Docker Compose — "kafka:9092"
-KAFKA_CONSUMER_GROUP=jeogram-notifications
-KAFKA_MESSAGE_TOPIC=message.created
-KAFKA_NOTIFY_TOPIC=user.notifications
-```
-- Если Kafka нет, поставьте `KAFKA_ENABLED=false`. Realtime-доставка сообщений
-  при этом работает напрямую через WebSocket-хаб.
-
-### 5. Push-уведомления (iOS / Android) — ОПЦИОНАЛЬНО
-```
-PUSH_ENABLED=false
-# Android (Firebase Cloud Messaging):
-FCM_SERVER_KEY=
-FCM_OAUTH_TOKEN=
-# iOS (Apple Push Notification service):
-APNS_KEY_ID=
-APNS_TEAM_ID=
-APNS_KEY_PATH=/data/apns/authkey.p8
-APNS_BUNDLE_ID=
-APNS_PRODUCTION=false
-```
-- **Откуда взять FCM**: зайдите в [Firebase Console](https://console.firebase.google.com),
-  создайте проект, добавьте приложение Android, в «Project Settings → Cloud Messaging»
-  скопируйте **Server key** в `FCM_SERVER_KEY` (либо настройте OAuth-токен).
-- **Откуда взять APNs**: в [Apple Developer](https://developer.apple.com),
-  создайте Key для APNs, скачайте `.p8`, укажите его путь в `APNS_KEY_PATH`,
-  а `APNS_KEY_ID` и `APNS_TEAM_ID` — из консоли Apple.
-- **По умолчанию `PUSH_ENABLED=false`** — push не отправляется, а логируется.
-  Это позволяет тестировать весь поток без реальных ключей.
-
-### 6. Админ-доступ (опционально)
-
-```
-ADMIN_USER_IDS=            # через запятую ID пользователей-админов
-# ADMIN_USER_IDS=*         # для личного запуска: админ — любой авторизованный
-```
-
-- Свой ID узнаётся через `GET /auth/me` (`data.id`); добавьте его в список и
-  перезапустите приложение. Все админ-роуты (`/admin/*`) защищены и недоступны
-  посторонним. Подробнее и про телеметрию устройств — в [ADMIN.md](ADMIN.md).
-
-### Где брать Access Token для запросов
-1. `POST /auth/register` или `POST /auth/login` — в ответе поле `data.access_token`.
-2. Для всех защищённых эндпоинтов добавьте заголовок:
-   ```
-   Authorization: Bearer <access_token>
-   ```
-3. Когда access-токен истёк — `POST /auth/refresh` с `refresh_token` из ответа логина.
-
-## Быстрый старт (Docker)
-
-Проект поставляется двумя compose-файлами:
-
-- **`docker-compose.yml`** — **полный стек**: PostgreSQL + Redis + Zookeeper + Kafka
-  + Prometheus + Grafana + само приложение. Realtime-доставка идёт через Kafka.
-- **`docker-compose.lite.yml`** — **облегчённый стек**: только PostgreSQL + Redis +
-  приложение (Kafka/Prometheus/Grafana отключены; realtime работает напрямую
-  через WebSocket, так как `KAFKA_ENABLED=false`).
-
-### Полный стек (PostgreSQL + Redis + Kafka + мониторинг)
+### Docker (полный стек)
 
 ```bash
 cp .env.example .env          # обязательно заполните JWT_ACCESS_SECRET / JWT_REFRESH_SECRET
-docker compose up --build -d  # собирает и поднимает ВСЕ сервисы
+docker compose up --build -d
 ```
 
-Дождитесь, пока все зависимости станут healthy (Postgres/Redis/Kafka), и приложение
-само поднимется после них (`depends_on: condition: service_healthy`).
-
-```bash
-docker compose ps             # статус сервисов (все должны быть healthy/running)
-docker compose logs -f app    # логи приложения
-curl http://localhost:8080/health   # {"status":"ok"}
-```
-
-### Облегчённый стек (без Kafka)
+### Docker (облегчённый стек)
 
 ```bash
 docker compose -f docker-compose.lite.yml up --build -d
 ```
 
-Остановка и очистка (удаляет тома с данными):
+### Локальный запуск без Docker
 
 ```bash
-docker compose down           # либо: docker compose -f docker-compose.lite.yml down
-docker compose down -v        # + удалить volumes (БД, uploads, grafana)
-```
-
-Сервисы:
-
-| Сервис      | URL / порт                |
-|-------------|---------------------------|
-| API         | http://localhost:8080     |
-| Swagger     | http://localhost:8080/swagger/index.html |
-| Health      | http://localhost:8080/health |
-| Metrics     | http://localhost:8080/metrics |
-| PostgreSQL  | localhost:5432            |
-| Redis       | localhost:6379            |
-| Kafka       | localhost:9092            |
-| Prometheus  | http://localhost:9090     |
-| Grafana     | http://localhost:3000 (admin/admin) |
-| pgAdmin     | http://localhost:5050 (admin@jeogram.local / admin) |
-
-## Локальный запуск без Docker
-
-```bash
-# вариант А: поднять только инфраструктуру в Docker
+# A: поднять только инфраструктуру в Docker
 docker compose up -d postgres redis kafka
 cp .env.example .env
 go run .
 
-# вариант Б: вообще без внешней инфраструктуры (SQLite)
+# Б: вообще без внешней инфраструктуры (SQLite)
 DB_DRIVER=sqlite SQLITE_PATH=./jeogram.db \
 REDIS_ENABLED=false KAFKA_ENABLED=false \
 JWT_ACCESS_SECRET=dev-secret JWT_REFRESH_SECRET=dev-secret \
 HTTP_PORT=8080 go run .
 ```
 
-## Запуск в Kubernetes
+## 📚 Документация
 
-Манифесты лежат в `k8s/` (namespace, Secret, Postgres, Redis, Kafka, ConfigMap,
-Deployment приложения, Service, Ingress, `kustomization.yaml`).
+- **API спецификация** → [Swagger UI](http://localhost:8080/swagger/index.html)
+- **Postman коллекция** → [Jeogram API.postman_collection.json](postman/Jeogram%20API.postman_collection.json)
+- **Полная документация** → [docs/api/README.md](docs/api/README.md)
 
-```bash
-# 1) Создайте секреты (придумайте свои значения):
-kubectl -n jeogram create secret generic jeogram-secrets \
-  --from-literal=postgres-password=<ПАРОЛЬ> \
-  --from-literal=jwt-access-secret=<СЕКРЕТ> \
-  --from-literal=jwt-refresh-secret=<СЕКРЕТ> \
-  --from-literal=fcm-server-key=<FCM_КЛЮЧ> \
-  --from-literal=apns-key=<СОДЕРЖИМОЕ_APNS_КЛЮЧА>
+### Основные разделы
 
-# 2) Примените всё сразу:
-kubectl apply -k k8s/
+- [Аутентификация и подтверждение](docs/api/auth.md)
+- [Пользователи, профиль, контакты](docs/api/users.md)
+- [Чаты](docs/api/chats.md)
+- [Сообщения](docs/api/messages.md)
+- [Звонки (WebRTC)](docs/api/calls.md)  
+- [Сбор данных с телефона](docs/api/phone.md)
+- [Уведомления](docs/api/notifications.md)
+- [Realtime: WebSocket и Socket.IO](docs/api/realtime.md)
+- [Админка](docs/api/admin.md)
+- [Развёртывание (Docker)](docs/api/deployment.md)
 
-# 3) Или по файлам (секреты — отдельно!):
-kubectl apply -f k8s/00-namespace.yaml
-kubectl apply -f k8s/01-secrets.yaml
-kubectl apply -f k8s/02-postgres.yaml
-kubectl apply -f k8s/03-redis.yaml
-kubectl apply -f k8s/04-kafka.yaml        # опционально (KAFKA_ENABLED)
-kubectl apply -f k8s/05-configmap.yaml
-kubectl apply -f k8s/06-app-deployment.yaml
-kubectl apply -f k8s/07-app-service.yaml
-kubectl apply -f k8s/08-ingress.yaml
-```
+## 📝 Приложение
 
-- Образ приложения: `jeogram/messenger:latest` (соберите `docker build -t jeogram/messenger:latest .`).
-- Ingress рассчитан на `jeogram.local` (добавьте запись в `/etc/hosts` или настройте DNS).
-- Kafka в манифестах — одиночный брокер в KRaft-режиме. Если не нужна, удалите
-  `k8s/04-kafka.yaml` и поставьте `KAFKA_ENABLED=false` в `k8s/05-configmap.yaml`.
+Jeogram — это **полностью готовый к продакшну бэкенд мессенджера**, написанный на Go.
 
-## Групповые чаты и права доступа
+- **Модульный монолит**: удобный для масштабирования и поддержания
+- **Чистая архитектура**: разделение на слои, интерфейсы и dependency injection
+- **Полная документация**: Swagger API спецификация, Postman коллекция, markdown руководство
+- **Docker-готовность**: полная и облегчённая compose-файлы
+- **Команда разработчиков**:
 
-Роли участника: `owner` (создатель), `admin` (назначен владельцем), `member`.
+| Роль | Имя |
+|------|-----|
+| Author | [Jeogram Dev](https://github.com/JamikKhidirov) |
 
-| Действие                              | Кто может                     | Эндпоинт (метод) |
-|---------------------------------------|------------------------------|------------------|
-| Назначить админа                      | только `owner`               | `POST /chats/{id}/participants/{user_id}/promote` |
-| Понизить админа                       | только `owner`               | `POST /chats/{id}/participants/{user_id}/demote` |
-| Удалить участника                     | `admin`/`owner` (не владельца)| `DELETE /chats/{id}/participants/{user_id}` |
-| Сменить название/аватар группы        | `admin`/`owner`              | `PUT /chats/{id}` |
-| Удалить сообщение «для всех»          | `admin`/`owner`              | `DELETE /chats/{id}/messages/{message_id}/admin` |
-| Добавить участника                    | любой участник               | `POST /chats/{id}/participants` |
-| Закрепить/открепить, реакции, печать  | любой участник               | см. ниже |
+## ⭐ Стартовые звёзды
 
-Пример (владелец `owner` назначает админа):
-```bash
-curl -X POST http://localhost:8080/chats/<chat_id>/participants/<user_id>/promote \
-  -H "Authorization: Bearer <owner_token>"
-```
+*Команда пока небольшая, но активно растёт!* 🚀
 
-## Реалтайм и ответ из уведомления
-
-Два независимых транспорта доставляют одни и те же события:
-
-- **Raw WebSocket**: `WS /ws` с заголовком `Authorization: Bearer <token>`
-  (или query-параметром `?token=`). Удобно тестировать в Postman.
-- **Socket.IO (v2)**: `http://localhost:8080` с `path=/socket.io` и
-  query-параметром `?token=`. Клиент строго `socket.io-client@2.x`
-  (v3/v4 **не совместимы**).
-
-События: `message.new`, `message.read`, `typing`, `presence`,
-`notification`, `call.signal`, `call.started`, `call.ended`. Подробнее: [WEBSOCKET.md](WEBSOCKET.md).
-- **Ответ из пуш-уведомления (Android)**: пуш содержит поле `chat_id`. Клиент
-  сразу отправляет сообщение ответа обычным POST-запросом (без открытия чата):
-  ```bash
-  curl -X POST http://localhost:8080/chats/<chat_id>/messages \
-    -H "Authorization: Bearer <token>" \
-    -d '{"chat_id":"<chat_id>","type":"text","text":"Ответ из уведомления"}'
-  ```
-  Точно так же можно переслать сообщение: `POST /messages/{id}/forward`
-  с `{"chat_id":"<целевой chat_id>"}`.
-
-## Основные эндпоинты
+## 📸 Галерея проекта
 
 ```
-POST /auth/register
-POST /auth/login
-POST /auth/refresh
-POST /auth/logout
-POST /auth/logout-all             # выход со всех устройств
-GET  /auth/sessions                # история входов (устройства, IP, время)
-POST /auth/change-password        { "old_password":"...", "new_password":"..." }
-POST /auth/change-email/request   { "new_email":"..." }       # код приходит на новый email
-POST /auth/change-email           { "new_email":"...", "code":"..." }
-POST /auth/change-phone/request   { "new_phone":"..." }
-POST /auth/change-phone           { "new_phone":"...", "code":"..." }
-POST /auth/2fa/enable             # сгенерировать TOTP-секрет (QR) и включить 2FA
-POST /auth/2fa/disable            # выключить 2FA
-POST /auth/2fa/verify            { "two_factor_token":"...", "code":"..." }  # OTP при входе
-GET  /auth/me
-
-GET  /user/profile
-PUT  /user/profile
-GET  /user/me                     # алиас профиля (текущий пользователь)
-POST /user/avatar                 # алиас обновления профиля
-GET  /user/settings
-PUT  /user/settings
-GET  /user/search?q=
-POST /user/block           { "user_id": "..." }
-GET  /user/blocks
-DELETE /user/block/{user_id}
-GET  /user/presence?ids=id1,id2     # онлайн-статус (через WebSocket-хаб)
-GET  /user/online                   # список онлайн-друзей (контактов)
-POST /user/status                  { "status":"online|dnd|invisible" }
-DELETE /user/account                # удалить свой аккаунт (каскадно)
-
-GET  /contacts                     # список контактов (подтверждённых)
-GET  /contacts/requests            # входящие запросы в контакты
-GET  /contacts/{user_id}           # запись контакта с пользователем
-POST /contacts            { "user_id": "..." }            # отправить запрос
-POST /contacts/sync       { "user_ids": ["...","..."] }   # массовая синхронизация (телефонная книга)
-POST /contacts/{user_id}/accept   # принять входящий запрос
-POST /contacts/{user_id}/block    # заблокировать пользователя (чёрный список)
-DELETE /contacts/{user_id}         # удалить из контактов
-
-GET  /chats
-POST /chats/private        { "user_id": "..." }
-POST /chats/group          { "title": "...", "participant_ids": [...] }
-GET  /chats/{id}           # информация о чате (доступ только участникам)
-PUT  /chats/{id}           { "title": "...", "avatar_url": "..." }   # admin/owner
-POST /chats/{id}/participants            { "user_id": "..." }
-GET  /chats/{id}/participants
-POST /chats/{id}/participants/{uid}/promote     # owner
-POST /chats/{id}/participants/{uid}/demote      # owner
-DELETE /chats/{id}/participants/{uid}           # admin/owner
-POST /chats/{id}/mute                          # заглушить чат (для текущего user)
-DELETE /chats/{id}/mute                        # снять заглушение чата
-
-POST /messages             { "chat_id": "...", "type": "text|voice|image", "text": "...", "media_url": "...", "reply_to": "..." }
-GET  /chats/{id}/messages
-PUT  /messages/{id}        { "text": "..." }
-DELETE /messages/{id}
-POST /chats/{id}/messages/{mid}/admin   # удаление "для всех", admin/owner
-POST /chats/{id}/read      { "message_ids": [...] }
-GET  /chats/{id}/unread
-POST /messages/{id}/read                          # отметить одно сообщение прочитанным
-POST /messages/{id}/reactions     { "emoji": "🔥" }
-DELETE /messages/{id}/reactions?emoji=🔥
-GET  /messages/{id}/reactions
-POST /chats/{id}/pin/{mid}
-DELETE /chats/{id}/pin/{mid}
-GET  /chats/{id}/pinned                           # закреплённые сообщения
-GET  /chats/{id}/media                            # медиа (image/voice) чата
-DELETE /chats/{id}/messages                       # очистить историю сообщений чата
-POST /messages/{id}/forward  { "chat_id": "..." }
-GET  /chats/{id}/messages/search?q=
-GET  /messages/search?q=
-POST /chats/{id}/typing
-
-POST /media/upload         (multipart: type=image|voice|video|document, file=...)
-GET  /media/{id}            # метаданные загруженного файла
-GET  /media/{id}/download   # скачивание (Content-Disposition: attachment)
-GET  /media/{id}/thumbnail  # превью (для изображений — уменьшенная копия)
-DELETE /media/{id}          # удаление файла и записи
-GET  /media/{type}/{file}
-
-GET  /notifications
-POST /notifications/read
-POST /notifications/device { "platform": "ios|android|web", "token": "..." }
-
-- **Звонки (LiveKit + WebRTC)**: `POST /calls/livekit/start`, `GET /calls/livekit/rooms`, `POST /calls/livekit/{id}/end`, `POST /calls/livekit/{id}/join`, `GET /calls/livekit/{id}/token`, `POST /calls/livekit/{id}/mute`, `POST /calls/livekit/{id}/record/start`, `POST /calls/livekit/{id}/record/stop`, `GET /calls/livekit/{id}/recording`, `GET /calls/livekit/ice-servers` (LiveKit) + `WS /calls/ws` (WebRTC сигналинг)
-WS   /ws                   (real-time сообщения, raw WebSocket)
-IO   /socket.io            (real-time сообщения, Socket.IO v2)
-
-# --- Кэш, отложенные сообщения, E2EE, устройства ---
-POST /chats/{id}/e2ee/enable                 # включить E2EE-режим чата (admin/owner)
-POST /messages              { ..., "scheduled_at": "2026-01-01T12:00:00Z" }  # отложенная публикация
-PUT  /e2ee/prekeys         { "prekeys":[...], "signed_prekey":"...", "identity_key":"..." }
-GET  /e2ee/prekeys/{user_id}                 # prekey-связка пользователя (для E2EE)
-POST /calls                { "chat_id":"...", "type":"audio|video", "mode":"peer|group" }
-GET  /user/devices                                   # «Мои устройства»
-DELETE /user/devices/{platform}                      # удалённый выход с устройства
-
-# --- Админка (только для ADMIN_USER_IDS, см. ADMIN.md) ---
-POST /admin/users                  { "email":"...", "password":"...", "role":"user|admin" }  # создать аккаунт
-GET  /admin/users                  # список пользователей (IP, User-Agent)
-GET  /admin/users/{id}             # профиль пользователя
-GET  /admin/users/{id}/devices     # устройства (модель, ОС, app, локаль, IP)
-GET  /admin/chats                  # все чаты
-GET  /admin/chats/{id}/messages    # сообщения чата
-GET  /admin/messages/search?q=     # глобальный поиск сообщений
-GET  /admin/devices                # все устройства (IP, модель, ОС)
-GET  /admin/stats                  # агрегированная статистика
+📱 Jeogram Messenger
+├── ☁ Infrastructure
+│   ├── 🐘 PostgreSQL (SQL/TCP)
+│   ├── 🔔 Redis (NoSQL/Key-Value)
+│   └── 📡 Kafka (Сообщения)
+│
+├── 🎯 Backend
+│   └── 💻 Go (Pure Architecture)
+│
+├── 🌐 Frontend
+│   └── 🎨 WebSocket + Socket.IO + HTTP API
+│
+└── 📊 Мониторинг
+    ├── 📈 Prometheus
+    └── 📊 Grafana
 ```
 
-Все защищённые эндпоинты требуют заголовок `Authorization: Bearer <access_token>`.
+## 🛡️ Безопасность
 
-## Пуш-уведомления iOS / Android
+- **HTTPS из коробки** (опционально, Traefik + Let's Encrypt)
+- **JWT токены** с коротким TTL, ротация
+- **bcrypt хеширование паролей**
+- **Валидация запросов** через пакет `validator`
+- **Rate limiting** (опционально)
+- **Безопасный HTTP headers** (CSP, HSTS)
 
-Каждый клиент регистрирует токен устройства (`POST /notifications/device`) с
-платформой `ios` или `android`. При получении события `message.created` из Kafka
-консьюмер `notification` отправляет push через соответствующий провайдер:
+## 🎯 Принцип работы
 
-- **Android / Web** — Firebase Cloud Messaging (`FCM_SERVER_KEY` или `FCM_OAUTH_TOKEN`).
-- **iOS** — Apple Push Notification service (`APNS_KEY_ID`, `APNS_TEAM_ID`,
-  `APNS_KEY_PATH`, `APNS_BUNDLE_ID`, `APNS_PRODUCTION`).
+1. **Клиент регистрируется/входит** → получает JWT токены
+2. **HTTP API** обрабатывает все запросы → база данных PostgreSQL + Redis кэш
+3. **WebSocket/Socket.IO** доставляет события в реальном времени
+4. **Kafka** асинхронно отправляет уведомления и push-уведомления
+4. **LiveKit** интеграция для аудио/видео звонков с серверной записью
 
-Если провайдер не сконфигурирован (`PUSH_ENABLED=false`), push просто логируется —
-это позволяет тестировать весь поток без реальных ключей. Полезная нагрузка пуша
-всегда содержит `chat_id` и `message_id`, чтобы клиент мог сразу открыть чат или
-ответить из уведомления.
-
-## Производительность и устойчивость
-
-- Пул соединений БД настроен (PostgreSQL: 25 открытых / 10 idle, lifetime 5 мин).
-- Выдача истории чата и поиск сообщений оптимизированы: вместо N+1 запросов
-  (по одному на сообщение за реакциями/закрепами/превью ответа) используются
-  пакетные выборки — 3 запроса на весь список независимо от его размера.
-- Добавлены индексы: `chat_participants(user_id)` (быстрый список чатов
-  пользователя и проверка участия) и составной `messages(chat_id, created_at)`
-  (быстрая пагинация истории).
-- Realtime-доставка дублируется минимально: при включённом Kafka доставку ведёт
-  консьюмер, при выключенном — напрямую WebSocket-хаб (без дублей).
-
-## Тесты
+## 🧪 Тесты
 
 ```bash
 go test ./... -race -count=1
 ```
 
-Тесты используют in-memory SQLite (pure-Go), поэтому не требуют внешней
-инфраструктуры. Покрыты: хеширование/ JWT, валидация, формирование ответов,
-регистрация/вход, чаты (включая права админа), отправка/редактирование/реакции/
-закрепы/пересылка/поиск/печать сообщений, блокировки и полный HTTP-флоу.
+Все тесты используют in-memory SQLite, поэтому не требуют внешней инфраструктуры.
 
-Сквозная проверка всех эндпоинтов доступна скриптом `e2e_test.ps1`
-(запускать при поднятом сервере на `http://localhost:8081`).
+## 📄 Лицензия
 
-## Swagger
+MIT © 2024 Jeogram Dev
 
-Генерация спецификации из аннотаций в коде:
+## ⭐ Благодарности
 
-```bash
-make swagger   # устанавливает swag и перегенерирует docs/
-```
+- [Go](https://go.dev/) — супер язык!
+- [Chi](https://github.com/go-chi/chi) — крутой роутер
+- [PostgreSQL](https://www.postgresql.org/) — отличная БД
+- [Redis](https://redis.io/) — клевый кэш
+- [Kafka](https://kafka.apache.org/) — распределённые логины
+- [LiveKit](https://livekit.io/) — SFU для аудио/видео звонков
+- И многим другим замечательным людям!
 
-Затем откройте http://localhost:8080/swagger/index.html
+## 🌐 Социальные сети
 
-## Метрики и мониторинг
+💬 **Discord**: Присоединяйтесь к чату разработчиков: `https://discord.gg/Jeogram`
 
-- `/metrics` отдаёт Prometheus-метрики (количество запросов, латентность по методам/пути).
-- Prometheus настроен на сбор с `app:8080` (см. `prometheus.yml`).
-- Grafana подключена к Prometheus; добавьте дашборд и используйте `admin/admin`.
+🐙 **GitHub Discussions**: Вопросы и предложения: `https://github.com/JamikKhidirov/Jeogram-Go/discussions`
 
-## Документация и ссылки
+📧 **Email**: Для коммерческих запросов: `contact@jeogram.dev`
 
-| Что                          | Где смотреть |
-|------------------------------|--------------|
-| Полный стек (Postgres+Redis+Kafka+Prometheus+Grafana) | [`docker-compose.yml`](docker-compose.yml) |
-| Облегчённый стек (Postgres+Redis, без Kafka)          | [`docker-compose.lite.yml`](docker-compose.lite.yml) |
-| Переменные окружения (шаблон)                          | [`.env.example`](.env.example) |
-| Сборка образа                                               | [`Dockerfile`](Dockerfile) |
-| Kubernetes-манифесты (namespace, Postgres, Redis, Kafka, app, ingress) | [`k8s/`](k8s/) · [`k8s/README.md`](k8s/README.md) |
-| Postman-коллекция эндпоинтов (все HTTP + WebSocket)         | [`postman/Jeogram API.postman_collection.json`](postman/Jeogram%20API.postman_collection.json) · окружение [`postman/Jeogram.postman_environment.json`](postman/Jeogram.postman_environment.json) |
-| Сквозной e2e-прогон всех эндпоинтов (PowerShell)           | [`e2e_test.ps1`](e2e_test.ps1) |
-| Swagger-спецификация (сгенерировано)                       | [`docs/swagger.json`](docs/swagger.json) · UI: `/swagger/index.html` |
-| Полный каталог эндпоинтов (32 маршрута + LiveKit)            | [`ENDPOINTS.md`](ENDPOINTS.md) |
-| Гайд по raw WebSocket + Postman                            | [`WEBSOCKET.md`](WEBSOCKET.md) |
-| Socket.IO (удалён, заменён на raw WebSocket)               | [`SOCKETIO.md`](SOCKETIO.md) |
-| Деплой (VPS, Postgres, pgAdmin, CI/CD)                    | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
-| Админка и телеметрия устройств (Android/iOS)             | [`ADMIN.md`](ADMIN.md) |
-| Prometheus-конфиг                                            | [`prometheus.yml`](prometheus.yml) |
-| Полезные команды (build/run/test/swagger/docker)            | [`Makefile`](Makefile) |
+---
 
-> Все защищённые эндпоинты требуют заголовок `Authorization: Bearer <access_token>`.
-> Полный список эндпоинтов с параметрами — в Swagger UI (`/swagger/index.html`) и в
-> разделе «Основные эндпоинты» выше.
-
-## Полезные команды (Makefile)
-
-```bash
-make build      # go build -o bin/server .
-make run        # go run .
-make test       # go test ./... -race -count=1
-make swagger    # перегенерация docs/ из аннотаций (swag init)
-make docker-up  # docker compose up --build -d
-make docker-down
-```
+*Jeogram — это начало, а не конец. Твоя помощь сделает его лучше!* 🌟

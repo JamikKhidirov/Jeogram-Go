@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="docs/assets/hdr-realtime.svg" width="100%" alt="Каталог эндпоинтов"/>
+</p>
 # 32 эндпоинта Jeogram Messenger
 
 Все эндпоинты защищены `Authorization: Bearer <access_token>` (кроме `/auth/login`, `/auth/register`, `/auth/verify-otp`, `/auth/forgot-password`).

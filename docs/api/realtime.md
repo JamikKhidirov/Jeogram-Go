@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-realtime.svg" width="100%" alt="Realtime"/>
+</p>
 # Realtime: Raw WebSocket
 
 Сервер поддерживает **один** транспорт для событий в реальном времени — **raw WebSocket**. Socket.IO удалён.

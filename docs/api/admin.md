@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-admin.svg" width="100%" alt="Админка"/>
+</p>
 # Админка
 
 Все эндпоинты префикс `/admin` и требуют `Bearer` **и** membership в `ADMIN_USER_IDS`

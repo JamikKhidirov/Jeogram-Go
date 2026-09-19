@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 96" width="900" height="96" role="img" aria-labelledby="h1">
+  <title id="h1">Раздел: аутентификация и доступ</title>
+  <style>
+    .t{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:26px;font-weight:800;fill:#22d3ee}
+    .s{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:#8ea2c4}
+    .dash{stroke:#22d3ee;stroke-width:2;stroke-dasharray:10 10;animation:run 3s linear infinite}
+    @keyframes run{to{stroke-dashoffset:-40}}
+    @keyframes glow{0%,100%{opacity:.5}50%{opacity:1}}
+  </style>
+  <rect width="900" height="96" rx="18" fill="#080d1c"/>
+  <rect x="1" y="1" width="898" height="94" rx="18" fill="none" stroke="#1d2b47" stroke-width="2"/>
+  <rect x="14" y="18" width="6" height="60" rx="3" fill="#22d3ee"/>
+  <circle cx="17" cy="48" r="12" fill="#22d3ee" opacity="0.35" style="animation:glow 2.2s ease-in-out infinite"/>
+  <text class="t" x="44" y="48">Аутентификация и доступ</text>
+  <text class="s" x="44" y="70">JWT · OTP · 2FA (TOTP) · сессии и устройства</text>
+  <line class="dash" x1="44" y1="82" x2="600" y2="82"/>
+  <g>
+    <circle cx="806" cy="48" r="10" fill="none" stroke="#22d3ee" stroke-width="2">
+      <animate attributeName="r" values="10;22;10" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.15;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M802 52 V44 a4 4 0 0 1 8 0 v8" fill="none" stroke="#22d3ee" stroke-width="2.5"/>
+    <rect x="800" y="50" width="12" height="10" rx="2" fill="#22d3ee"/>
+  </g>
+</svg>

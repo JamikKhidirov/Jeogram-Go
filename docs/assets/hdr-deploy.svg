@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 96" width="900" height="96" role="img" aria-labelledby="h6">
+  <title id="h6">Раздел: развёртывание и эксплуатация</title>
+  <style>
+    .t{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:26px;font-weight:800;fill:#38bdf8}
+    .s{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:#8ea2c4}
+    .dash{stroke:#38bdf8;stroke-width:2;stroke-dasharray:10 10;animation:run 3s linear infinite}
+    .c{animation:up 3s ease-in-out infinite}
+    @keyframes run{to{stroke-dashoffset:-40}}
+    @keyframes up{0%,100%{transform:translateY(0);opacity:.75}50%{transform:translateY(-6px);opacity:1}}
+  </style>
+  <rect width="900" height="96" rx="18" fill="#080d1c"/>
+  <rect x="1" y="1" width="898" height="94" rx="18" fill="none" stroke="#1d2b47" stroke-width="2"/>
+  <rect x="14" y="18" width="6" height="60" rx="3" fill="#38bdf8"/>
+  <circle cx="17" cy="48" r="12" fill="#38bdf8" opacity="0.35">
+    <animate attributeName="opacity" values=".15;.65;.15" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+  <text class="t" x="44" y="48">Развёртывание и эксплуатация</text>
+  <text class="s" x="44" y="70">Docker Compose · Kubernetes · Traefik + HTTPS</text>
+  <line class="dash" x1="44" y1="82" x2="600" y2="82"/>
+  <g>
+    <rect class="c" x="742" y="42" width="140" height="16" rx="5" fill="#0d1528" stroke="#38bdf8" style="animation-delay:0s"/>
+    <rect class="c" x="742" y="62" width="140" height="16" rx="5" fill="#0d1528" stroke="#8b5cf6" style="animation-delay:.4s"/>
+    <rect class="c" x="742" y="82" width="140" height="10" rx="4" fill="#0d1528" stroke="#243450" style="animation-delay:.8s"/>
+  </g>
+</svg>

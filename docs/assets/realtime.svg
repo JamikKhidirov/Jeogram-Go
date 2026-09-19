@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" width="1000" height="400" role="img" aria-labelledby="rtT">
+  <title id="rtT">Realtime: fan-out событий через Broadcaster</title>
+  <style>
+    .bg{fill:#080d1c}
+    .frame{fill:none;stroke:#1d2b47;stroke-width:2}
+    .box{fill:#0d1528;stroke:#243450;stroke-width:1.5}
+    .lbl{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;fill:#e6ecf8}
+    .sub{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:#8ea2c4}
+    .wire{stroke:#2a3c5e;stroke-width:2;stroke-dasharray:7 7;animation:flow 2s linear infinite}
+    @keyframes flow{to{stroke-dashoffset:-28}}
+    @keyframes pulse{0%{r:4;opacity:0}15%{opacity:1}85%{opacity:1}100%{r:10;opacity:0}}
+    .pulse{animation:pulse 2.4s ease-out infinite}
+  </style>
+
+  <rect class="bg" width="1000" height="400" rx="22"/>
+  <rect class="frame" x="1" y="1" width="998" height="398" rx="22"/>
+
+  <text class="lbl" x="40" y="42" font-size="17" fill="#34d399">Realtime доставка событий</text>
+  <text class="sub" x="40" y="62">одно событие → все устройства каждого участника</text>
+
+  <g>
+    <rect class="box" x="40" y="110" width="200" height="80" rx="16"/>
+    <text class="lbl" x="60" y="144">HTTP-обработчик</text>
+    <text class="sub" x="60" y="166">POST /messages</text>
+  </g>
+
+  <g>
+    <rect class="box" x="310" y="98" width="260" height="104" rx="16" stroke="#22d3ee" stroke-opacity="0.6"/>
+    <text class="lbl" x="330" y="132">realtime.Broadcaster</text>
+    <text class="sub" x="330" y="154">SendToUsers(userIDs, payload)</text>
+    <text class="sub" x="330" y="172">MultiBroadcaster → транспорт(ы)</text>
+    <circle class="pulse" cx="552" cy="118" r="4" fill="#22d3ee"/>
+  </g>
+
+  <g>
+    <rect class="box" x="650" y="60" width="300" height="82" rx="16"/>
+    <text class="lbl" x="670" y="94">ws.Hub (raw WebSocket /ws)</text>
+    <text class="sub" x="670" y="116">map[userID][]conn · SetReadLimit 1 МБ</text>
+    <circle cx="928" cy="80" r="5" fill="#34d399">
+      <animate attributeName="opacity" values="1;0.25;1" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g>
+    <rect class="box" x="650" y="160" width="300" height="82" rx="16" stroke="#8b5cf6" stroke-opacity="0.55"/>
+    <text class="lbl" x="670" y="194">ws /calls/ws (сигналинг)</text>
+    <text class="sub" x="670" y="216">SDP / ICE → call.signal</text>
+    <circle cx="928" cy="180" r="5" fill="#8b5cf6">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <line class="wire" x1="240" y1="150" x2="310" y2="150"/>
+  <line class="wire" x1="570" y1="128" x2="650" y2="101"/>
+  <line class="wire" x1="570" y1="172" x2="650" y2="201"/>
+
+  <g font-family="'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="12" fill="#c8d6ee">
+    <g>
+      <rect x="650" y="272" width="300" height="36" rx="12" fill="#101b32" stroke="#243450"/>
+      <text x="666" y="295">📱 телефон — online</text>
+    </g>
+    <g>
+      <rect x="650" y="318" width="300" height="36" rx="12" fill="#101b32" stroke="#243450"/>
+      <text x="666" y="341">💻 десктоп — online</text>
+      <circle cx="928" cy="336" r="4" fill="#f472b6">
+        <animate attributeName="r" values="3;7;3" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+
+  <g>
+    <rect class="box" x="40" y="250" width="530" height="120" rx="16"/>
+    <text class="lbl" x="60" y="284">События</text>
+    <text class="sub" x="60" y="308">message.new · message.edited · message.deleted_for_all</text>
+    <text class="sub" x="60" y="328">message.typing · message.read · notification · user.status</text>
+    <text class="sub" x="60" y="348">call.started · call.ended · call.signal · admin.broadcast</text>
+  </g>
+  <line class="wire" x1="305" y1="250" x2="305" y2="202"/>
+  <circle cx="305" cy="226" r="4" fill="#f472b6">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

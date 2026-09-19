@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="docs/assets/hdr-deploy.svg" width="100%" alt="Деплой и эксплуатация"/>
+</p>
 # Деплой и эксплуатация Jeogram
 
 ## 1. База данных: PostgreSQL в Docker (по умолчанию)
@@ -136,6 +139,6 @@ make docker-up   # docker compose up --build -d
 
 Полный список (~60 эндпоинтов) с параметрами — в [ENDPOINTS.md](ENDPOINTS.md) и
 в Swagger UI. Группы: **Auth, User, Contacts, Chats, Messages, Notifications,
-Media, Calls, Realtime (WebSocket + Socket.IO)**.
+Media, Calls, Realtime (WebSocket), Phone, E2EE, Admin, Webhooks**.
 
 Все защищённые эндпоинты требуют `Authorization: Bearer <access_token>`.

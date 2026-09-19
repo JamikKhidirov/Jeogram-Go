@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-calls.svg" width="100%" alt="Webhook-уведомления"/>
+</p>
 # Webhook-уведомления
 
 Сервер может отправлять исходящие HTTP-запросы (webhook) на внешние системы при

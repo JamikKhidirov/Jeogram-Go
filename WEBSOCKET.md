@@ -1,15 +1,15 @@
+<p align="center">
+  <img src="docs/assets/hdr-realtime.svg" width="100%" alt="Raw WebSocket"/>
+</p>
 # Realtime: Raw WebSocket (`/ws`)
 
-Jeogram доставляет события в реальном времени двумя способами:
+Jeogram доставляет события в реальном времени через **raw WebSocket** — `ws://<host>/ws`
+(этот файл). Транспорт полностью совместим с вкладкой **WebSocket** в Postman,
+поэтому тестируется «из коробки», без дополнительного ПО. Socket.IO из проекта
+удалён — см. [SOCKETIO.md](SOCKETIO.md).
 
-1. **Raw WebSocket** — `ws://<host>/ws` (этот файл). Полностью совместим с вкладкой
-   **WebSocket** в Postman, поэтому тестируется «из коробки», без дополнительного ПО.
-2. **Socket.IO** — см. [SOCKETIO.md](SOCKETIO.md). Нужен JS-клиент (Node.js/browser),
-   так как встроенный WebSocket-клиент Postman НЕ понимает протокол Socket.IO.
-
-Оба транспорта получают **одни и те же** события (`message.new`, `message.read`,
-`typing`, `presence`, `notification`, `call.signal`) — сервер фан-аутит каждое
-событие в оба хаба через единый `realtime.Broadcaster`.
+Все события (`message.new`, `message.read`, `typing`, `presence`, `notification`,
+`call.signal`) фан-аутятся через единый `realtime.Broadcaster` → `ws.Hub`.
 
 ---
 
@@ -69,7 +69,7 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data));
 
 Остальные действия (отправка сообщения, прочтение, реакции) делаются обычными
 **HTTP**-запросами (`POST /messages`, `POST /messages/{id}/read`, …) — сервер сам
-разошлёт события всем участникам чата через WebSocket/Socket.IO.
+разошлёт события всем участникам чата через WebSocket.
 
 ---
 
@@ -112,8 +112,8 @@ go run ./scripts/smoke
 ## 5. Как это устроено (надёжность)
 
 - Единый интерфейс `realtime.Broadcaster` (`internal/pkg/realtime`) фан-аутит событие
-  сразу в raw-WS хаб (`ws.Hub`) и в Socket.IO-сервер. Добавить третий транспорт —
-  одна строка в `MultiBroadcaster`.
+  в `ws.Hub` через `MultiBroadcaster`. Добавить новый транспорт — одна строка в
+  списке `Broadcasters` (`internal/server/server.go`).
 - HTTP-обработчики НЕ зависят от Kafka: сообщение всегда рассылается через хаб
   напрямую, а Kafka-консьюмер лишь дублирует in-app уведомления и push. Если Kafka
   упадёт — realtime продолжает работать.

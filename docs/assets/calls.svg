@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" width="900" height="300" role="img" aria-labelledby="callT">
+  <title id="callT">Звонки: LiveKit комнаты, запись, WebRTC-сигналинг</title>
+  <style>
+    .bg{fill:#080d1c}
+    .frame{fill:none;stroke:#1d2b47;stroke-width:2}
+    .card{fill:#0d1528;stroke:#243450;stroke-width:1.5}
+    .t{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;fill:#e6ecf8}
+    .cap{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;fill:#34d399}
+    .s{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;fill:#8ea2c4}
+    .bar{transform-box:fill-box;transform-origin:center bottom;animation:wave 1.2s ease-in-out infinite}
+    @keyframes wave{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+    @keyframes ripple{0%{r:6;opacity:.9}100%{r:46;opacity:0}}
+    .rip{fill:none;stroke:#34d399;stroke-width:2;animation:ripple 2.4s ease-out infinite}
+  </style>
+
+  <rect class="bg" width="900" height="300" rx="22"/>
+  <rect class="frame" x="1" y="1" width="898" height="298" rx="22"/>
+  <text class="cap" x="28" y="38">Звонки и LiveKit</text>
+  <text class="s" x="28" y="58">аудио · видео · группы до 50 участников · серверная запись</text>
+
+  <g>
+    <rect class="card" x="28" y="80" width="380" height="190" rx="18"/>
+    <circle cx="90" cy="140" r="6" fill="none" class="rip" style="animation-delay:0s"/>
+    <circle cx="90" cy="140" r="6" fill="none" class="rip" style="animation-delay:.8s"/>
+    <circle cx="90" cy="140" r="6" fill="none" class="rip" style="animation-delay:1.6s"/>
+    <circle cx="90" cy="140" r="14" fill="#34d399"/>
+    <path d="M84 146 a14 14 0 0 1 12 -16 l-2 8 5 5 -4 6 3 6 a14 14 0 0 1 -14 -9z" fill="#04121f"/>
+    <text class="t" x="120" y="132">LiveKit комната</text>
+    <text class="s" x="120" y="154">POST /calls/livekit/start</text>
+
+    <g fill="#22d3ee">
+      <rect class="bar" x="50" y="196" width="6" height="34" rx="3" style="animation-delay:0s"/>
+      <rect class="bar" x="62" y="190" width="6" height="46" rx="3" style="animation-delay:.1s"/>
+      <rect class="bar" x="74" y="198" width="6" height="30" rx="3" style="animation-delay:.2s"/>
+      <rect class="bar" x="86" y="188" width="6" height="50" rx="3" style="animation-delay:.3s"/>
+      <rect class="bar" x="98" y="196" width="6" height="34" rx="3" style="animation-delay:.4s"/>
+      <rect class="bar" x="110" y="192" width="6" height="42" rx="3" style="animation-delay:.5s"/>
+      <rect class="bar" x="122" y="200" width="6" height="26" rx="3" style="animation-delay:.6s"/>
+      <rect class="bar" x="134" y="190" width="6" height="46" rx="3" style="animation-delay:.7s"/>
+      <rect class="bar" x="146" y="198" width="6" height="30" rx="3" style="animation-delay:.8s"/>
+      <rect class="bar" x="158" y="192" width="6" height="42" rx="3" style="animation-delay:.9s"/>
+    </g>
+    <text class="s" x="180" y="222">уровень микрофона</text>
+    <g>
+      <rect x="300" y="196" width="86" height="30" rx="15" fill="#101b32" stroke="#243450"/>
+      <text class="s" x="343" y="215" text-anchor="middle" fill="#f472b6">● REC</text>
+    </g>
+  </g>
+
+  <g>
+    <rect class="card" x="430" y="80" width="442" height="86" rx="18"/>
+    <text class="t" x="452" y="114">WebRTC-сигналинг</text>
+    <text class="s" x="452" y="136">WS /calls/ws → offer · answer · ice · hangup → call.signal</text>
+    <circle cx="848" cy="102" r="5" fill="#22d3ee">
+      <animate attributeName="opacity" values="1;.2;1" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g>
+    <rect class="card" x="430" y="184" width="442" height="86" rx="18"/>
+    <text class="t" x="452" y="218">STUN / TURN</text>
+    <text class="s" x="452" y="240">GET /calls/ice-servers · RTC_STUN_SERVERS · RTC_TURN_*</text>
+    <circle cx="848" cy="206" r="5" fill="#facc15">
+      <animate attributeName="opacity" values=".2;1;.2" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

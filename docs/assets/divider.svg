@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 28" width="1200" height="28" role="img" aria-labelledby="divT">
+  <title id="divT">Анимированный разделитель</title>
+  <defs>
+    <linearGradient id="divGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0b1122" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#0b1122" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="12" width="1200" height="4" rx="2" fill="url(#divGrad)"/>
+  <circle cy="14" r="6" fill="#8b5cf6">
+    <animate attributeName="cx" values="0;1200" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="r" values="4;7;4" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cy="14" r="4" fill="#22d3ee">
+    <animate attributeName="cx" values="1200;0" dur="7s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0.9;0.9;0" dur="7s" repeatCount="indefinite"/>
+  </circle>
+</svg>

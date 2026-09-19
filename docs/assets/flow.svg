@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 230" width="1000" height="230" role="img" aria-labelledby="flowT">
+  <title id="flowT">Быстрый старт Jeogram в 5 шагов</title>
+  <style>
+    .bg{fill:#080d1c}
+    .frame{fill:none;stroke:#1d2b47;stroke-width:2}
+    .box{fill:#0d1528;stroke:#243450;stroke-width:1.5;animation:appear 10s ease-in-out infinite}
+    .num{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:22px;font-weight:800;fill:#22d3ee;animation:appear 10s ease-in-out infinite}
+    .lbl{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:700;fill:#e6ecf8;animation:appear 10s ease-in-out infinite}
+    .sub{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;fill:#8ea2c4;animation:appear 10s ease-in-out infinite}
+    @keyframes appear{0%{opacity:.25}8%{opacity:1}88%{opacity:1}100%{opacity:.25}}
+    .wire{stroke:#2a3c5e;stroke-width:2}
+    .runline{stroke:#22d3ee;stroke-width:3;stroke-dasharray:120 760;animation:run 10s linear infinite}
+    @keyframes run{to{stroke-dashoffset:-880}}
+  </style>
+
+  <rect class="bg" width="1000" height="230" rx="22"/>
+  <rect class="frame" x="1" y="1" width="998" height="228" rx="22"/>
+  <text class="lbl" x="30" y="34" font-size="16" fill="#22d3ee" style="animation:none">Быстрый старт</text>
+  <text class="sub" x="30" y="52" style="animation:none">от клона до первого сообщения за 5 шагов</text>
+
+  <line class="wire" x1="60" y1="140" x2="940" y2="140"/>
+  <line class="runline" x1="60" y1="140" x2="940" y2="140"/>
+
+  <g>
+    <rect class="box" x="40" y="86" width="160" height="108" rx="16" style="animation-delay:0s"/>
+    <text class="num" x="62" y="120" style="animation-delay:0s">1</text>
+    <text class="lbl" x="62" y="146" style="animation-delay:0s">Клон</text>
+    <text class="sub" x="62" y="166" style="animation-delay:0s">git clone</text>
+    <text class="sub" x="62" y="182" style="animation-delay:0s">cp .env.example .env</text>
+  </g>
+  <g>
+    <rect class="box" x="230" y="86" width="160" height="108" rx="16" style="animation-delay:1.6s"/>
+    <text class="num" x="252" y="120" fill="#8b5cf6" style="animation-delay:1.6s">2</text>
+    <text class="lbl" x="252" y="146" style="animation-delay:1.6s">Запуск</text>
+    <text class="sub" x="252" y="166" style="animation-delay:1.6s">docker compose up</text>
+    <text class="sub" x="252" y="182" style="animation-delay:1.6s">app + postgres</text>
+  </g>
+  <g>
+    <rect class="box" x="420" y="86" width="160" height="108" rx="16" style="animation-delay:3.2s"/>
+    <text class="num" x="442" y="120" fill="#f472b6" style="animation-delay:3.2s">3</text>
+    <text class="lbl" x="442" y="146" style="animation-delay:3.2s">Регистрация</text>
+    <text class="sub" x="442" y="166" style="animation-delay:3.2s">POST /auth/register</text>
+    <text class="sub" x="442" y="182" style="animation-delay:3.2s">POST /auth/login</text>
+  </g>
+  <g>
+    <rect class="box" x="610" y="86" width="160" height="108" rx="16" style="animation-delay:4.8s"/>
+    <text class="num" x="632" y="120" fill="#34d399" style="animation-delay:4.8s">4</text>
+    <text class="lbl" x="632" y="146" style="animation-delay:4.8s">Чат</text>
+    <text class="sub" x="632" y="166" style="animation-delay:4.8s">POST /chats/private</text>
+    <text class="sub" x="632" y="182" style="animation-delay:4.8s">POST /messages</text>
+  </g>
+  <g>
+    <rect class="box" x="800" y="86" width="160" height="108" rx="16" style="animation-delay:6.4s"/>
+    <text class="num" x="822" y="120" fill="#facc15" style="animation-delay:6.4s">5</text>
+    <text class="lbl" x="822" y="146" style="animation-delay:6.4s">Realtime</text>
+    <text class="sub" x="822" y="166" style="animation-delay:6.4s">ws://host/ws?token=</text>
+    <text class="sub" x="822" y="182" style="animation-delay:6.4s">event: message.new</text>
+  </g>
+</svg>

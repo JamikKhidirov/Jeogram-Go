@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 96" width="900" height="96" role="img" aria-labelledby="h4">
+  <title id="h4">Раздел: realtime</title>
+  <style>
+    .t{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:26px;font-weight:800;fill:#f472b6}
+    .s{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:#8ea2c4}
+    .dash{stroke:#f472b6;stroke-width:2;stroke-dasharray:10 10;animation:run 3s linear infinite}
+    .d{animation:fly 2.4s linear infinite}
+    @keyframes run{to{stroke-dashoffset:-40}}
+    @keyframes fly{0%{transform:translateX(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(120px);opacity:0}}
+  </style>
+  <rect width="900" height="96" rx="18" fill="#080d1c"/>
+  <rect x="1" y="1" width="898" height="94" rx="18" fill="none" stroke="#1d2b47" stroke-width="2"/>
+  <rect x="14" y="18" width="6" height="60" rx="3" fill="#f472b6"/>
+  <circle cx="17" cy="48" r="12" fill="#f472b6" opacity="0.35">
+    <animate attributeName="opacity" values=".65;.15;.65" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <text class="t" x="44" y="48">Realtime: WebSocket</text>
+  <text class="s" x="44" y="70">ws://host/ws?token= · один транспорт, все события</text>
+  <line class="dash" x1="44" y1="82" x2="600" y2="82"/>
+  <g>
+    <rect x="730" y="40" width="34" height="26" rx="8" fill="#0d1528" stroke="#243450"/>
+    <rect x="836" y="40" width="34" height="26" rx="8" fill="#0d1528" stroke="#243450"/>
+    <line x1="764" y1="53" x2="836" y2="53" stroke="#2a3c5e" stroke-width="2"/>
+    <circle class="d" cx="768" cy="53" r="4" fill="#f472b6"/>
+    <circle class="d" cx="768" cy="53" r="4" fill="#22d3ee" style="animation-delay:1.2s"/>
+  </g>
+</svg>

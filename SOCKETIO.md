@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="docs/assets/hdr-realtime.svg" width="100%" alt="Socket.IO удалён"/>
+</p>
 # Socket.IO — УДАЛЁН
 
 Socket.IO (`/socket.io`) **удалён** из проекта. Реалтайм-доставка теперь работает

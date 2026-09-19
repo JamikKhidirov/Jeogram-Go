@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/calls.svg" width="100%" alt="Звонки"/>
+</p>
 # Звонки (LiveKit + WebRTC)
 
 Префикс: `/calls`. Все эндпоинты требуют `Bearer`.

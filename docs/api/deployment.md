@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-deploy.svg" width="100%" alt="Развёртывание"/>
+</p>
 # Развёртывание (Docker)
 
 Полный стек описан в `docker-compose.yml`. Быстрый старт:

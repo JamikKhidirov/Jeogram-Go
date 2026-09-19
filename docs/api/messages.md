@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/messenger.svg" width="100%" alt="Сообщения и медиа"/>
+</p>
 # Сообщения
 
 Префикс: `/messages` и `/chats/{chat_id}/messages`. Все эндпоинты требуют `Bearer`.

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 540" width="1000" height="540" role="img" aria-labelledby="archT">
+  <title id="archT">Архитектура Jeogram: клиенты, HTTP API, хранилища, realtime</title>
+  <style>
+    .bg{fill:#080d1c}
+    .frame{fill:none;stroke:#1d2b47;stroke-width:2}
+    .box{fill:#0d1528;stroke:#243450;stroke-width:1.5}
+    .lbl{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;fill:#e6ecf8}
+    .sub{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:#8ea2c4}
+    .flow{stroke:#2a3c5e;stroke-width:2;stroke-dasharray:7 7;animation:flow 2.2s linear infinite}
+    .dot{animation:pdown 2.4s linear infinite}
+    .dotx{animation:pright 2.4s linear infinite}
+    .glow{animation:glow 3s ease-in-out infinite}
+    @keyframes flow{to{stroke-dashoffset:-28}}
+    @keyframes pdown{0%{transform:translateY(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(120px);opacity:0}}
+    @keyframes pright{0%{transform:translateX(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateX(140px);opacity:0}}
+    @keyframes glow{0%,100%{opacity:.45}50%{opacity:1}}
+  </style>
+
+  <rect class="bg" width="1000" height="540" rx="22"/>
+  <rect class="frame" x="1" y="1" width="998" height="538" rx="22"/>
+
+  <text class="lbl" x="40" y="40" font-size="17" fill="#22d3ee">Архитектура Jeogram</text>
+  <text class="sub" x="40" y="60">модульный монолит · domain → repository → service → handler</text>
+
+  <g>
+    <rect class="box" x="40" y="92" width="270" height="92" rx="16"/>
+    <text class="lbl" x="60" y="128">Клиенты</text>
+    <text class="sub" x="60" y="152">Android · iOS · Web</text>
+    <text class="sub" x="60" y="170">HTTP + WebSocket</text>
+  </g>
+  <g>
+    <rect class="box" x="365" y="92" width="270" height="92" rx="16"/>
+    <text class="lbl" x="385" y="128">HTTP API (Chi)</text>
+    <text class="sub" x="385" y="152">JWT · валидация · rate-limit</text>
+    <text class="sub" x="385" y="170">единый JSON-ответ</text>
+    <circle class="glow" cx="615" cy="112" r="6" fill="#22d3ee"/>
+  </g>
+  <g>
+    <rect class="box" x="690" y="92" width="270" height="92" rx="16"/>
+    <text class="lbl" x="710" y="128">Realtime</text>
+    <text class="sub" x="710" y="152">raw WebSocket /ws</text>
+    <text class="sub" x="710" y="170">ws.Hub → SendToUsers</text>
+  </g>
+
+  <line class="flow" x1="310" y1="138" x2="365" y2="138"/>
+  <circle class="dotx" cx="312" cy="138" r="4" fill="#22d3ee"/>
+  <line class="flow" x1="635" y1="138" x2="690" y2="138"/>
+  <circle class="dotx" cx="637" cy="138" r="4" fill="#34d399" style="animation-delay:.8s"/>
+  <path class="flow" d="M690 108 H825 V60 H175 V92" fill="none"/>
+  <circle cx="825" cy="60" r="4" fill="#f472b6">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <text class="sub" x="40" y="240" fill="#8ea2c4">Модули: auth · user · contact · chat · message · media · notification · calls · phone · e2ee · admin</text>
+
+  <g>
+    <rect class="box" x="40" y="270" width="215" height="96" rx="16"/>
+    <text class="lbl" x="60" y="306">PostgreSQL</text>
+    <text class="sub" x="60" y="330">GORM + миграции</text>
+    <text class="sub" x="60" y="348">volume postgres-data</text>
+  </g>
+  <g>
+    <rect class="box" x="270" y="270" width="215" height="96" rx="16"/>
+    <text class="lbl" x="290" y="306">Redis</text>
+    <text class="sub" x="290" y="330">кэш чатов и истории</text>
+    <text class="sub" x="290" y="348">rate-limit</text>
+  </g>
+  <g>
+    <rect class="box" x="500" y="270" width="215" height="96" rx="16"/>
+    <text class="lbl" x="520" y="306">Kafka</text>
+    <text class="sub" x="520" y="330">события + push</text>
+    <text class="sub" x="520" y="348">APNs / FCM</text>
+  </g>
+  <g>
+    <rect class="box" x="730" y="270" width="230" height="96" rx="16"/>
+    <text class="lbl" x="750" y="306">LiveKit</text>
+    <text class="sub" x="750" y="330">аудио/видео звонки</text>
+    <text class="sub" x="750" y="348">запись комнаты</text>
+  </g>
+
+  <line class="flow" x1="148" y1="184" x2="148" y2="270"/>
+  <circle class="dot" cx="148" cy="186" r="4" fill="#22d3ee"/>
+  <line class="flow" x1="378" y1="184" x2="378" y2="270"/>
+  <circle class="dot" cx="378" cy="186" r="4" fill="#8b5cf6" style="animation-delay:.5s"/>
+  <line class="flow" x1="608" y1="184" x2="608" y2="270"/>
+  <circle class="dot" cx="608" cy="186" r="4" fill="#f472b6" style="animation-delay:1s"/>
+  <line class="flow" x1="845" y1="184" x2="845" y2="270"/>
+  <circle class="dot" cx="845" cy="186" r="4" fill="#34d399" style="animation-delay:1.5s"/>
+
+  <g>
+    <rect class="box" x="40" y="410" width="920" height="96" rx="16" stroke="#22d3ee" stroke-opacity="0.5"/>
+    <text class="lbl" x="60" y="446" fill="#22d3ee">Мониторинг и инфраструктура</text>
+    <text class="sub" x="60" y="470">Prometheus /metrics · Grafana · Docker Compose · Kubernetes · Traefik (HTTPS + Let's Encrypt)</text>
+    <text class="sub" x="60" y="490">health /health · readiness /ready · Swagger /swagger/index.html</text>
+    <circle cx="928" cy="430" r="6" fill="#34d399">
+      <animate attributeName="r" values="4;8;4" dur="2.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

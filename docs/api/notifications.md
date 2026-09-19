@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="../assets/hdr-calls.svg" width="100%" alt="Уведомления"/>
+</p>
 # Уведомления
 
 Префикс: `/notifications`. Все эндпоинты требуют `Bearer`.
