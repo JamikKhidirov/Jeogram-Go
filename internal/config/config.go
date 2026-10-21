@@ -24,10 +24,18 @@ type Config struct {
 	Admin    AdminConfig
 	RTC      RTCConfig
 	LiveKit  LiveKitConfig
+	SocketIO SocketIOConfig
 	Message  MessageConfig
 	SMTP     SMTPConfig
 	Auth     AuthConfig
 	Webhooks WebhookConfig
+}
+
+// SocketIOConfig holds Socket.IO transport settings (realtime alternative to
+// the raw WebSocket endpoint /ws).
+type SocketIOConfig struct {
+	Enabled bool
+	Path    string
 }
 
 // SMTPConfig holds SMTP credentials used to send verification/password-reset codes.
@@ -154,6 +162,7 @@ type RTCConfig struct {
 type LiveKitConfig struct {
 	Enabled    bool
 	ServerURL  string
+	PublicURL  string
 	APIKey     string
 	APISecret  string
 	RoomPrefix string
@@ -237,9 +246,14 @@ func Load() (*Config, error) {
 		LiveKit: LiveKitConfig{
 			Enabled:    getEnvBool("LIVEKIT_ENABLED", false),
 			ServerURL:  getEnv("LIVEKIT_SERVER_URL", "ws://localhost:7800"),
+			PublicURL:  getEnv("LIVEKIT_PUBLIC_URL", "ws://localhost:7880"),
 			APIKey:     getEnv("LIVEKIT_API_KEY", "devkey"),
 			APISecret:  getEnv("LIVEKIT_API_SECRET", "secret"),
 			RoomPrefix: getEnv("LIVEKIT_ROOM_PREFIX", "jeogram_"),
+		},
+		SocketIO: SocketIOConfig{
+			Enabled: getEnvBool("SOCKETIO_ENABLED", true),
+			Path:    getEnv("SOCKETIO_PATH", "/socket.io"),
 		},
 		Message: MessageConfig{
 			DeleteForAllWindow: getEnvDuration("MESSAGE_DELETE_FOR_ALL_WINDOW", 24*time.Hour),

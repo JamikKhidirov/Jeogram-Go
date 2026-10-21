@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	"net/url"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -18,48 +19,110 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// LiveKit >= 1.3 exposes its management API over Twirp (JSON), аутентификация —
+// JWT, подписанный API-секретом, с грантами в поле "video".
+const (
+	twirpRoomService   = "/twirp/livekit.RoomService/"
+	twirpEgressService = "/twirp/livekit.EgressService/"
+)
+
 type Service struct {
-	apiKey    string
-	apiSecret string
-	serverURL string
-	rtc       config.RTCConfig
-	repo      *callrepo.CallRepository
-	chats     *repository.ChatRepository
-	webhooks  *webhook.Dispatcher
+	apiKey     string
+	apiSecret  string
+	serverURL  string
+	publicURL  string
+	rtc        config.RTCConfig
+	repo       *callrepo.CallRepository
+	chats      *repository.ChatRepository
+	webhooks   *webhook.Dispatcher
 	httpClient *http.Client
 }
 
 func NewService(cfg config.LiveKitConfig, rtc config.RTCConfig, repo *callrepo.CallRepository, chats *repository.ChatRepository, webhooks *webhook.Dispatcher) (*Service, error) {
 	s := &Service{
-		apiKey:    cfg.APIKey,
-		apiSecret: cfg.APISecret,
-		serverURL: cfg.ServerURL,
-		rtc:       rtc,
-		repo:      repo,
-		chats:     chats,
-		webhooks:  webhooks,
+		apiKey:     cfg.APIKey,
+		apiSecret:  cfg.APISecret,
+		serverURL:  strings.TrimSuffix(cfg.ServerURL, "/"),
+		publicURL:  cfg.PublicURL,
+		rtc:        rtc,
+		repo:       repo,
+		chats:      chats,
+		webhooks:   webhooks,
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 	return s, nil
 }
 
+// ClientURL returns the public LiveKit address clients must connect to
+// (wss://host — SDK сам дописывает /rtc?access_token=...).
+func (s *Service) ClientURL() string {
+	if s.publicURL != "" {
+		return s.publicURL
+	}
+	return s.serverURL
+}
+
+// apiToken builds a short-lived JWT for the LiveKit management API.
+// Гранты определяют, какие операции разрешены (см. LiveKit Ensure*Permission):
+//   - roomCreate — создание/удаление комнат
+//   - roomList   — список комнат
+//   - roomAdmin  + room=<имя комнаты> — операции с участниками комнаты
+//   - roomRecord — запись звонка
+func (s *Service) apiToken(grants map[string]interface{}) string {
+	now := time.Now()
+	claims := jwt.MapClaims{
+		"iss":   s.apiKey,
+		"sub":   s.apiKey,
+		"iat":   now.Unix(),
+		"exp":   now.Add(time.Hour).Unix(),
+		"video": grants,
+	}
+	tok, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(s.apiSecret))
+	if err != nil {
+		return ""
+	}
+	return tok
+}
+
+// apiCall performs a Twirp call against the LiveKit server.
+func (s *Service) apiCall(ctx context.Context, service, method string, body map[string]interface{}, grants map[string]interface{}) ([]byte, error) {
+	payload := []byte("{}")
+	if body != nil {
+		payload, _ = json.Marshal(body)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.serverURL+service+method, bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+s.apiToken(grants))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	data, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("livekit %s: %s (%d)", method, string(data), resp.StatusCode)
+	}
+	return data, nil
+}
+
 func (s *Service) CreateRoom(ctx context.Context, callID string, isGroup bool) (*Room, error) {
 	roomName := fmt.Sprintf("%s_%s", s.getRoomPrefix(), callID)
 	body := map[string]interface{}{
-		"name":         roomName,
+		"name":          roomName,
 		"empty_timeout": 60,
-		"record":       s.rtc.RecordingEnabled,
 	}
 	if isGroup {
 		body["max_participants"] = 50
 	}
-	resp, err := s.apiPost(ctx, "/_api/rooms", body)
+	data, err := s.apiCall(ctx, twirpRoomService, "CreateRoom", body, map[string]interface{}{"roomCreate": true})
 	if err != nil {
 		return nil, fmt.Errorf("create room: %w", err)
 	}
-	defer resp.Body.Close()
 	var room Room
-	if err := json.NewDecoder(resp.Body).Decode(&room); err != nil {
+	if err := json.Unmarshal(data, &room); err != nil {
 		return nil, fmt.Errorf("decode room: %w", err)
 	}
 	log.Info().Str("room", roomName).Str("call", callID).Msg("livekit room created")
@@ -67,77 +130,147 @@ func (s *Service) CreateRoom(ctx context.Context, callID string, isGroup bool) (
 }
 
 func (s *Service) DeleteRoom(ctx context.Context, roomName string) error {
-	resp, err := s.apiDelete(ctx, "/_api/rooms/"+url.QueryEscape(roomName))
+	_, err := s.apiCall(ctx, twirpRoomService, "DeleteRoom", map[string]interface{}{"room": roomName},
+		map[string]interface{}{"roomCreate": true})
 	if err != nil {
 		return fmt.Errorf("delete room: %w", err)
 	}
-	defer resp.Body.Close()
 	log.Info().Str("room", roomName).Msg("livekit room deleted")
 	return nil
 }
 
 func (s *Service) GetRoom(ctx context.Context, roomName string) (*Room, error) {
-	resp, err := s.apiGet(ctx, "/_api/rooms/"+url.QueryEscape(roomName))
+	rooms, err := s.ListRooms(ctx, roomName)
 	if err != nil {
-		return nil, fmt.Errorf("get room: %w", err)
-	}
-	defer resp.Body.Close()
-	var room Room
-	if err := json.NewDecoder(resp.Body).Decode(&room); err != nil {
 		return nil, err
 	}
-	return &room, nil
+	for i := range rooms {
+		if rooms[i].Name == roomName {
+			return &rooms[i], nil
+		}
+	}
+	return nil, fmt.Errorf("room %s not found", roomName)
 }
 
-func (s *Service) ListRooms(ctx context.Context) ([]Room, error) {
-	resp, err := s.apiGet(ctx, "/_api/rooms")
+// ListRooms returns all active rooms. Если roomName задан — только его.
+func (s *Service) ListRooms(ctx context.Context, roomName ...string) ([]Room, error) {
+	body := map[string]interface{}{}
+	if len(roomName) > 0 && roomName[0] != "" {
+		body["names"] = []string{roomName[0]}
+	}
+	data, err := s.apiCall(ctx, twirpRoomService, "ListRooms", body, map[string]interface{}{"roomList": true})
 	if err != nil {
 		return nil, fmt.Errorf("list rooms: %w", err)
 	}
-	defer resp.Body.Close()
-	var rooms []Room
-	if err := json.NewDecoder(resp.Body).Decode(&rooms); err != nil {
-		return nil, err
+	var res struct {
+		Rooms []Room `json:"rooms"`
 	}
-	return rooms, nil
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, fmt.Errorf("decode rooms: %w", err)
+	}
+	return res.Rooms, nil
 }
 
-func (s *Service) StartRecording(ctx context.Context, roomName string) error {
-	resp, err := s.apiPost(ctx, "/_api/rooms/"+url.QueryEscape(roomName)+"/recordings", map[string]interface{}{})
+// ListParticipants returns the participants of a room.
+func (s *Service) ListParticipants(ctx context.Context, roomName string) ([]Participant, error) {
+	data, err := s.apiCall(ctx, twirpRoomService, "ListParticipants", map[string]interface{}{"room": roomName},
+		map[string]interface{}{"roomAdmin": true, "room": roomName})
 	if err != nil {
+		return nil, fmt.Errorf("list participants: %w", err)
+	}
+	var res struct {
+		Participants []Participant `json:"participants"`
+	}
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, fmt.Errorf("decode participants: %w", err)
+	}
+	return res.Participants, nil
+}
+
+// StartRecording starts a composite (room) recording through the egress service.
+// Требует развёрнутого livekit-egress, иначе LiveKit вернёт ошибку.
+func (s *Service) StartRecording(ctx context.Context, roomName string) error {
+	body := map[string]interface{}{
+		"room_name": roomName,
+		"layout":    "speaker",
+		"file_outputs": []map[string]interface{}{
+			{
+				"file_type": "MP4",
+				"filepath":  fmt.Sprintf("%s/%s.mp4", strings.TrimSuffix(s.rtc.RecordingDir, "/"), roomName),
+			},
+		},
+	}
+	if _, err := s.apiCall(ctx, twirpEgressService, "StartRoomCompositeEgress", body,
+		map[string]interface{}{"roomRecord": true}); err != nil {
+		if strings.Contains(err.Error(), "404") {
+			return fmt.Errorf("запись звонка недоступна: в LiveKit не подключён сервис Egress " +
+				"(запустите livekit-egress или отключите RTC_RECORDING_ENABLED)")
+		}
 		return fmt.Errorf("start recording: %w", err)
 	}
-	defer resp.Body.Close()
 	log.Info().Str("room", roomName).Msg("livekit recording started")
 	return nil
 }
 
+// StopRecording stops the room recording and returns the resulting file URL.
 func (s *Service) StopRecording(ctx context.Context, roomName string) (string, error) {
-	resp, err := s.apiDelete(ctx, "/_api/rooms/"+url.QueryEscape(roomName)+"/recordings")
+	data, err := s.apiCall(ctx, twirpEgressService, "ListEgress", map[string]interface{}{"room_name": roomName},
+		map[string]interface{}{"roomRecord": true})
+	if err != nil {
+		if strings.Contains(err.Error(), "404") {
+			return "", fmt.Errorf("запись звонка недоступна: в LiveKit не подключён сервис Egress " +
+				"(запустите livekit-egress или отключите RTC_RECORDING_ENABLED)")
+		}
+		return "", fmt.Errorf("list egress: %w", err)
+	}
+	var list struct {
+		Items []struct {
+			EgressID string `json:"egress_id"`
+			RoomName string `json:"room_name"`
+			Status   string `json:"status"`
+			File     struct {
+				Filename string `json:"filename"`
+				Location string `json:"location"`
+			} `json:"file"`
+		} `json:"items"`
+	}
+	_ = json.Unmarshal(data, &list)
+	target := ""
+	for _, item := range list.Items {
+		if item.RoomName == roomName {
+			target = item.EgressID
+			break
+		}
+	}
+	if target == "" {
+		return "", fmt.Errorf("no active recording for room %s", roomName)
+	}
+	stop, err := s.apiCall(ctx, twirpEgressService, "StopEgress", map[string]interface{}{"egress_id": target},
+		map[string]interface{}{"roomRecord": true})
 	if err != nil {
 		return "", fmt.Errorf("stop recording: %w", err)
 	}
-	defer resp.Body.Close()
-	var result map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
+	var stopped struct {
+		Result struct {
+			File struct {
+				Location string `json:"location"`
+			} `json:"file"`
+		} `json:"result"`
 	}
-	url := ""
-	if r, ok := result["url"].(string); ok {
-		url = r
-	}
-	log.Info().Str("room", roomName).Str("url", url).Msg("livekit recording stopped")
-	return url, nil
+	_ = json.Unmarshal(stop, &stopped)
+	log.Info().Str("room", roomName).Str("url", stopped.Result.File.Location).Msg("livekit recording stopped")
+	return stopped.Result.File.Location, nil
 }
 
+// GenerateAccessToken builds a client access token for a room.
 func (s *Service) GenerateAccessToken(roomName, userIdentity string) string {
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"iss":  s.apiKey,
 		"sub":  userIdentity,
 		"room": roomName,
 		"video": jwt.MapClaims{
-			"join":    true,
-			"publish": true,
+			"join":      true,
+			"publish":   true,
 			"subscribe": true,
 		},
 		"exp": time.Now().Add(time.Hour).Unix(),
@@ -154,44 +287,53 @@ func (s *Service) getRoomPrefix() string {
 	return "jeogram"
 }
 
-func (s *Service) apiPost(ctx context.Context, path string, body map[string]interface{}) (*http.Response, error) {
-	data, _ := json.Marshal(body)
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, s.serverURL+path, bytes.NewReader(data))
-	req.SetBasicAuth(s.apiKey, s.apiSecret)
-	req.Header.Set("Content-Type", "application/json")
-	return s.httpClient.Do(req)
+// ICEServers returns STUN/TURN servers for the WebRTC media path.
+func (s *Service) ICEServers() []map[string]interface{} {
+	servers := make([]map[string]interface{}, 0)
+	for _, srv := range s.rtc.STUNServers {
+		servers = append(servers, map[string]interface{}{"urls": srv})
+	}
+	for _, srv := range s.rtc.TURNServers {
+		servers = append(servers, map[string]interface{}{
+			"urls":       srv,
+			"username":   s.rtc.TURNUser,
+			"credential": s.rtc.TURNPassword,
+		})
+	}
+	if len(servers) == 0 {
+		servers = append(servers, map[string]interface{}{"urls": "stun:stun.l.google.com:19302"})
+	}
+	return servers
 }
 
-func (s *Service) apiDelete(ctx context.Context, path string) (*http.Response, error) {
-	req, _ := http.NewRequestWithContext(ctx, http.MethodDelete, s.serverURL+path, nil)
-	req.SetBasicAuth(s.apiKey, s.apiSecret)
-	return s.httpClient.Do(req)
-}
-
-func (s *Service) apiGet(ctx context.Context, path string) (*http.Response, error) {
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, s.serverURL+path, nil)
-	req.SetBasicAuth(s.apiKey, s.apiSecret)
-	return s.httpClient.Do(req)
-}
-
-// Room represents a LiveKit room.
+// Room represents a LiveKit room (Twirp JSON).
 type Room struct {
-	Name             string    `json:"name"`
-	Sid              string    `json:"sid"`
-	CreatedAt        time.Time `json:"created_at"`
-	Active           bool      `json:"active"`
-	EmptyTimeout     int       `json:"empty_timeout"`
-	MaxParticipants  int       `json:"max_participants,omitempty"`
-	ParticipantCount int       `json:"participant_count,omitempty"`
-	Participants     []Participant `json:"participants,omitempty"`
+	SID              string `json:"sid"`
+	Name             string `json:"name"`
+	CreationTime     string `json:"creation_time"`
+	CreationTimeMs   string `json:"creation_time_ms"`
+	EmptyTimeout     int    `json:"empty_timeout"`
+	DepartureTimeout int    `json:"departure_timeout"`
+	MaxParticipants  int    `json:"max_participants"`
+	NumParticipants  int    `json:"num_participants"`
+	Metadata         string `json:"metadata"`
+	ActiveRecording  bool   `json:"active_recording"`
 }
 
-// Participant represents a room participant.
+// Participant represents a room participant (Twirp JSON).
 type Participant struct {
-	Identity string    `json:"identity"`
-	SID      string    `json:"sid"`
-	JoinedAt time.Time `json:"joined_at"`
-	Tracks   int       `json:"tracks"`
+	Identity string      `json:"identity"`
+	SID      string      `json:"sid"`
+	State    string      `json:"state"`
+	JoinedAt string      `json:"joined_at"`
+	Tracks   []TrackInfo `json:"tracks"`
+}
+
+// TrackInfo describes a published track of a participant.
+type TrackInfo struct {
+	SID   string `json:"sid"`
+	Type  string `json:"type"`
+	Muted bool   `json:"muted"`
 }
 
 func (s *Service) CreateCallWithLiveKit(ctx context.Context, initiator, chatID string, callType domain.CallType, isGroup bool) (*domain.Call, string, error) {
@@ -213,8 +355,8 @@ func (s *Service) CreateCallWithLiveKit(ctx context.Context, initiator, chatID s
 	if err != nil {
 		log.Error().Err(err).Str("call", c.ID).Msg("failed to create livekit room")
 	}
-	roomName := ""
-	if room != nil {
+	roomName := fmt.Sprintf("%s_%s", s.getRoomPrefix(), c.ID)
+	if room != nil && room.Name != "" {
 		roomName = room.Name
 	}
 	return c, roomName, nil
@@ -228,8 +370,7 @@ func (s *Service) EndCallWithLiveKit(ctx context.Context, callID, userID string)
 	if call.Initiator != userID {
 		return domain.ErrForbidden
 	}
-	err = s.DeleteRoom(ctx, fmt.Sprintf("%s_%s", s.getRoomPrefix(), callID))
-	if err != nil {
+	if err := s.DeleteRoom(ctx, fmt.Sprintf("%s_%s", s.getRoomPrefix(), callID)); err != nil {
 		log.Error().Err(err).Str("call", callID).Msg("failed to delete livekit room")
 	}
 	return s.repo.End(ctx, callID)
@@ -250,37 +391,6 @@ func (s *Service) JoinRoom(ctx context.Context, callID, userID string) (string, 
 	roomName := fmt.Sprintf("%s_%s", s.getRoomPrefix(), callID)
 	token := s.GenerateAccessToken(roomName, userID)
 	return token, roomName, nil
-}
-
-func (s *Service) ListParticipants(ctx context.Context, roomName string) ([]Participant, error) {
-	room, err := s.GetRoom(ctx, roomName)
-	if err != nil {
-		return nil, fmt.Errorf("get room: %w", err)
-	}
-	return room.Participants, nil
-}
-
-func (s *Service) ICEServers() []map[string]interface{} {
-	if s.serverURL != "" {
-		return []map[string]interface{}{
-			{"urls": s.serverURL},
-		}
-	}
-	servers := make([]map[string]interface{}, 0)
-	for _, srv := range s.rtc.STUNServers {
-		servers = append(servers, map[string]interface{}{"urls": srv})
-	}
-	for _, srv := range s.rtc.TURNServers {
-		servers = append(servers, map[string]interface{}{
-			"urls":       srv,
-			"username":   s.rtc.TURNUser,
-			"credential": s.rtc.TURNPassword,
-		})
-	}
-	if len(servers) == 0 {
-		servers = append(servers, map[string]interface{}{"urls": "stun:stun.l.google.com:19302"})
-	}
-	return servers
 }
 
 func (s *Service) RecordingEnabled() bool { return s.rtc.RecordingEnabled }

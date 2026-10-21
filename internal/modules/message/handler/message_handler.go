@@ -37,6 +37,8 @@ func NewMessageHandler(svc *service.MessageService, jwt *auth.JWT) *MessageHandl
 //	@Security	BearerAuth
 func (h *MessageHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Post("/messages", h.Send)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/chats/{chat_id}/messages", h.SendInChat)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/messages/{id}", h.Get)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/chats/{chat_id}/messages", h.List)
 	r.With(middleware.JWTAuth(h.jwt)).Put("/messages/{id}", h.Edit)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/messages/{id}", h.Delete)
@@ -82,11 +84,34 @@ func (h *MessageHandler) RegisterRoutes(r chi.Router) {
 // @Success 201 {object} response.APIResponse
 // @Router /messages [post]
 func (h *MessageHandler) Send(w http.ResponseWriter, r *http.Request) {
+	h.sendMessage(w, r, "")
+}
+
+// SendInChat отправляет сообщение в чат, указанный в пути (chat_id из URL
+// имеет приоритет над телом запроса).
+//
+//	@Summary	Отправить сообщение в чат (chat_id в URL)
+//	@Tags		messages
+//	@Accept		json
+//	@Produce	json
+//	@Security	BearerAuth
+//	@Param		chat_id	path		string						true	"id чата"
+//	@Param		body	body		domain.SendMessageRequest	true	"message payload"
+//	@Success	201		{object}	response.APIResponse
+//	@Router		/chats/{chat_id}/messages [post]
+func (h *MessageHandler) SendInChat(w http.ResponseWriter, r *http.Request) {
+	h.sendMessage(w, r, chi.URLParam(r, "chat_id"))
+}
+
+func (h *MessageHandler) sendMessage(w http.ResponseWriter, r *http.Request, chatID string) {
 	userID := middleware.UserID(r)
 	var req domain.SendMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid json")
 		return
+	}
+	if chatID != "" {
+		req.ChatID = chatID
 	}
 	if errs := validator.ValidateStruct(&req); len(errs) > 0 {
 		response.WriteError(w, http.StatusUnprocessableEntity, "validation_error", firstErr(errs))
@@ -98,6 +123,26 @@ func (h *MessageHandler) Send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.WriteCreated(w, msg)
+}
+
+// Get возвращает одно сообщение по id.
+//
+//	@Summary	Получить сообщение по id
+//	@Tags		messages
+//	@Produce	json
+//	@Security	BearerAuth
+//	@Param		id	path		string	true	"id сообщения"
+//	@Success	200	{object}	response.APIResponse
+//	@Router		/messages/{id} [get]
+func (h *MessageHandler) Get(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserID(r)
+	id := chi.URLParam(r, "id")
+	msg, err := h.svc.Get(r.Context(), id, userID)
+	if err != nil {
+		writeMsgError(w, err)
+		return
+	}
+	response.WriteOK(w, msg)
 }
 
 // List возвращает сообщения чата с пагинацией.

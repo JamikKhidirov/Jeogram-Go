@@ -39,6 +39,7 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan broadcastMsg
+	onPresence func(userID string, online bool)
 }
 
 type broadcastMsg struct {
@@ -63,9 +64,13 @@ func (h *Hub) Run() {
 		select {
 		case c := <-h.register:
 			h.mu.Lock()
+			first := len(h.clients[c.UserID]) == 0
 			h.clients[c.UserID] = append(h.clients[c.UserID], c)
 			h.mu.Unlock()
 			log.Debug().Str("user", c.UserID).Msg("ws client registered")
+			if first {
+				h.notifyPresence(c.UserID, true)
+			}
 		case c := <-h.unregister:
 			h.mu.Lock()
 			cls := h.clients[c.UserID]
@@ -75,10 +80,14 @@ func (h *Hub) Run() {
 					break
 				}
 			}
-			if len(h.clients[c.UserID]) == 0 {
+			last := len(h.clients[c.UserID]) == 0
+			if last {
 				delete(h.clients, c.UserID)
 			}
 			h.mu.Unlock()
+			if last {
+				h.notifyPresence(c.UserID, false)
+			}
 		case msg := <-h.broadcast:
 			h.mu.RLock()
 			targets := map[string][]*Client{}
@@ -101,6 +110,25 @@ func (h *Hub) Run() {
 	}
 }
 
+// SetPresenceHook подключает обработчик появления/исчезновения пользователя
+// в сети. Сервер использует его, чтобы рассылать событие presence контактам.
+func (h *Hub) SetPresenceHook(fn func(userID string, online bool)) {
+	h.mu.Lock()
+	h.onPresence = fn
+	h.mu.Unlock()
+}
+
+// notifyPresence вызывает обработчик presence (в отдельной горутине).
+func (h *Hub) notifyPresence(userID string, online bool) {
+	h.mu.RLock()
+	fn := h.onPresence
+	h.mu.RUnlock()
+	if fn == nil {
+		return
+	}
+	go fn(userID, online)
+}
+
 // OnlineUserIDs returns the set of currently connected user IDs.
 func (h *Hub) OnlineUserIDs() []string {
 	h.mu.RLock()
@@ -121,13 +149,13 @@ func (h *Hub) IsOnline(userID string) bool {
 }
 
 // SetStatus сохраняет пользовательский статус присутствия (online|dnd|invisible)
-// и оповещает текущие соединения пользователя событием user_status.
+// и оповещает текущие соединения пользователя событием user.status.
 func (h *Hub) SetStatus(userID, status string) {
 	h.mu.Lock()
 	h.statuses[userID] = status
 	h.mu.Unlock()
 	h.SendToUsers([]string{userID}, Outbound{
-		Type:    "user_status",
+		Type:    "user.status",
 		Payload: map[string]interface{}{"user_id": userID, "status": status},
 	})
 }
@@ -242,7 +270,7 @@ func (h *Hub) Route() http.HandlerFunc {
 
 // WebSocketDoc документирует реальное WebSocket-соединение /ws в Swagger.
 // @Summary Realtime WebSocket-соединение
-// @Description Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`. Сервер шлёт Ping каждые 30с и push-события в формате `{"type":"<event>","payload":{...}}` (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`, `user_status`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.
+// @Description Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer <access_token>` либо query-параметр `?token=<access_token>`. Сервер шлёт Ping каждые 30с и push-события в формате `{"type":"<event>","payload":{...}}` (например, `message.new`, `message.edited`, `message.read`, `call.started`, `call.ended`, `user.status`, `presence`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.
 // @Tags realtime
 // @Security BearerAuth
 // @Success 101 {string} string "Switching Protocols — WebSocket установлен"
@@ -251,7 +279,7 @@ func (h *Hub) WebSocketDoc() {}
 
 // SocketIODoc документирует Socket.IO endpoint (/socket.io/).
 // @Summary Realtime Socket.IO (альтернатива WebSocket)
-// @Description Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=<access_token>&EIO=4&transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.
+// @Description Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=<access_token>&EIO=3&transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.
 // @Tags realtime
 // @Success 200 {string} string "Socket.IO handshake"
 // @Router /socket.io/ [get]

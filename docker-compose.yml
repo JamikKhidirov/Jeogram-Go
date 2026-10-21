@@ -29,6 +29,18 @@ services:
       timeout: 5s
       retries: 10
 
+  # SFU для аудио/видео-звонков (LiveKit). Ключи: devkey / secret.
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: jeogram-livekit
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"   # HTTP + WebSocket-сигналинг (/rtc)
+      - "7881:7881"   # TCP-сигналинг
+      - "7882:7882/udp" # ICE/UDP (медиа)
+    environment:
+      LIVEKIT_KEYS: "devkey: secret"
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: jeogram-zookeeper
@@ -133,10 +145,12 @@ services:
       # В продакшене замените на свой ID: ADMIN_USER_IDS: "ваш-uuid"
       ADMIN_USER_IDS: "*"
       LIVEKIT_ENABLED: "true"
-      LIVEKIT_SERVER_URL: "ws://localhost:7800"
+      LIVEKIT_SERVER_URL: "http://livekit:7880"
+      LIVEKIT_PUBLIC_URL: "ws://localhost:7880"
       LIVEKIT_API_KEY: "devkey"
       LIVEKIT_API_SECRET: "secret"
       LIVEKIT_ROOM_PREFIX: "jeogram_"
+      SOCKETIO_ENABLED: "true"
     volumes:
       - uploads-data:/data/uploads
     # Лейблы Traefik (используются только при запуске профиля `ssl`).

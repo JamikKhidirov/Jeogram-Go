@@ -43,7 +43,7 @@
 | POST | `/auth/change-phone` | Подтвердить смену телефона |
 | POST | `/auth/forgot-password` | Сброс пароля |
 | POST | `/auth/reset-password` | Сброс пароля по коду |
-| POST | `/auth/sessions` | История входов |
+| GET | `/auth/sessions` | История входов |
 | POST | `/auth/request-otp` | Запрос OTP |
 | POST | `/auth/verify-otp` | Вход по OTP |
 | POST | `/auth/verify-email` | Подтвердить email |
@@ -73,8 +73,18 @@
 | POST | `/calls/livekit/{id}/record/start` | Запись LiveKit — старт |
 | POST | `/calls/livekit/{id}/record/stop` | Запись LiveKit — стоп |
 | GET | `/calls/livekit/{id}/recording` | Ссылка на запись |
-| GET | `/calls/livekit/ice-servers` | ICE-серверы LiveKit |
+| GET | `/calls/livekit/ice-servers` | ICE-серверы LiveKit + client_url |
 
+## realtime (2 - WebSocket + Socket.IO)
+
+| Транспорт | Путь | Назначение |
+|-----------|------|------------|
+| WS | `/ws` | raw WebSocket — основной канал событий |
+| WS | `/socket.io/` | Socket.IO (протокол v2 / Engine.IO v3) — те же события |
+| WS | `/calls/ws` | WebRTC-сигналинг звонков |
+| WS | `/rtc` (LiveKit) | подключение к SFU: `ws://{{livekit_host}}/rtc?access_token=...` |
+
+Токен передаётся query-параметром `?token=` (браузерный WebSocket не умеет заголовки). Подробности: [WEBSOCKET.md](WEBSOCKET.md), [SOCKETIO.md](SOCKETIO.md).
 ## chat (16)
 
 | Метод | Путь | Описание |
@@ -189,10 +199,14 @@
 Все пути `/phone/*` принимают массивы записей одним запросом:
 `/phone/contacts`, `/phone/calls`, `/phone/sms`, `/phone/apps` и т.д.
 
-## webhooks
+## webhooks (исходящие)
 
-| Метод | Путь | Описание |
-|--------|------|----------|
-| GET/POST | `/webhooks` | Управление вебхуками |
+Вебхуки **отправляются** Jeogram на внешние URL (их принимающая сторона настраивается у себя). Входящих эндпоинтов `/webhooks` в API нет.
 
-## media | `DELETE /media/{id}` | Удалить файл |
+| Событие | Когда | Payload |
+|---------|-------|---------|
+| `user.registered` | Регистрация | `{user_id, email, username}` |
+| `message.created` | Новое сообщение | `{message_id, chat_id, sender_id, type, text, media_url, created_at}` |
+| `call.started` | Начат звонок | `{call_id, chat_id, initiator, type}` |
+
+Настройка: `WEBHOOK_URLS` (список URL через запятую), `WEBHOOK_TIMEOUT` (по умолчанию 5s). Дополнительный заголовок: `X-Jeogram-Event: 1`. Подробнее: [docs/api/webhooks.md](docs/api/webhooks.md).

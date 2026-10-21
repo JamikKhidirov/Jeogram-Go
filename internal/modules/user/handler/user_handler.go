@@ -38,9 +38,9 @@ func NewUserHandler(svc *service.UserService, contacts *contactservice.ContactSe
 //	@Security	BearerAuth
 func (h *UserHandler) RegisterRoutes(r chi.Router) {
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/profile", h.GetProfile)
-	r.With(middleware.JWTAuth(h.jwt)).Get("/user/me", h.GetProfile)
+	r.With(middleware.JWTAuth(h.jwt)).Get("/user/me", h.GetMe)
 	r.With(middleware.JWTAuth(h.jwt)).Put("/user/profile", h.UpdateProfile)
-	r.With(middleware.JWTAuth(h.jwt)).Post("/user/avatar", h.UpdateProfile)
+	r.With(middleware.JWTAuth(h.jwt)).Post("/user/avatar", h.UpdateAvatar)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/settings", h.GetSettings)
 	r.With(middleware.JWTAuth(h.jwt)).Put("/user/settings", h.UpdateSettings)
 	r.With(middleware.JWTAuth(h.jwt)).Get("/user/search", h.Search)
@@ -98,7 +98,54 @@ func (h *UserHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusBadRequest, "bad_request", err.Error())
 		return
 	}
+	// Клиенты пользователя (другие устройства) получают profile.updated.
+	if h.hub != nil {
+		fields := make([]string, 0, 3)
+		if req.DisplayName != "" {
+			fields = append(fields, "display_name")
+		}
+		if req.AvatarURL != "" {
+			fields = append(fields, "avatar_url")
+		}
+		if req.Username != "" {
+			fields = append(fields, "username")
+		}
+		h.hub.SendToUsers([]string{userID}, ws.Outbound{
+			Type: "profile.updated",
+			Payload: map[string]interface{}{
+				"user_id": userID,
+				"fields":  fields,
+				"user":    u,
+			},
+		})
+	}
 	response.WriteOK(w, u)
+}
+
+// GetMe — алиас /user/profile.
+//
+//	@Summary	Профиль пользователя (алиас /user/me)
+//	@Tags		user
+//	@Produce	json
+//	@Security	BearerAuth
+//	@Success	200	{object}	response.APIResponse
+//	@Router		/user/me [get]
+func (h *UserHandler) GetMe(w http.ResponseWriter, r *http.Request) {
+	h.GetProfile(w, r)
+}
+
+// UpdateAvatar — алиас PUT /user/profile (обновление аватара/имени).
+//
+//	@Summary	Обновить аватар и профиль
+//	@Tags		user
+//	@Accept		json
+//	@Produce	json
+//	@Security	BearerAuth
+//	@Param		body	body		domain.UpdateProfileRequest	true	"поля профиля"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/user/avatar [post]
+func (h *UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	h.UpdateProfile(w, r)
 }
 
 // GetSettings возвращает настройки пользователя.

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/jeogram/messenger/internal/modules/notification/domain"
 	"github.com/jeogram/messenger/internal/modules/notification/service"
 	"github.com/jeogram/messenger/internal/pkg/auth"
@@ -93,20 +94,33 @@ func (h *NotificationHandler) List(w http.ResponseWriter, r *http.Request) {
 	response.WriteOK(w, ns)
 }
 
-// MarkRead помечает все уведомления прочитанными.
-// @Summary Прочитать уведомления
-// @Tags notifications
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} response.APIResponse
-// @Router /notifications/read [post]
+// MarkRead помечает уведомления прочитанными.
+// Тело необязательно: {"ids":["..."]} — отметить конкретные, без тела — все.
+//
+//	@Summary	Прочитать уведомления
+//	@Tags		notifications
+//	@Accept		json
+//	@Produce	json
+//	@Security	BearerAuth
+//	@Param		body	body		domain.MarkReadRequest	false	"список id (необязательно)"
+//	@Success	200		{object}	response.APIResponse
+//	@Router		/notifications/read [post]
 func (h *NotificationHandler) MarkRead(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.UserID(r)
-	if err := h.svc.MarkAllRead(r.Context(), userID); err != nil {
+	var req domain.MarkReadRequest
+	// Тело опционально: пустое тело = отметить все уведомления.
+	_ = json.NewDecoder(r.Body).Decode(&req)
+	for _, id := range req.IDs {
+		if _, err := uuid.Parse(id); err != nil {
+			response.WriteError(w, http.StatusBadRequest, "bad_request", "invalid notification id: "+id)
+			return
+		}
+	}
+	if err := h.svc.MarkRead(r.Context(), userID, req.IDs); err != nil {
 		response.WriteError(w, http.StatusInternalServerError, "internal_error", err.Error())
 		return
 	}
-	response.WriteOK(w, map[string]string{"status": "read"})
+	response.WriteOK(w, map[string]interface{}{"status": "read", "count": len(req.IDs)})
 }
 
 // UnreadCount возвращает число непрочитанных уведомлений.

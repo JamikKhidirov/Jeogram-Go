@@ -1,6 +1,7 @@
 package livekit
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -12,14 +13,15 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/middleware"
 	"github.com/jeogram/messenger/internal/pkg/response"
 	"github.com/jeogram/messenger/internal/pkg/ws"
+	"github.com/rs/zerolog/log"
 )
 
 // Handler exposes LiveKit-based call endpoints (1-on-1 and group audio/video).
 type Handler struct {
-	svc    *Service
-	jwt    *auth.JWT
-	redis  *cache.Redis
-	hub    *ws.Hub
+	svc   *Service
+	jwt   *auth.JWT
+	redis *cache.Redis
+	hub   *ws.Hub
 }
 
 // NewHandler creates the LiveKit handler.
@@ -80,8 +82,8 @@ func (h *Handler) Start(w http.ResponseWriter, r *http.Request) {
 		data, _ := json.Marshal(call)
 		_ = h.redis.Set(r.Context(), "call:"+call.ID, string(data), 24*time.Hour)
 	}
-	h.broadcastToChat(call.ChatID, map[string]interface{}{"type": "call.started", "data": call, "room_name": roomName})
-	response.WriteCreated(w, map[string]interface{}{"call": call, "room_name": roomName})
+	h.broadcastToChat(r.Context(), call.ChatID, "call.started", map[string]interface{}{"call": call, "room_name": roomName})
+	response.WriteCreated(w, map[string]interface{}{"call": call, "room_name": roomName, "client_url": h.svc.ClientURL()})
 }
 
 // End terminates a LiveKit call and cleans up the room.
@@ -108,7 +110,7 @@ func (h *Handler) End(w http.ResponseWriter, r *http.Request) {
 	}
 	call, _ := h.svc.repo.Get(r.Context(), id)
 	if call != nil {
-		h.broadcastToChat(call.ChatID, map[string]interface{}{"type": "call.ended", "data": map[string]string{"call_id": id}})
+		h.broadcastToChat(r.Context(), call.ChatID, "call.ended", map[string]interface{}{"call_id": id})
 	}
 	response.WriteOK(w, map[string]string{"status": "ended"})
 }
@@ -136,7 +138,12 @@ func (h *Handler) Join(w http.ResponseWriter, r *http.Request) {
 	if h.redis != nil {
 		_ = h.redis.Set(r.Context(), "call:"+id+":participant:"+userID, "joined", 30*time.Minute)
 	}
-	response.WriteOK(w, map[string]interface{}{"status": "joined", "token": token, "room_name": roomName})
+	response.WriteOK(w, map[string]interface{}{
+		"status":     "joined",
+		"token":      token,
+		"room_name":  roomName,
+		"client_url": h.svc.ClientURL(),
+	})
 }
 
 // GetToken returns a LiveKit access token for joining a room.
@@ -155,7 +162,11 @@ func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
 		return
 	}
-	response.WriteOK(w, map[string]interface{}{"token": token, "room_name": roomName})
+	response.WriteOK(w, map[string]interface{}{
+		"token":      token,
+		"room_name":  roomName,
+		"client_url": h.svc.ClientURL(),
+	})
 }
 
 // ListParticipants returns active participants in a LiveKit room.
@@ -184,8 +195,9 @@ func (h *Handler) ListParticipants(w http.ResponseWriter, r *http.Request) {
 		out = append(out, map[string]interface{}{
 			"identity":  p.Identity,
 			"sid":       p.SID,
+			"state":     p.State,
 			"joined_at": p.JoinedAt,
-			"tracks":    p.Tracks,
+			"tracks":    len(p.Tracks),
 		})
 	}
 	response.WriteOK(w, map[string]interface{}{"call_id": id, "participants": out})
@@ -261,7 +273,7 @@ func (h *Handler) GetRecording(w http.ResponseWriter, r *http.Request) {
 	}
 	url := call.RecordingURL
 	if url == "" && h.redis != nil {
-		url, _, _ = h.redis.Get(r.Context(), "recording:" + id)
+		url, _, _ = h.redis.Get(r.Context(), "recording:"+id)
 	}
 	response.WriteOK(w, map[string]interface{}{"call_id": id, "recording_url": url, "recorded_at": call.RecordedAt})
 }
@@ -286,11 +298,11 @@ func (h *Handler) ListRooms(w http.ResponseWriter, r *http.Request) {
 	out := make([]map[string]interface{}, 0, len(rooms))
 	for _, room := range rooms {
 		out = append(out, map[string]interface{}{
-			"name":             room.Name,
-			"sid":              room.Sid,
-			"participant_count": len(room.Participants),
-			"active":           room.Active,
-			"created_at":       room.CreatedAt,
+			"name":              room.Name,
+			"sid":               room.SID,
+			"participant_count": room.NumParticipants,
+			"active":            room.NumParticipants > 0,
+			"created_at":        room.CreationTimeMs,
 		})
 	}
 	response.WriteOK(w, map[string]interface{}{"rooms": out})
@@ -330,7 +342,9 @@ func (h *Handler) Mute(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusForbidden, "forbidden", err.Error())
 		return
 	}
-	h.broadcastToChat(call.ChatID, map[string]interface{}{"type": "call.participant_muted", "data": map[string]interface{}{"call_id": id, "user_id": userID, "kind": req.Kind, "muted": req.Muted}})
+	h.broadcastToChat(r.Context(), call.ChatID, "call.participant_muted", map[string]interface{}{
+		"call_id": id, "user_id": userID, "kind": req.Kind, "muted": req.Muted,
+	})
 	response.WriteOK(w, map[string]string{"status": "ok"})
 }
 
@@ -346,17 +360,20 @@ func (h *Handler) ICEServers(w http.ResponseWriter, r *http.Request) {
 	response.WriteOK(w, map[string]interface{}{
 		"ice_servers":       servers,
 		"recording_enabled": h.svc.RecordingEnabled(),
+		"client_url":        h.svc.ClientURL(),
 	})
 }
 
-func (h *Handler) broadcastToChat(chatID string, data map[string]interface{}) {
+func (h *Handler) broadcastToChat(ctx context.Context, chatID string, eventType string, payload interface{}) {
 	if h.hub == nil {
 		return
 	}
-	// Broadcast to all participants - the hub sends to all connected clients
-	// In production, this would be targeted to chat participants only
-	_ = chatID
-	_ = data
+	participants, err := h.svc.chats.Participants(ctx, chatID)
+	if err != nil {
+		log.Warn().Err(err).Str("chat", chatID).Msg("livekit broadcast: participants lookup failed")
+		return
+	}
+	h.hub.SendToUsers(participants, ws.Outbound{Type: eventType, Payload: payload})
 }
 
 type muteRequest struct {

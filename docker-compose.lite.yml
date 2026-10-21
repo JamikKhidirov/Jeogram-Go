@@ -1,9 +1,11 @@
-# Облегчённый стек: только PostgreSQL + Redis + приложение.
-# Kafka/Prometheus/Grafana убраны, чтобы максимально упростить запуск.
-# Realtime-доставка при этом работает напрямую через WebSocket (KAFKA_ENABLED=false).
+# Облегчённый стек: PostgreSQL + Redis + LiveKit + приложение.
+# Kafka/Prometheus/Grafana/pgAdmin убраны, чтобы максимально упростить запуск
+# и уложиться в память Docker Desktop (4 ГБ).
+# Realtime-доставка работает напрямую через WebSocket /ws и Socket.IO /socket.io
+# (KAFKA_ENABLED=false).
 #
 # Запуск:
-#   docker compose -f docker-compose.lite.yml up --build
+#   docker compose -f docker-compose.lite.yml up --build -d
 services:
   postgres:
     image: postgres:16-alpine
@@ -33,6 +35,18 @@ services:
       timeout: 5s
       retries: 10
 
+  # SFU для аудио/видео-звонков (LiveKit). Ключи: devkey / secret.
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: jeogram-livekit
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"     # HTTP + WebSocket-сигналинг (/rtc)
+      - "7881:7881"     # TCP-сигналинг
+      - "7882:7882/udp" # ICE/UDP (медиа)
+    environment:
+      LIVEKIT_KEYS: "devkey: secret"
+
   app:
     build:
       context: .
@@ -43,6 +57,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      livekit:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -66,6 +82,8 @@ services:
       JWT_ACCESS_TTL: 1h
       JWT_REFRESH_TTL: 168h
       JWT_ISSUER: jeogram
+      # "*" = админ для любого авторизованного пользователя (только для локальной разработки!)
+      ADMIN_USER_IDS: "*"
       MEDIA_UPLOAD_DIR: /data/uploads
       MEDIA_MAX_FILE_SIZE: "26214400"
       MEDIA_BASE_URL: http://localhost:8080/media
@@ -74,10 +92,12 @@ services:
       PUSH_ENABLED: "false"
       RTC_STUN_SERVERS: "stun:stun.l.google.com:19302"
       LIVEKIT_ENABLED: "true"
-      LIVEKIT_SERVER_URL: "ws://localhost:7800"
+      LIVEKIT_SERVER_URL: "http://livekit:7880"
+      LIVEKIT_PUBLIC_URL: "ws://localhost:7880"
       LIVEKIT_API_KEY: "devkey"
       LIVEKIT_API_SECRET: "secret"
       LIVEKIT_ROOM_PREFIX: "jeogram_"
+      SOCKETIO_ENABLED: "true"
     volumes:
       - uploads-data:/data/uploads
 

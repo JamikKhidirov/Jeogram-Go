@@ -16,9 +16,9 @@ import (
 	"github.com/jeogram/messenger/internal/modules/auth/service"
 	calldomain "github.com/jeogram/messenger/internal/modules/calls/domain"
 	callhandler "github.com/jeogram/messenger/internal/modules/calls/handler"
+	livekitsvc "github.com/jeogram/messenger/internal/modules/calls/livekit"
 	callrepo "github.com/jeogram/messenger/internal/modules/calls/repository"
 	callservice "github.com/jeogram/messenger/internal/modules/calls/service"
-	livekitsvc "github.com/jeogram/messenger/internal/modules/calls/livekit"
 	chatdomain "github.com/jeogram/messenger/internal/modules/chat/domain"
 	chathandler "github.com/jeogram/messenger/internal/modules/chat/handler"
 	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
@@ -65,27 +65,28 @@ import (
 
 // Server объединяет HTTP-сервер и его зависимости.
 type Server struct {
-	cfg          *config.Config
-	db           *gorm.DB
-	redis        *cache.Redis
-	producer     *events.Producer
-	hub          *ws.Hub
-	jwt          *auth.JWT
-	broadcaster  realtime.Broadcaster
-	webhooks     *webhook.Dispatcher
-	livekitSvc   *livekitsvc.Service
-	livekitH     *livekitsvc.Handler
-	authSvc      *service.AuthService
-	userSvc      *userservice.UserService
-	chatSvc      *chatService.ChatService
-	mediaSvc     *mediaservice.MediaService
-	msgSvc       *messageservice.MessageService
-	notifSvc     *notificationservice.NotificationService
-	callSvc      *callservice.CallService
-	contactSvc   *contactservice.ContactService
-	phoneSvc     *phoneservice.PhoneService
-	adminH       *adminhandler.AdminHandler
-	prekeyRepo   *e2eerepo.PreKeyRepository
+	cfg         *config.Config
+	db          *gorm.DB
+	redis       *cache.Redis
+	producer    *events.Producer
+	hub         *ws.Hub
+	jwt         *auth.JWT
+	broadcaster realtime.Broadcaster
+	socketIO    *realtime.SocketIOServer
+	webhooks    *webhook.Dispatcher
+	livekitSvc  *livekitsvc.Service
+	livekitH    *livekitsvc.Handler
+	authSvc     *service.AuthService
+	userSvc     *userservice.UserService
+	chatSvc     *chatService.ChatService
+	mediaSvc    *mediaservice.MediaService
+	msgSvc      *messageservice.MessageService
+	notifSvc    *notificationservice.NotificationService
+	callSvc     *callservice.CallService
+	contactSvc  *contactservice.ContactService
+	phoneSvc    *phoneservice.PhoneService
+	adminH      *adminhandler.AdminHandler
+	prekeyRepo  *e2eerepo.PreKeyRepository
 }
 
 // New создаёт сервер: выполняет миграции и инициализирует модули.
@@ -106,6 +107,24 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 		&realtime.WSBroadcaster{Hub: hub},
 	}}
 
+	// Socket.IO transport (protocol v2 / Engine.IO v3) delivers the same events
+	// as the raw WebSocket hub. Each client joins a private room "u:<userID>".
+	var socketIO *realtime.SocketIOServer
+	if cfg.SocketIO.Enabled {
+		socketIO = realtime.NewSocketIOServer(func(token string) (string, error) {
+			claims, err := jwtSvc.ParseAccess(token)
+			if err != nil {
+				return "", err
+			}
+			return claims.UserID, nil
+		})
+		// go-socket.io обрабатывает соединения только в отдельном цикле Serve(),
+		// иначе в HTTP-режиме фреймы не читаются.
+		go socketIO.Server.Serve()
+		broadcaster.Broadcasters = append(broadcaster.Broadcasters,
+			&realtime.SocketIOBroadcaster{Server: socketIO.Server})
+	}
+
 	userRepo := repository.NewUserRepository(db)
 	settingsRepo := userrepo.NewSettingsRepository(db)
 	chatRepo := chatrepo.NewChatRepository(db)
@@ -119,6 +138,7 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	prekeyRepo := e2eerepo.NewPreKeyRepository(db)
 
 	authSvc := service.NewAuthService(userRepo, vrfRepo, jwtSvc, redis, mailer, cfg.Auth, webhooks, deviceRepo)
+	authSvc.SetBroadcaster(broadcaster)
 	userSvc := userservice.NewUserService(userRepo, settingsRepo, contactRepo, chatRepo, deviceRepo)
 	chatSvc := chatService.NewChatService(chatRepo, redis)
 	msgSvc := messageservice.NewMessageService(msgRepo, chatRepo, producer, cfg.Kafka, broadcaster, cfg.Message, redis, webhooks)
@@ -128,10 +148,30 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	}
 	pushSvc := notificationservice.NewPushService(cfg.Push)
 	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, broadcaster, producer, cfg.Kafka.NotifyTopic)
+
+	// Kafka выключена — обрабатываем событие "сообщение создано" напрямую,
+	// иначе in-app уведомления и push не создавались бы.
+	if !cfg.Kafka.Enabled {
+		msgSvc.SetDirectNotifier(notifSvc.HandleMessageCreated)
+	}
 	callSvc := callservice.NewCallService(callRepo, chatRepo, cfg.RTC, webhooks)
 	contactSvc := contactservice.NewContactService(contactRepo, userRepo, settingsRepo)
 	phoneSvc := phoneservice.NewPhoneService(db)
 	adminH := adminhandler.NewAdminHandler(db, jwtSvc, cfg.Admin.UserIDs, broadcaster)
+
+	// Presence: при появлении/исчезновении пользователя в сети сообщаем его
+	// контактам (событие presence).
+	hub.SetPresenceHook(func(userID string, online bool) {
+		ctx := context.Background()
+		contactIDs, err := contactSvc.ListIDs(ctx, userID)
+		if err != nil || len(contactIDs) == 0 {
+			return
+		}
+		broadcaster.SendToUsers(contactIDs, ws.Outbound{
+			Type:    "presence",
+			Payload: map[string]interface{}{"user_id": userID, "online": online},
+		})
+	})
 
 	// LiveKit integration
 	var livekitSvc *livekitsvc.Service
@@ -146,12 +186,12 @@ func New(cfg *config.Config, db *gorm.DB, redis *cache.Redis, producer *events.P
 	}
 
 	return &Server{
-		cfg:        cfg, db: db, redis: redis, producer: producer, hub: hub,
-		jwt:         jwtSvc, broadcaster: broadcaster, webhooks: webhooks,
-		livekitSvc:  livekitSvc, livekitH: livekitH,
-		authSvc:     authSvc, userSvc: userSvc, chatSvc: chatSvc,
-		mediaSvc:    mediaSvc, msgSvc: msgSvc, notifSvc: notifSvc, callSvc: callSvc,
-		contactSvc:  contactSvc, phoneSvc: phoneSvc, adminH: adminH, prekeyRepo: prekeyRepo,
+		cfg: cfg, db: db, redis: redis, producer: producer, hub: hub,
+		jwt: jwtSvc, broadcaster: broadcaster, socketIO: socketIO, webhooks: webhooks,
+		livekitSvc: livekitSvc, livekitH: livekitH,
+		authSvc: authSvc, userSvc: userSvc, chatSvc: chatSvc,
+		mediaSvc: mediaSvc, msgSvc: msgSvc, notifSvc: notifSvc, callSvc: callSvc,
+		contactSvc: contactSvc, phoneSvc: phoneSvc, adminH: adminH, prekeyRepo: prekeyRepo,
 	}, nil
 }
 
@@ -229,6 +269,20 @@ func (s *Server) Router() *chi.Mux {
 	// Realtime: raw WebSocket (1-on-1 messages, call signaling).
 	r.With(middleware.JWTAuth(s.jwt)).Get("/ws", s.hub.Handler())
 
+	// Realtime: Socket.IO transport (protocol v2 / Engine.IO v3).
+	// Handshake: ws://host/socket.io/?token=<access_token>&EIO=3&transport=websocket
+	if s.socketIO != nil {
+		path := s.cfg.SocketIO.Path
+		if path == "" {
+			path = "/socket.io"
+		}
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			s.socketIO.ServeHTTP(w, r, s.authenticateSocketIO)
+		})
+		r.Handle(path, handler)
+		r.Handle(path+"/*", handler)
+	}
+
 	// LiveKit call endpoints (audio/video 1-on-1 and group).
 	if s.livekitH != nil {
 		s.livekitH.RegisterRoutes(r)
@@ -285,9 +339,24 @@ func (s *Server) StartWorkers(ctx context.Context) {
 	}()
 }
 
+// NotificationService возвращает сервис уведомлений (используется для
+// запуска Kafka-консьюмера в main).
+func (s *Server) NotificationService() *notificationservice.NotificationService {
+	return s.notifSvc
+}
+
 // chatRepo возвращает репозиторий чатов (нужен обработчикам звонков для доступа).
 func (s *Server) chatRepo() *chatrepo.ChatRepository {
 	return chatrepo.NewChatRepository(s.db)
+}
+
+// authenticateSocketIO проверяет access-токен Socket.IO-хендшейка и возвращает id пользователя.
+func (s *Server) authenticateSocketIO(token string) (string, error) {
+	claims, err := s.jwt.ParseAccess(token)
+	if err != nil {
+		return "", err
+	}
+	return claims.UserID, nil
 }
 
 // Run starts the HTTP server and blocks until the context is cancelled.

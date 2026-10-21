@@ -79,14 +79,14 @@ ws.on("message", (data) => {
 | `message.typing` | Кто-то печатает в чате | `{ chat_id, user_id, typing: true }` |
 | `call.started` | Начат аудио/видео звонок | `{ call_id, chat_id, room_name, type }` |
 | `call.signal` | WebRTC/SDP сигнал звонка | `{ from, type, chat_id, data }` |
-| `call.ended` | Звонок завершён | `{ call_id }` |
+| `call.ended` | Звонок завершён | `{ call_id, chat_id }` |
 | `call.participant_muted` | Участник отключил микрофон/камеру | `{ call_id, user_id, kind, muted }` |
 | `notification` | Новое in-app уведомление | `Notification` объект |
 | `presence` | Изменение онлайн-статуса пользователя | `{ user_id, online }` |
 | `user.status` | Изменение статуса (online/dnd/invisible) | `{ user_id, status }` |
 | `admin.broadcast` | Рассылка от администратора | `{ title, body }` |
 | `auth.code_sent` | Код подтверждения отправлен на email | `{ email, purpose }` |
-| `profile.updated` | Профиль пользователя обновлён | `{ user_id, fields }` |
+| `profile.updated` | Профиль пользователя обновлён | `{ user_id, fields, user }` |
 
 ---
 
@@ -262,12 +262,25 @@ ws.on("message", (data) => {
 
 ## 10. Тестирование в Postman
 
-1. Импортируйте коллекцию `postman/Jeogram API.postman_collection.json`
-2. Войдите через `Auth → Login` (токен сохранится в `{{access_token}}`)
-3. Откройте `Realtime (WebSocket / Socket.IO)` → `WS /ws (raw WebSocket, realtime)`
-4. Подключитесь к `ws://localhost:8080/ws?token={{access_token}}`
-5. В другой вкладке выполните любое действие (отправьте сообщение, создайте звонок)
+1. Импортируйте **оба** файла: сначала окружение
+   `postman/Jeogram.postman_environment.json`, затем коллекцию
+   `postman/Jeogram API.postman_collection.json`
+2. Выберите окружение `Jeogram Local` в правом верхнем углу Postman
+3. Войдите: папка `01. Auth` → `POST /auth/register` или `POST /auth/login`
+   (токен автоматически сохранится в `{{access_token}}`)
+4. Откройте папку `12. Realtime — WebSocket и Socket.IO`:
+   - `WS /ws — основной канал realtime` → **Connect** → `ws://localhost:8080/ws?token={{access_token}}`
+   - `Socket.IO /socket.io — подключение` → **Connect** → отправьте кадр `40`
+   - `WS /calls/ws — сигналинг WebRTC` → сигналинг offer/answer/ice
+   - `LiveKit /rtc — сигналинг SFU` → подключение к комнате LiveKit
+5. В другой вкладке выполните действие (отправьте сообщение, создайте звонок)
 6. В окне WebSocket придёт соответствующее событие в реальном времени
+
+Полный порядок работы по папкам: `00 Старт → 01 Auth → 02 Auth → 03 Users →
+04 Contacts → 05 Chats → 06 Messages → 07 Media → 08 Notifications → 09 E2EE →
+10 Calls → 11 Calls LiveKit → 12 Realtime → 13 Phone → 14 Admin → 15 Cleanup`.
+Идентификаторы (`chat_id`, `message_id`, `call_id`, `livekit_token`) подставляются
+автоматически тест-скриптами запросов.
 
 ---
 
@@ -278,3 +291,32 @@ ws.on("message", (data) => {
 - Все события дублируются в базу данных (PostgreSQL) для надежности
 - При отключённом Kafka realtime продолжает работать напрямую через WebSocket-хаб
 - Push-уведомления отправляются асинхронно через Kafka-консьюмер (или напрямую если Kafka отключена)
+
+---
+
+## 12. Socket.IO — второй транспорт
+
+Кроме raw WebSocket доступен Socket.IO-транспорт (`/socket.io`, протокол v2 /
+Engine.IO v3). События те же самые, подключение:
+
+```text
+ws://localhost:8080/socket.io/?token=<access_token>&EIO=3&transport=websocket
+```
+
+Подробности (handshake, кадры `40`/`42`, пример на socket.io-client) —
+в [SOCKETIO.md](SOCKETIO.md).
+
+---
+
+## 13. LiveKit (SFU) — звонки через WebSocket
+
+Для звонков с SFU-маршрутизацией клиент подключается к самому LiveKit:
+
+```text
+ws://{{livekit_host}}/rtc?access_token=<livekit_token>&autoSubscribe=1
+```
+
+Токен и имя комнаты берутся из `POST /calls/livekit/{id}/join`
+(`token`, `room_name`, `client_url`). В Postman это запросы в папке
+`11. Calls LiveKit` и WebSocket `LiveKit /rtc` в папке `12. Realtime`.
+

@@ -82,9 +82,9 @@ func TestGenerateAccessToken(t *testing.T) {
 
 	// Parse and validate the JWT token
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-	}
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte("test-secret"), nil
 	})
 
@@ -156,9 +156,9 @@ func TestICEServers(t *testing.T) {
 	svc := &Service{
 		serverURL: "ws://localhost:7800",
 		rtc: config.RTCConfig{
-			STUNServers: []string{"stun:stun.l.google.com:19302"},
-			TURNServers: []string{"turn:turn.example.com:3478"},
-			TURNUser:    "turnuser",
+			STUNServers:  []string{"stun:stun.l.google.com:19302"},
+			TURNServers:  []string{"turn:turn.example.com:3478"},
+			TURNUser:     "turnuser",
 			TURNPassword: "turnpass",
 		},
 	}
@@ -169,17 +169,18 @@ func TestICEServers(t *testing.T) {
 		t.Error("ICEServers() returned empty list")
 	}
 
-	if servers[0]["urls"] != "ws://localhost:7800" {
-		t.Errorf("Expected urls 'ws://localhost:7800', got '%v'", servers[0]["urls"])
+	// LiveKit-адрес не является ICE-сервером: в ответе должны быть STUN/TURN.
+	if servers[0]["urls"] != "stun:stun.l.google.com:19302" {
+		t.Errorf("Expected urls 'stun:stun.l.google.com:19302', got '%v'", servers[0]["urls"])
 	}
 
 	// Test without server URL (fallback to RTC config)
 	svcNoURL := &Service{
 		serverURL: "",
 		rtc: config.RTCConfig{
-			STUNServers: []string{"stun:stun.l.google.com:19302"},
-			TURNServers: []string{"turn:turn.example.com:3478"},
-			TURNUser:    "turnuser",
+			STUNServers:  []string{"stun:stun.l.google.com:19302"},
+			TURNServers:  []string{"turn:turn.example.com:3478"},
+			TURNUser:     "turnuser",
 			TURNPassword: "turnpass",
 		},
 	}
@@ -287,17 +288,14 @@ func TestRecordingEnabled(t *testing.T) {
 // TestRoomStruct tests Room struct serialization
 func TestRoomStruct(t *testing.T) {
 	room := Room{
-		Name:             "test_room",
-		Sid:              "room_sid_123",
-		CreatedAt:        time.Now(),
-		Active:           true,
-		EmptyTimeout:     60,
-		MaxParticipants:  50,
-		ParticipantCount: 5,
-		Participants: []Participant{
-			{Identity: "user1", SID: "sid1", JoinedAt: time.Now(), Tracks: 2},
-			{Identity: "user2", SID: "sid2", JoinedAt: time.Now(), Tracks: 1},
-		},
+		Name:            "test_room",
+		SID:             "room_sid_123",
+		CreationTime:    "1792612037",
+		CreationTimeMs:  "1792612037993",
+		EmptyTimeout:    60,
+		MaxParticipants: 50,
+		NumParticipants: 5,
+		ActiveRecording: true,
 	}
 
 	// Test JSON serialization
@@ -314,11 +312,11 @@ func TestRoomStruct(t *testing.T) {
 	if decoded.Name != room.Name {
 		t.Errorf("Expected Name '%s', got '%s'", room.Name, decoded.Name)
 	}
-	if decoded.Sid != room.Sid {
-		t.Errorf("Expected Sid '%s', got '%s'", room.Sid, decoded.Sid)
+	if decoded.SID != room.SID {
+		t.Errorf("Expected SID '%s', got '%s'", room.SID, decoded.SID)
 	}
-	if decoded.Active != room.Active {
-		t.Errorf("Expected Active=%v, got %v", room.Active, decoded.Active)
+	if decoded.ActiveRecording != room.ActiveRecording {
+		t.Errorf("Expected ActiveRecording=%v, got %v", room.ActiveRecording, decoded.ActiveRecording)
 	}
 	if decoded.EmptyTimeout != room.EmptyTimeout {
 		t.Errorf("Expected EmptyTimeout=%d, got %d", room.EmptyTimeout, decoded.EmptyTimeout)
@@ -326,11 +324,11 @@ func TestRoomStruct(t *testing.T) {
 	if decoded.MaxParticipants != room.MaxParticipants {
 		t.Errorf("Expected MaxParticipants=%d, got %d", room.MaxParticipants, decoded.MaxParticipants)
 	}
-	if decoded.ParticipantCount != room.ParticipantCount {
-		t.Errorf("Expected ParticipantCount=%d, got %d", room.ParticipantCount, decoded.ParticipantCount)
+	if decoded.NumParticipants != room.NumParticipants {
+		t.Errorf("Expected NumParticipants=%d, got %d", room.NumParticipants, decoded.NumParticipants)
 	}
-	if len(decoded.Participants) != len(room.Participants) {
-		t.Errorf("Expected %d participants, got %d", len(room.Participants), len(decoded.Participants))
+	if decoded.CreationTime != room.CreationTime {
+		t.Errorf("Expected CreationTime '%s', got '%s'", room.CreationTime, decoded.CreationTime)
 	}
 }
 
@@ -339,8 +337,12 @@ func TestParticipantStruct(t *testing.T) {
 	p := Participant{
 		Identity: "user_123",
 		SID:      "participant_sid_456",
-		JoinedAt: time.Now(),
-		Tracks:   3,
+		State:    "JOINED",
+		JoinedAt: "2026-01-01T00:00:00Z",
+		Tracks: []TrackInfo{
+			{SID: "TR_1", Type: "VIDEO", Muted: false},
+			{SID: "TR_2", Type: "AUDIO", Muted: true},
+		},
 	}
 
 	data, err := json.Marshal(p)
@@ -359,8 +361,8 @@ func TestParticipantStruct(t *testing.T) {
 	if decoded.SID != p.SID {
 		t.Errorf("Expected SID '%s', got '%s'", p.SID, decoded.SID)
 	}
-	if decoded.Tracks != p.Tracks {
-		t.Errorf("Expected Tracks=%d, got %d", p.Tracks, decoded.Tracks)
+	if len(decoded.Tracks) != len(p.Tracks) {
+		t.Errorf("Expected %d tracks, got %d", len(p.Tracks), len(decoded.Tracks))
 	}
 }
 
@@ -487,36 +489,31 @@ func TestMultipleTokens(t *testing.T) {
 // TestAPIMethods tests internal API method functions exist and compile
 func TestAPIMethodsExist(t *testing.T) {
 	svc := &Service{
-		apiKey:    "test-key",
-		apiSecret: "test-secret",
-		serverURL: "",
+		apiKey:     "test-key",
+		apiSecret:  "test-secret",
+		serverURL:  "",
 		httpClient: &http.Client{Timeout: 5 * time.Second},
 	}
 
-	// Verify the internal API methods exist (they should compile without error)
-	_ = svc.apiPost
-	_ = svc.apiGet
-	_ = svc.apiDelete
+	// Verify the internal API method exists (it should compile without error)
+	_ = svc.apiCall
 
-	// Verify they have correct signatures by checking they can be called
-	// with httptest server
+	// Verify it can be called against an httptest server
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"name":"test_room","sid":"sid_123","active":true}`))
+		w.Write([]byte(`{"name":"test_room","sid":"sid_123","active_recording":true}`))
 	}))
 	defer ts.Close()
 
 	svc.serverURL = ts.URL
 
 	ctx := context.Background()
-	resp, err := svc.apiGet(ctx, "/_api/rooms/test_room")
+	data, err := svc.apiCall(ctx, twirpRoomService, "ListRooms", nil, map[string]interface{}{"roomList": true})
 	if err != nil {
-		t.Fatalf("apiGet() error = %v", err)
+		t.Fatalf("apiCall() error = %v", err)
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Expected status 200, got %d", resp.StatusCode)
+	if len(data) == 0 {
+		t.Error("apiCall() returned empty body")
 	}
 }
 
@@ -536,54 +533,25 @@ func TestHTTPServerIntegration(t *testing.T) {
 	defer ts.Close()
 
 	svc := &Service{
-		apiKey:    "test-key",
-		apiSecret: "test-secret",
-		serverURL: ts.URL,
+		apiKey:     "test-key",
+		apiSecret:  "test-secret",
+		serverURL:  ts.URL,
 		httpClient: &http.Client{Timeout: 5 * time.Second},
 	}
 
-	// Test apiPost
-	resp, err := svc.apiPost(context.Background(), "/_api/test", map[string]interface{}{"key": "value"})
+	// Test Twirp call (POST + Bearer JWT)
+	_, err := svc.apiCall(context.Background(), twirpRoomService, "CreateRoom", map[string]interface{}{"name": "test_room"}, map[string]interface{}{"roomCreate": true})
 	if err != nil {
-		t.Fatalf("apiPost() error = %v", err)
+		t.Fatalf("apiCall() error = %v", err)
 	}
-	defer resp.Body.Close()
 
-	if lastPath != "/_api/test" {
-		t.Errorf("Expected path '/_api/test', got '%s'", lastPath)
+	if lastPath != "/twirp/livekit.RoomService/CreateRoom" {
+		t.Errorf("Expected twirp path, got '%s'", lastPath)
 	}
 	if lastMethod != "POST" {
 		t.Errorf("Expected method 'POST', got '%s'", lastMethod)
 	}
-	if !strings.HasPrefix(lastAuth, "Basic ") {
-		t.Errorf("Expected Basic Auth header, got '%s'", lastAuth)
-	}
-
-	// Test apiDelete
-	resp, err = svc.apiDelete(context.Background(), "/_api/test/item")
-	if err != nil {
-		t.Fatalf("apiDelete() error = %v", err)
-	}
-	defer resp.Body.Close()
-
-	if lastPath != "/_api/test/item" {
-		t.Errorf("Expected path '/_api/test/item', got '%s'", lastPath)
-	}
-	if lastMethod != "DELETE" {
-		t.Errorf("Expected method 'DELETE', got '%s'", lastMethod)
-	}
-
-	// Test apiGet
-	resp, err = svc.apiGet(context.Background(), "/_api/test/item")
-	if err != nil {
-		t.Fatalf("apiGet() error = %v", err)
-	}
-	defer resp.Body.Close()
-
-	if lastPath != "/_api/test/item" {
-		t.Errorf("Expected path '/_api/test/item', got '%s'", lastPath)
-	}
-	if lastMethod != "GET" {
-		t.Errorf("Expected method 'GET', got '%s'", lastMethod)
+	if !strings.HasPrefix(lastAuth, "Bearer ") {
+		t.Errorf("Expected Bearer Auth header, got '%s'", lastAuth)
 	}
 }

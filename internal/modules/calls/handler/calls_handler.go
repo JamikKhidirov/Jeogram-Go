@@ -115,6 +115,18 @@ func (h *CallsHandler) End(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusNotFound, "not_found", "call not found")
 		return
 	}
+	// Уведомляем участников чата о завершении звонка.
+	if call, err := h.svc.Get(r.Context(), id); err == nil && call != nil {
+		if participants, perr := h.chats.Participants(r.Context(), call.ChatID); perr == nil {
+			h.hub.SendToUsers(participants, ws.Outbound{
+				Type: "call.ended",
+				Payload: map[string]interface{}{
+					"call_id": id,
+					"chat_id": call.ChatID,
+				},
+			})
+		}
+	}
 	response.WriteOK(w, map[string]string{"status": "ended"})
 }
 

@@ -12,6 +12,7 @@ import (
 	devrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
 	"github.com/jeogram/messenger/internal/pkg/events"
 	"github.com/jeogram/messenger/internal/pkg/realtime"
+	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/rs/zerolog/log"
 )
 
@@ -83,6 +84,24 @@ func (s *NotificationService) HandleMessageCreated(ctx context.Context, ev event
 		}
 		if err := s.notifs.Create(ctx, n); err != nil {
 			log.Error().Err(err).Msg("could not store notification")
+		}
+
+		// In-app уведомление — отдельное realtime-событие "notification"
+		// (само сообщение клиент получает в "message.new").
+		if s.hub != nil {
+			s.hub.SendToUsers([]string{uid}, ws.Outbound{
+				Type: "notification",
+				Payload: domain.PublicNotification{
+					ID:        n.ID,
+					ChatID:    n.ChatID,
+					MessageID: n.MessageID,
+					Title:     n.Title,
+					Body:      n.Body,
+					Type:      n.Type,
+					Read:      n.Read,
+					CreatedAt: n.CreatedAt.Format(time.RFC3339),
+				},
+			})
 		}
 
 		// Примечание: мгновенная доставка сообщения в WebSocket выполняется
@@ -160,6 +179,15 @@ func (s *NotificationService) List(ctx context.Context, userID string) ([]domain
 // MarkAllRead marks every notification for a user as read.
 func (s *NotificationService) MarkAllRead(ctx context.Context, userID string) error {
 	return s.notifs.MarkAllRead(ctx, userID)
+}
+
+// MarkRead помечает прочитанными конкретные уведомления.
+// Пустой список id означает «отметить все».
+func (s *NotificationService) MarkRead(ctx context.Context, userID string, ids []string) error {
+	if len(ids) == 0 {
+		return s.notifs.MarkAllRead(ctx, userID)
+	}
+	return s.notifs.MarkRead(ctx, userID, ids)
 }
 
 // UnreadCount returns the number of unread notifications for a user.

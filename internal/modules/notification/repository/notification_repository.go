@@ -36,6 +36,16 @@ func (r *NotificationRepository) MarkAllRead(ctx context.Context, userID string)
 		Update("read", true).Error
 }
 
+// MarkRead помечает прочитанными конкретные уведомления пользователя.
+func (r *NotificationRepository) MarkRead(ctx context.Context, userID string, ids []string) error {
+	if len(ids) == 0 {
+		return r.MarkAllRead(ctx, userID)
+	}
+	return r.db.WithContext(ctx).Model(&domain.Notification{}).
+		Where("user_id = ? AND id IN ?", userID, ids).
+		Update("read", true).Error
+}
+
 // UnreadCount возвращает число непрочитанных уведомлений пользователя.
 func (r *NotificationRepository) UnreadCount(ctx context.Context, userID string) (int64, error) {
 	var count int64

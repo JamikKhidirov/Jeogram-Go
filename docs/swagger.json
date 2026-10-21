@@ -28,7 +28,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.broadcastRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest"
                         }
                     }
                 ],
@@ -36,7 +36,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -74,7 +74,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -119,7 +119,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -157,7 +157,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -196,7 +196,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -220,7 +220,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -258,7 +258,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -286,7 +286,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.createUserRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest"
                         }
                     }
                 ],
@@ -294,7 +294,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -333,7 +333,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -366,7 +366,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -397,7 +397,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -430,7 +430,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -463,7 +463,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -500,7 +500,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.setRoleRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest"
                         }
                     }
                 ],
@@ -508,7 +508,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -541,7 +541,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -565,7 +565,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -589,7 +589,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -614,7 +614,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.verify2FARequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verify2FARequest"
                         }
                     }
                 ],
@@ -622,7 +622,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -652,7 +652,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.changeEmailRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
                         }
                     }
                 ],
@@ -660,7 +660,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -690,7 +690,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.changeEmailRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest"
                         }
                     }
                 ],
@@ -698,7 +698,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -728,7 +728,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.changePasswordRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest"
                         }
                     }
                 ],
@@ -736,7 +736,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -766,7 +766,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.changePhoneRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
                         }
                     }
                 ],
@@ -774,7 +774,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -804,7 +804,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.changePhoneRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest"
                         }
                     }
                 ],
@@ -812,7 +812,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -837,7 +837,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.forgotPasswordRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest"
                         }
                     }
                 ],
@@ -845,7 +845,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -870,7 +870,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.LoginRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest"
                         }
                     }
                 ],
@@ -878,7 +878,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -902,7 +902,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -926,7 +926,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -950,7 +950,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -975,7 +975,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.RefreshRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest"
                         }
                     }
                 ],
@@ -983,7 +983,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1008,7 +1008,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.RegisterRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest"
                         }
                     }
                 ],
@@ -1016,7 +1016,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1041,7 +1041,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.otpRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest"
                         }
                     }
                 ],
@@ -1049,7 +1049,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1073,7 +1073,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1098,7 +1098,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.resetPasswordRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest"
                         }
                     }
                 ],
@@ -1106,7 +1106,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1130,7 +1130,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1160,7 +1160,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.verifyEmailRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest"
                         }
                     }
                 ],
@@ -1168,7 +1168,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1193,7 +1193,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.verifyOTPRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest"
                         }
                     }
                 ],
@@ -1201,7 +1201,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1231,7 +1231,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.startCallRequest"
+                            "$ref": "#/definitions/modules_calls_handler.startCallRequest"
                         }
                     }
                 ],
@@ -1239,7 +1239,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1263,7 +1263,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1301,7 +1301,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1325,7 +1325,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1349,7 +1349,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1373,7 +1373,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1403,7 +1403,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/livekit.startCallRequest"
+                            "$ref": "#/definitions/modules_calls_livekit.startCallRequest"
                         }
                     }
                 ],
@@ -1411,7 +1411,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1444,7 +1444,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1477,7 +1477,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1514,7 +1514,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/livekit.muteRequest"
+                            "$ref": "#/definitions/modules_calls_livekit.muteRequest"
                         }
                     }
                 ],
@@ -1522,7 +1522,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1555,7 +1555,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1588,7 +1588,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1621,7 +1621,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1654,7 +1654,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1687,7 +1687,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1741,7 +1741,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1774,7 +1774,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1807,7 +1807,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1844,7 +1844,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.muteRequest"
+                            "$ref": "#/definitions/modules_calls_handler.muteRequest"
                         }
                     }
                 ],
@@ -1852,7 +1852,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1889,7 +1889,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.recordRequest"
+                            "$ref": "#/definitions/modules_calls_handler.recordRequest"
                         }
                     }
                 ],
@@ -1897,7 +1897,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1934,7 +1934,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.setRecordingRequest"
+                            "$ref": "#/definitions/modules_calls_handler.setRecordingRequest"
                         }
                     }
                 ],
@@ -1942,7 +1942,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1966,7 +1966,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -1996,7 +1996,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreateGroupChatRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest"
                         }
                     }
                 ],
@@ -2004,7 +2004,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2034,7 +2034,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreatePrivateChatRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest"
                         }
                     }
                 ],
@@ -2042,7 +2042,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2075,7 +2075,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2108,7 +2108,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2150,7 +2150,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2183,7 +2183,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2216,7 +2216,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2255,7 +2255,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2300,7 +2300,50 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Отправить сообщение в чат (chat_id в URL)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id чата",
+                        "name": "chat_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "message payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2331,7 +2374,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2371,7 +2414,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2411,7 +2454,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2444,7 +2487,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2475,7 +2518,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2508,7 +2551,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2551,7 +2594,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2591,7 +2634,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2631,7 +2674,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2671,7 +2714,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2711,7 +2754,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2749,7 +2792,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2788,7 +2831,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2825,7 +2868,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.MarkReadRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest"
                         }
                     }
                 ],
@@ -2833,7 +2876,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2866,7 +2909,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2899,7 +2942,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2923,7 +2966,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2951,7 +2994,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.AddContactRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest"
                         }
                     }
                 ],
@@ -2959,7 +3002,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -2983,7 +3026,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3013,7 +3056,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.syncRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest"
                         }
                     }
                 ],
@@ -3021,7 +3064,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3054,7 +3097,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3085,7 +3128,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3118,7 +3161,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3151,7 +3194,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3184,7 +3227,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.PreKeyUpload"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload"
                         }
                     }
                 ],
@@ -3192,7 +3235,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3228,7 +3271,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3271,13 +3314,36 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
             }
         },
         "/media/{id}": {
+            "get": {
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "media"
+                ],
+                "summary": "Получить файл по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id медиафайла",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -3304,7 +3370,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3416,7 +3482,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.SendMessageRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest"
                         }
                     }
                 ],
@@ -3424,7 +3490,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3457,13 +3523,44 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
             }
         },
         "/messages/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Получить сообщение по id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id сообщения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -3494,7 +3591,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.EditMessageRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest"
                         }
                     }
                 ],
@@ -3502,7 +3599,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3533,7 +3630,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3570,7 +3667,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.ForwardRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest"
                         }
                     }
                 ],
@@ -3578,7 +3675,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3611,7 +3708,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3646,7 +3743,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.ReactRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest"
                         }
                     }
                 ],
@@ -3654,7 +3751,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3692,7 +3789,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3725,7 +3822,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3749,7 +3846,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3771,7 +3868,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3801,7 +3898,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.RegisterDeviceRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest"
                         }
                     }
                 ],
@@ -3809,7 +3906,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3822,6 +3919,9 @@
                         "BearerAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3829,11 +3929,21 @@
                     "notifications"
                 ],
                 "summary": "Прочитать уведомления",
+                "parameters": [
+                    {
+                        "description": "список id (необязательно)",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.MarkReadRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3857,7 +3967,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3890,7 +4000,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3914,7 +4024,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3944,7 +4054,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.DeviceAccount"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount"
                             }
                         }
                     }
@@ -3953,7 +4063,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3975,7 +4085,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -3999,7 +4109,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4029,7 +4139,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.InstalledApp"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp"
                             }
                         }
                     }
@@ -4038,7 +4148,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4060,7 +4170,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4084,7 +4194,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4114,7 +4224,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.BluetoothDevice"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice"
                             }
                         }
                     }
@@ -4123,7 +4233,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4145,7 +4255,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4169,7 +4279,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4199,7 +4309,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.BrowserHistory"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory"
                             }
                         }
                     }
@@ -4208,7 +4318,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4230,7 +4340,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4254,7 +4364,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4284,7 +4394,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.CalendarEvent"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent"
                             }
                         }
                     }
@@ -4293,7 +4403,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4315,7 +4425,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4339,7 +4449,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4369,7 +4479,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.CallLog"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CallLog"
                             }
                         }
                     }
@@ -4378,7 +4488,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4400,7 +4510,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4424,7 +4534,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4454,7 +4564,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.ClipboardEntry"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry"
                             }
                         }
                     }
@@ -4463,7 +4573,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4485,7 +4595,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4509,7 +4619,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4539,7 +4649,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.PhoneContact"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact"
                             }
                         }
                     }
@@ -4548,7 +4658,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4570,7 +4680,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4594,7 +4704,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4624,7 +4734,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.DeviceInfo"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo"
                             }
                         }
                     }
@@ -4633,7 +4743,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4655,7 +4765,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4679,7 +4789,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4709,7 +4819,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.LocationPoint"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint"
                             }
                         }
                     }
@@ -4718,7 +4828,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4740,7 +4850,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4764,7 +4874,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4794,7 +4904,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.MediaItem"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem"
                             }
                         }
                     }
@@ -4803,7 +4913,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4825,7 +4935,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4849,7 +4959,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4879,7 +4989,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.NotificationCapture"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture"
                             }
                         }
                     }
@@ -4888,7 +4998,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4910,7 +5020,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4934,7 +5044,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4964,7 +5074,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.SensorReading"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading"
                             }
                         }
                     }
@@ -4973,7 +5083,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -4995,7 +5105,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5019,7 +5129,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5049,7 +5159,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.SmsLog"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog"
                             }
                         }
                     }
@@ -5058,7 +5168,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5080,7 +5190,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5104,7 +5214,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5134,7 +5244,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.DeviceStatus"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus"
                             }
                         }
                     }
@@ -5143,7 +5253,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5165,7 +5275,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5189,7 +5299,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5213,7 +5323,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5243,7 +5353,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.AppUsage"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage"
                             }
                         }
                     }
@@ -5252,7 +5362,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5274,7 +5384,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5298,7 +5408,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5328,7 +5438,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.WifiNetwork"
+                                "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork"
                             }
                         }
                     }
@@ -5337,7 +5447,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5359,7 +5469,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5367,7 +5477,7 @@
         },
         "/socket.io/": {
             "get": {
-                "description": "Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=\u003caccess_token\u003e\u0026EIO=4\u0026transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.",
+                "description": "Тот же realtime-канал, что и `/ws`, но поверх протокола Socket.IO. Подключение: `/socket.io/?token=\u003caccess_token\u003e\u0026EIO=3\u0026transport=websocket`. События идентичны `/ws`. Используйте либо WebSocket, либо Socket.IO — функционально это одно и то же.",
                 "tags": [
                     "realtime"
                 ],
@@ -5400,7 +5510,45 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Обновить аватар и профиль",
+                "parameters": [
+                    {
+                        "description": "поля профиля",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5430,7 +5578,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.BlockRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest"
                         }
                     }
                 ],
@@ -5438,7 +5586,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5471,7 +5619,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5495,7 +5643,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5519,7 +5667,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5552,7 +5700,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5576,7 +5724,31 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Профиль пользователя (алиас /user/me)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5600,7 +5772,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5632,7 +5804,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5656,7 +5828,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5684,7 +5856,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UpdateProfileRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -5692,7 +5864,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5725,7 +5897,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5749,7 +5921,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5777,7 +5949,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UpdateSettingsRequest"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest"
                         }
                     }
                 ],
@@ -5785,7 +5957,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5815,7 +5987,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.userStatusRequest"
+                            "$ref": "#/definitions/modules_user_handler.userStatusRequest"
                         }
                     }
                 ],
@@ -5823,7 +5995,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.APIResponse"
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse"
                         }
                     }
                 }
@@ -5836,7 +6008,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer \u003caccess_token\u003e` либо query-параметр `?token=\u003caccess_token\u003e`. Сервер шлёт Ping каждые 30с и push-события в формате `{\"type\":\"\u003cevent\u003e\",\"payload\":{...}}` (например, `new_message`, `message_edited`, `message_deleted`, `call_invite`, `user_status`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.",
+                "description": "Установите WebSocket-соединение по адресу `GET /ws`. Аутентификация: заголовок `Authorization: Bearer \u003caccess_token\u003e` либо query-параметр `?token=\u003caccess_token\u003e`. Сервер шлёт Ping каждые 30с и push-события в формате `{\"type\":\"\u003cevent\u003e\",\"payload\":{...}}` (например, `message.new`, `message.edited`, `message.read`, `call.started`, `call.ended`, `user.status`, `presence`). Клиент может просто держать соединение открытым — это обеспечивает синхронизацию между устройствами одного пользователя.",
                 "tags": [
                     "realtime"
                 ],
@@ -5853,7 +6025,306 @@
         }
     },
     "definitions": {
-        "domain.AddContactRequest": {
+        "github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "user | admin",
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 8
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 5
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest": {
+            "type": "object",
+            "properties": {
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verify2FARequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "two_factor_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.muteRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "audio | video",
+                    "type": "string"
+                },
+                "muted": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.recordRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "start | stop",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest": {
+            "type": "object",
+            "required": [
+                "chat_id",
+                "type"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "peer | group (SFU-ready)",
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "audio",
+                        "video"
+                    ]
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_livekit.muteRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "muted": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_calls_livekit.startCallRequest": {
+            "type": "object",
+            "required": [
+                "chat_id",
+                "type"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "audio",
+                        "video"
+                    ]
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest": {
+            "type": "object",
+            "required": [
+                "participant_ids",
+                "title"
+            ],
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "maxLength": 512
+                },
+                "participant_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 128
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest": {
             "type": "object",
             "required": [
                 "user_id"
@@ -5864,7 +6335,212 @@
                 }
             }
         },
-        "domain.AppUsage": {
+        "github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest": {
+            "type": "object",
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest": {
+            "type": "object",
+            "required": [
+                "user_ids"
+            ],
+            "properties": {
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem": {
+            "type": "object",
+            "required": [
+                "key_id",
+                "public_key",
+                "signature_key"
+            ],
+            "properties": {
+                "key_id": {
+                    "type": "string"
+                },
+                "public_key": {
+                    "type": "string"
+                },
+                "signature_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload": {
+            "type": "object",
+            "required": [
+                "prekeys"
+            ],
+            "properties": {
+                "prekeys": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem"
+                    }
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest": {
+            "type": "object",
+            "required": [
+                "chat_id"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest": {
+            "type": "object",
+            "required": [
+                "message_ids"
+            ],
+            "properties": {
+                "message_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest": {
+            "type": "object",
+            "required": [
+                "emoji"
+            ],
+            "properties": {
+                "emoji": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest": {
+            "type": "object",
+            "required": [
+                "chat_id",
+                "type"
+            ],
+            "properties": {
+                "chat_id": {
+                    "type": "string"
+                },
+                "media_url": {
+                    "type": "string"
+                },
+                "reply_to": {
+                    "type": "string"
+                },
+                "scheduled_at": {
+                    "description": "RFC3339; if set in the future, message is queued",
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "text",
+                        "voice",
+                        "image",
+                        "video",
+                        "document"
+                    ]
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_notification_domain.MarkReadRequest": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_notification_domain.Platform": {
+            "type": "string",
+            "enum": [
+                "ios",
+                "android",
+                "web"
+            ],
+            "x-enum-varnames": [
+                "PlatformIOS",
+                "PlatformAndroid",
+                "PlatformWeb"
+            ]
+        },
+        "github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest": {
+            "type": "object",
+            "required": [
+                "platform",
+                "token"
+            ],
+            "properties": {
+                "app_version": {
+                    "type": "string"
+                },
+                "device_model": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "platform": {
+                    "enum": [
+                        "ios",
+                        "android",
+                        "web"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.Platform"
+                        }
+                    ]
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage": {
             "type": "object",
             "properties": {
                 "app_name": {
@@ -5890,18 +6566,7 @@
                 }
             }
         },
-        "domain.BlockRequest": {
-            "type": "object",
-            "required": [
-                "user_id"
-            ],
-            "properties": {
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.BluetoothDevice": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -5924,7 +6589,7 @@
                 }
             }
         },
-        "domain.BrowserHistory": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -5947,7 +6612,7 @@
                 }
             }
         },
-        "domain.CalendarEvent": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent": {
             "type": "object",
             "properties": {
                 "calendar_name": {
@@ -5976,7 +6641,7 @@
                 }
             }
         },
-        "domain.CallLog": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.CallLog": {
             "type": "object",
             "properties": {
                 "call_type": {
@@ -6006,7 +6671,7 @@
                 }
             }
         },
-        "domain.ClipboardEntry": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry": {
             "type": "object",
             "properties": {
                 "app_package": {
@@ -6026,42 +6691,7 @@
                 }
             }
         },
-        "domain.CreateGroupChatRequest": {
-            "type": "object",
-            "required": [
-                "participant_ids",
-                "title"
-            ],
-            "properties": {
-                "avatar_url": {
-                    "type": "string",
-                    "maxLength": 512
-                },
-                "participant_ids": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "title": {
-                    "type": "string",
-                    "maxLength": 128
-                }
-            }
-        },
-        "domain.CreatePrivateChatRequest": {
-            "type": "object",
-            "required": [
-                "user_id"
-            ],
-            "properties": {
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.DeviceAccount": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount": {
             "type": "object",
             "properties": {
                 "account_name": {
@@ -6081,7 +6711,7 @@
                 }
             }
         },
-        "domain.DeviceInfo": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo": {
             "type": "object",
             "properties": {
                 "app_version": {
@@ -6128,7 +6758,7 @@
                 }
             }
         },
-        "domain.DeviceStatus": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus": {
             "type": "object",
             "properties": {
                 "battery_level": {
@@ -6166,29 +6796,7 @@
                 }
             }
         },
-        "domain.EditMessageRequest": {
-            "type": "object",
-            "required": [
-                "text"
-            ],
-            "properties": {
-                "text": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.ForwardRequest": {
-            "type": "object",
-            "required": [
-                "chat_id"
-            ],
-            "properties": {
-                "chat_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.InstalledApp": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp": {
             "type": "object",
             "properties": {
                 "app_name": {
@@ -6220,7 +6828,7 @@
                 }
             }
         },
-        "domain.LocationPoint": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint": {
             "type": "object",
             "properties": {
                 "accuracy": {
@@ -6258,37 +6866,7 @@
                 }
             }
         },
-        "domain.LoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.MarkReadRequest": {
-            "type": "object",
-            "required": [
-                "message_ids"
-            ],
-            "properties": {
-                "message_ids": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "domain.MediaItem": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -6320,7 +6898,7 @@
                 }
             }
         },
-        "domain.NotificationCapture": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture": {
             "type": "object",
             "properties": {
                 "app_package": {
@@ -6346,7 +6924,7 @@
                 }
             }
         },
-        "domain.PhoneContact": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -6375,178 +6953,7 @@
                 }
             }
         },
-        "domain.Platform": {
-            "type": "string",
-            "enum": [
-                "ios",
-                "android",
-                "web"
-            ],
-            "x-enum-varnames": [
-                "PlatformIOS",
-                "PlatformAndroid",
-                "PlatformWeb"
-            ]
-        },
-        "domain.PreKeyItem": {
-            "type": "object",
-            "required": [
-                "key_id",
-                "public_key",
-                "signature_key"
-            ],
-            "properties": {
-                "key_id": {
-                    "type": "string"
-                },
-                "public_key": {
-                    "type": "string"
-                },
-                "signature_key": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.PreKeyUpload": {
-            "type": "object",
-            "required": [
-                "prekeys"
-            ],
-            "properties": {
-                "prekeys": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/domain.PreKeyItem"
-                    }
-                }
-            }
-        },
-        "domain.ReactRequest": {
-            "type": "object",
-            "required": [
-                "emoji"
-            ],
-            "properties": {
-                "emoji": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.RefreshRequest": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.RegisterDeviceRequest": {
-            "type": "object",
-            "required": [
-                "platform",
-                "token"
-            ],
-            "properties": {
-                "app_version": {
-                    "type": "string"
-                },
-                "device_model": {
-                    "type": "string"
-                },
-                "locale": {
-                    "type": "string"
-                },
-                "os_version": {
-                    "type": "string"
-                },
-                "platform": {
-                    "enum": [
-                        "ios",
-                        "android",
-                        "web"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.Platform"
-                        }
-                    ]
-                },
-                "timezone": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.RegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 72,
-                    "minLength": 8
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 5
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 3
-                }
-            }
-        },
-        "domain.SendMessageRequest": {
-            "type": "object",
-            "required": [
-                "chat_id",
-                "type"
-            ],
-            "properties": {
-                "chat_id": {
-                    "type": "string"
-                },
-                "media_url": {
-                    "type": "string"
-                },
-                "reply_to": {
-                    "type": "string"
-                },
-                "scheduled_at": {
-                    "description": "RFC3339; if set in the future, message is queued",
-                    "type": "string"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "text",
-                        "voice",
-                        "image",
-                        "video",
-                        "document"
-                    ]
-                }
-            }
-        },
-        "domain.SensorReading": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -6569,7 +6976,7 @@
                 }
             }
         },
-        "domain.SmsLog": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog": {
             "type": "object",
             "properties": {
                 "address": {
@@ -6599,47 +7006,7 @@
                 }
             }
         },
-        "domain.UpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string",
-                    "maxLength": 512
-                },
-                "display_name": {
-                    "type": "string",
-                    "maxLength": 128
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 3
-                }
-            }
-        },
-        "domain.UpdateSettingsRequest": {
-            "type": "object",
-            "properties": {
-                "language": {
-                    "type": "string"
-                },
-                "notifications_enabled": {
-                    "type": "boolean"
-                },
-                "online_visible": {
-                    "type": "boolean"
-                },
-                "theme": {
-                    "type": "string",
-                    "enum": [
-                        "system",
-                        "light",
-                        "dark"
-                    ]
-                }
-            }
-        },
-        "domain.WifiNetwork": {
+        "github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork": {
             "type": "object",
             "properties": {
                 "bssid": {
@@ -6665,7 +7032,106 @@
                 }
             }
         },
-        "handler.broadcastRequest": {
+        "github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest": {
+            "type": "object",
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "maxLength": 512
+                },
+                "display_name": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 3
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "notifications_enabled": {
+                    "type": "boolean"
+                },
+                "online_visible": {
+                    "type": "boolean"
+                },
+                "theme": {
+                    "type": "string",
+                    "enum": [
+                        "system",
+                        "light",
+                        "dark"
+                    ]
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_pkg_response.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_pkg_response.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIError"
+                },
+                "meta": {
+                    "$ref": "#/definitions/github_com_jeogram_messenger_internal_pkg_response.Meta"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_jeogram_messenger_internal_pkg_response.Meta": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "modules_admin_handler.broadcastRequest": {
             "type": "object",
             "properties": {
                 "body": {
@@ -6676,40 +7142,7 @@
                 }
             }
         },
-        "handler.changeEmailRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "new_email": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.changePasswordRequest": {
-            "type": "object",
-            "properties": {
-                "new_password": {
-                    "type": "string"
-                },
-                "old_password": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.changePhoneRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "new_phone": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.createUserRequest": {
+        "modules_admin_handler.createUserRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -6730,7 +7163,48 @@
                 }
             }
         },
-        "handler.forgotPasswordRequest": {
+        "modules_admin_handler.setRoleRequest": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changeEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.changePhoneRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.forgotPasswordRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -6738,19 +7212,7 @@
                 }
             }
         },
-        "handler.muteRequest": {
-            "type": "object",
-            "properties": {
-                "kind": {
-                    "description": "audio | video",
-                    "type": "string"
-                },
-                "muted": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.otpRequest": {
+        "modules_auth_handler.otpRequest": {
             "type": "object",
             "properties": {
                 "phone": {
@@ -6758,16 +7220,7 @@
                 }
             }
         },
-        "handler.recordRequest": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "description": "start | stop",
-                    "type": "string"
-                }
-            }
-        },
-        "handler.resetPasswordRequest": {
+        "modules_auth_handler.resetPasswordRequest": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6781,7 +7234,58 @@
                 }
             }
         },
-        "handler.setRecordingRequest": {
+        "modules_auth_handler.verify2FARequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "two_factor_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.verifyEmailRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_auth_handler.verifyOTPRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "modules_calls_handler.muteRequest": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "audio | video",
+                    "type": "string"
+                },
+                "muted": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "modules_calls_handler.recordRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "start | stop",
+                    "type": "string"
+                }
+            }
+        },
+        "modules_calls_handler.setRecordingRequest": {
             "type": "object",
             "required": [
                 "url"
@@ -6792,15 +7296,7 @@
                 }
             }
         },
-        "handler.setRoleRequest": {
-            "type": "object",
-            "properties": {
-                "role": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.startCallRequest": {
+        "modules_calls_handler.startCallRequest": {
             "type": "object",
             "required": [
                 "chat_id",
@@ -6823,59 +7319,7 @@
                 }
             }
         },
-        "handler.syncRequest": {
-            "type": "object",
-            "required": [
-                "user_ids"
-            ],
-            "properties": {
-                "user_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "handler.userStatusRequest": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.verify2FARequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "two_factor_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.verifyEmailRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.verifyOTPRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                }
-            }
-        },
-        "livekit.muteRequest": {
+        "modules_calls_livekit.muteRequest": {
             "type": "object",
             "properties": {
                 "kind": {
@@ -6886,7 +7330,7 @@
                 }
             }
         },
-        "livekit.startCallRequest": {
+        "modules_calls_livekit.startCallRequest": {
             "type": "object",
             "required": [
                 "chat_id",
@@ -6908,43 +7352,25 @@
                 }
             }
         },
-        "response.APIError": {
+        "modules_contact_handler.syncRequest": {
             "type": "object",
+            "required": [
+                "user_ids"
+            ],
             "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
-        "response.APIResponse": {
+        "modules_user_handler.userStatusRequest": {
             "type": "object",
             "properties": {
-                "data": {},
-                "error": {
-                    "$ref": "#/definitions/response.APIError"
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Meta"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "response.Meta": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
+                "status": {
+                    "type": "string"
                 }
             }
         }

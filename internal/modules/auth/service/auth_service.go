@@ -15,7 +15,9 @@ import (
 	"github.com/jeogram/messenger/internal/pkg/auth"
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/mail"
+	"github.com/jeogram/messenger/internal/pkg/realtime"
 	"github.com/jeogram/messenger/internal/pkg/webhook"
+	"github.com/jeogram/messenger/internal/pkg/ws"
 	"github.com/pquerna/otp/totp"
 )
 
@@ -35,10 +37,28 @@ type AuthService struct {
 	authCfg  config.AuthConfig
 	webhooks *webhook.Dispatcher
 	devices  *notificationrepo.DeviceRepository
+	hub      realtime.Broadcaster
 }
 
 func NewAuthService(repo *repository.UserRepository, vrfRepo *repository.VerificationRepository, jwt *auth.JWT, c *cache.Redis, mailer *mail.Mailer, authCfg config.AuthConfig, webhooks *webhook.Dispatcher, devices *notificationrepo.DeviceRepository) *AuthService {
 	return &AuthService{repo: repo, vrfRepo: vrfRepo, jwt: jwt, cache: c, mailer: mailer, authCfg: authCfg, webhooks: webhooks, devices: devices}
+}
+
+// SetBroadcaster подключает realtime-канал для события auth.code_sent.
+func (s *AuthService) SetBroadcaster(hub realtime.Broadcaster) { s.hub = hub }
+
+// notifyCodeSent сообщает клиенту, что код подтверждения отправлен.
+func (s *AuthService) notifyCodeSent(userID, target, purpose string) {
+	if s.hub == nil || userID == "" {
+		return
+	}
+	s.hub.SendToUsers([]string{userID}, ws.Outbound{
+		Type: "auth.code_sent",
+		Payload: map[string]interface{}{
+			"email":   target,
+			"purpose": purpose,
+		},
+	})
 }
 
 // generateCode возвращает случайный числовой код заданной длины.
@@ -129,6 +149,7 @@ func (s *AuthService) sendVerification(ctx context.Context, u *domain.User, purp
 	}
 	_ = s.vrfRepo.Create(ctx, vc)
 	_ = s.mailer.SendCode(ctx, u.Email, code, string(purpose))
+	s.notifyCodeSent(u.ID, u.Email, string(purpose))
 }
 
 // VerifyEmail подтверждает email по коду из письма.
@@ -182,7 +203,11 @@ func (s *AuthService) RequestPhoneOTP(ctx context.Context, phone string) error {
 	if err := s.vrfRepo.Create(ctx, vc); err != nil {
 		return err
 	}
-	return s.mailer.SendCode(ctx, target, code, "вход по номеру телефона")
+	if err := s.mailer.SendCode(ctx, target, code, "вход по номеру телефона"); err != nil {
+		return err
+	}
+	s.notifyCodeSent(uidOrEmpty(u), target, string(domain.PurposePhoneOTP))
+	return nil
 }
 
 // LoginPhone выполняет вход по номеру телефона и OTP-коду.

@@ -32,10 +32,19 @@ type MessageService struct {
 	msgCfg   config.MessageConfig
 	redis    *cache.Redis
 	webhooks *webhook.Dispatcher
+	// directNotify вызывается, когда Kafka выключена: создаёт in-app
+	// уведомления и отправляет push без отдельного консьюмера.
+	directNotify func(context.Context, events.MessageCreatedEvent)
 }
 
 func NewMessageService(repo *msgrepo.MessageRepository, chats *chatrepo.ChatRepository, kafka *events.Producer, topics config.KafkaConfig, hub realtime.Broadcaster, msgCfg config.MessageConfig, redis *cache.Redis, webhooks *webhook.Dispatcher) *MessageService {
 	return &MessageService{repo: repo, chats: chats, kafka: kafka, topics: topics, hub: hub, msgCfg: msgCfg, redis: redis, webhooks: webhooks}
+}
+
+// SetDirectNotifier подключает прямой обработчик события "сообщение создано"
+// (используется, когда Kafka выключена).
+func (s *MessageService) SetDirectNotifier(fn func(context.Context, events.MessageCreatedEvent)) {
+	s.directNotify = fn
 }
 
 // msgListKey returns the Redis key for a chat's message list page.
@@ -127,6 +136,10 @@ func (s *MessageService) deliver(ctx context.Context, msg *domain.Message) {
 		if err := s.kafka.Publish(ctx, s.topics.MessageTopic, msg.ChatID, event); err != nil {
 			log.Error().Err(err).Msg("failed to publish message.created event")
 		}
+	} else if s.directNotify != nil {
+		// Kafka выключена — обрабатываем событие напрямую (in-app уведомления
+		// и push), иначе уведомления не создавались бы вообще.
+		s.directNotify(ctx, event)
 	}
 	if s.hub != nil {
 		if pm, err := s.toPublic(ctx, msg); err == nil {
@@ -251,7 +264,23 @@ func (s *MessageService) Delete(ctx context.Context, messageID, userID string) e
 	return nil
 }
 
-// MarkRead records read receipts for the given messages.
+// Get returns a single message. Запросить может только участник чата.
+func (s *MessageService) Get(ctx context.Context, messageID, userID string) (*domain.PublicMessage, error) {
+	msg, err := s.repo.Get(ctx, messageID)
+	if err != nil {
+		return nil, err
+	}
+	ok, err := s.chats.IsParticipant(ctx, msg.ChatID, userID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, ErrForbidden
+	}
+	return s.toPublic(ctx, msg)
+}
+
+// MarkRead records read receipts for the given messages and notifies the chat.
 func (s *MessageService) MarkRead(ctx context.Context, chatID, userID string, ids []string) error {
 	ok, err := s.chats.IsParticipant(ctx, chatID, userID)
 	if err != nil {
@@ -260,7 +289,32 @@ func (s *MessageService) MarkRead(ctx context.Context, chatID, userID string, id
 	if !ok {
 		return ErrForbidden
 	}
-	return s.repo.SaveReadReceipts(ctx, userID, ids)
+	if err := s.repo.SaveReadReceipts(ctx, userID, ids); err != nil {
+		return err
+	}
+	s.notifyRead(ctx, chatID, userID, ids)
+	return nil
+}
+
+// notifyRead рассылает событие message.read участникам чата.
+func (s *MessageService) notifyRead(ctx context.Context, chatID, userID string, ids []string) {
+	if s.hub == nil || len(ids) == 0 {
+		return
+	}
+	participants, err := s.chats.Participants(ctx, chatID)
+	if err != nil {
+		return
+	}
+	for _, id := range ids {
+		s.hub.SendToUsers(participants, ws.Outbound{
+			Type: "message.read",
+			Payload: map[string]interface{}{
+				"chat_id":    chatID,
+				"message_id": id,
+				"user_id":    userID,
+			},
+		})
+	}
 }
 
 // UnreadCount returns how many messages the user has not read in a chat.

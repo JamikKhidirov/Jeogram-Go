@@ -3,6 +3,7 @@ package handler
 import (
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -39,6 +40,7 @@ func (h *MediaHandler) RegisterRoutes(r chi.Router) {
 	r.Get("/media/{type}/{file}", h.Serve)
 	r.Get("/media/{id}/download", h.Download)
 	r.Get("/media/{id}/thumbnail", h.Thumbnail)
+	r.Get("/media/{id}", h.GetByID)
 	r.With(middleware.JWTAuth(h.jwt)).Delete("/media/{id}", h.DeleteMedia)
 }
 
@@ -102,6 +104,33 @@ func (h *MediaHandler) Serve(w http.ResponseWriter, r *http.Request) {
 		response.WriteError(w, http.StatusNotFound, "not_found", "media not found")
 		return
 	}
+	http.ServeFile(w, r, path)
+}
+
+// GetByID отдаёт файл по id (inline, с корректным Content-Type) и метаданные.
+//
+//	@Summary	Получить файл по id
+//	@Tags		media
+//	@Produce	application/octet-stream
+//	@Param		id	path		string	true	"id медиафайла"
+//	@Success	200
+//	@Router		/media/{id} [get]
+func (h *MediaHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	rec, err := h.svc.Get(r.Context(), id)
+	if err != nil {
+		response.WriteError(w, http.StatusNotFound, "not_found", "media not found")
+		return
+	}
+	path, err := h.svc.PathFor(rec.URL)
+	if err != nil {
+		response.WriteError(w, http.StatusNotFound, "not_found", "media not found")
+		return
+	}
+	if rec.ContentType != "" {
+		w.Header().Set("Content-Type", rec.ContentType)
+	}
+	w.Header().Set("Content-Length", strconv.FormatInt(rec.Size, 10))
 	http.ServeFile(w, r, path)
 }
 

@@ -51,6 +51,12 @@ type RegisterDeviceRequest struct {
 	Timezone    string   `json:"timezone,omitempty"`
 }
 
+// MarkReadRequest помечает уведомления прочитанными. Пустой список id
+// означает «отметить все уведомления пользователя».
+type MarkReadRequest struct {
+	IDs []string `json:"ids,omitempty"`
+}
+
 // PushPayload is the notification content sent to devices.
 type PushPayload struct {
 	UserID    string

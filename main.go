@@ -10,10 +10,6 @@ import (
 
 	"github.com/jeogram/messenger/docs"
 	"github.com/jeogram/messenger/internal/config"
-	authrepo "github.com/jeogram/messenger/internal/modules/auth/repository"
-	chatrepo "github.com/jeogram/messenger/internal/modules/chat/repository"
-	notificationrepo "github.com/jeogram/messenger/internal/modules/notification/repository"
-	notificationservice "github.com/jeogram/messenger/internal/modules/notification/service"
 	"github.com/jeogram/messenger/internal/pkg/cache"
 	"github.com/jeogram/messenger/internal/pkg/database"
 	"github.com/jeogram/messenger/internal/pkg/events"
@@ -95,15 +91,10 @@ func main() {
 	server.StartWorkers(ctx)
 
 	// Notification microservice (Kafka consumer) inside the monolith.
-	userRepo := authrepo.NewUserRepository(db)
-	chatRepo := chatrepo.NewChatRepository(db)
-	deviceRepo := notificationrepo.NewDeviceRepository(db)
-	notifRepo := notificationrepo.NewNotificationRepository(db)
-	pushSvc := notificationservice.NewPushService(cfg.Push)
-	notifSvc := notificationservice.NewNotificationService(deviceRepo, notifRepo, userRepo, chatRepo, pushSvc, hub, producer, cfg.Kafka.NotifyTopic)
+	// Сервис уведомлений создаётся вместе с сервером — используем тот же.
 	if cfg.Kafka.Enabled {
 		consumer := events.NewConsumer(cfg.Kafka, cfg.Kafka.MessageTopic)
-		go notifSvc.Run(ctx, consumer)
+		go server.NotificationService().Run(ctx, consumer)
 	}
 
 	log.Info().Int("port", cfg.HTTP.Port).Msg("starting jeogram server")

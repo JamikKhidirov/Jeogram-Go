@@ -2,7 +2,7 @@
 
 Сервер поддерживает **два** транспорта для одних и тех же событий:
 1. **Raw WebSocket** — `ws://localhost:8080/ws` (рекомендуется, легко тестировать в Postman)
-2. **Socket.IO** — `http://localhost:8080/socket.io/` (для клиентов на `socket.io-client@2.x`)
+2. **Socket.IO** — `ws://localhost:8080/socket.io/` (для клиентов на `socket.io-client@2.x`)
 
 Функционально они эквивалентны — используйте то, что удобнее для клиента.
 
@@ -25,7 +25,7 @@ ws://localhost:8080/ws?token=<access_token>
 ## Socket.IO (`/socket.io/`)
 
 ```
-http://localhost:8080/socket.io/?token=<access_token>&EIO=4&transport=websocket
+ws://localhost:8080/socket.io/?token=<access_token>&EIO=3&transport=websocket
 ```
 
 Клиент должен быть строго версии **2.x**:
