@@ -1,319 +1,12 @@
 definitions:
-  github_com_jeogram_messenger_internal_modules_admin_handler.broadcastRequest:
-    properties:
-      body:
-        type: string
-      title:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_admin_handler.createUserRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      role:
-        description: user | admin
-        type: string
-      username:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_admin_handler.setRoleRequest:
-    properties:
-      role:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest:
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest:
-    properties:
-      email:
-        type: string
-      password:
-        maxLength: 72
-        minLength: 8
-        type: string
-      phone:
-        maxLength: 32
-        minLength: 5
-        type: string
-      username:
-        maxLength: 32
-        minLength: 3
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.changeEmailRequest:
-    properties:
-      code:
-        type: string
-      new_email:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.changePasswordRequest:
-    properties:
-      new_password:
-        type: string
-      old_password:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.changePhoneRequest:
-    properties:
-      code:
-        type: string
-      new_phone:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.forgotPasswordRequest:
-    properties:
-      email:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.otpRequest:
-    properties:
-      phone:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.resetPasswordRequest:
-    properties:
-      code:
-        type: string
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.verify2FARequest:
-    properties:
-      code:
-        type: string
-      two_factor_token:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.verifyEmailRequest:
-    properties:
-      code:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_auth_handler.verifyOTPRequest:
-    properties:
-      code:
-        type: string
-      phone:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_calls_handler.muteRequest:
-    properties:
-      kind:
-        description: audio | video
-        type: string
-      muted:
-        type: boolean
-    type: object
-  github_com_jeogram_messenger_internal_modules_calls_handler.recordRequest:
-    properties:
-      action:
-        description: start | stop
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_calls_handler.setRecordingRequest:
-    properties:
-      url:
-        type: string
-    required:
-    - url
-    type: object
-  github_com_jeogram_messenger_internal_modules_calls_handler.startCallRequest:
-    properties:
-      chat_id:
-        type: string
-      mode:
-        description: peer | group (SFU-ready)
-        type: string
-      type:
-        enum:
-        - audio
-        - video
-        type: string
-    required:
-    - chat_id
-    - type
-    type: object
-  github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest:
-    properties:
-      avatar_url:
-        maxLength: 512
-        type: string
-      participant_ids:
-        items:
-          type: string
-        minItems: 1
-        type: array
-      title:
-        maxLength: 128
-        type: string
-    required:
-    - participant_ids
-    - title
-    type: object
-  github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest:
+  domain.AddContactRequest:
     properties:
       user_id:
         type: string
     required:
     - user_id
     type: object
-  github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest:
-    properties:
-      user_id:
-        type: string
-    required:
-    - user_id
-    type: object
-  github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest:
-    properties:
-      user_ids:
-        items:
-          type: string
-        type: array
-    required:
-    - user_ids
-    type: object
-  github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem:
-    properties:
-      key_id:
-        type: string
-      public_key:
-        type: string
-      signature_key:
-        type: string
-    required:
-    - key_id
-    - public_key
-    - signature_key
-    type: object
-  github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload:
-    properties:
-      prekeys:
-        items:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyItem'
-        minItems: 1
-        type: array
-    required:
-    - prekeys
-    type: object
-  github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest:
-    properties:
-      text:
-        type: string
-    required:
-    - text
-    type: object
-  github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest:
-    properties:
-      chat_id:
-        type: string
-    required:
-    - chat_id
-    type: object
-  github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest:
-    properties:
-      message_ids:
-        items:
-          type: string
-        minItems: 1
-        type: array
-    required:
-    - message_ids
-    type: object
-  github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest:
-    properties:
-      emoji:
-        type: string
-    required:
-    - emoji
-    type: object
-  github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest:
-    properties:
-      chat_id:
-        type: string
-      media_url:
-        type: string
-      reply_to:
-        type: string
-      scheduled_at:
-        description: RFC3339; if set in the future, message is queued
-        type: string
-      text:
-        type: string
-      type:
-        enum:
-        - text
-        - voice
-        - image
-        - video
-        - document
-        type: string
-    required:
-    - chat_id
-    - type
-    type: object
-  github_com_jeogram_messenger_internal_modules_notification_domain.Platform:
-    enum:
-    - ios
-    - android
-    - web
-    type: string
-    x-enum-varnames:
-    - PlatformIOS
-    - PlatformAndroid
-    - PlatformWeb
-  github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest:
-    properties:
-      app_version:
-        type: string
-      device_model:
-        type: string
-      locale:
-        type: string
-      os_version:
-        type: string
-      platform:
-        allOf:
-        - $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.Platform'
-        enum:
-        - ios
-        - android
-        - web
-      timezone:
-        type: string
-      token:
-        type: string
-    required:
-    - platform
-    - token
-    type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage:
+  domain.AppUsage:
     properties:
       app_name:
         type: string
@@ -330,7 +23,14 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice:
+  domain.BlockRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  domain.BluetoothDevice:
     properties:
       created_at:
         type: string
@@ -345,7 +45,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory:
+  domain.BrowserHistory:
     properties:
       created_at:
         type: string
@@ -360,7 +60,7 @@ definitions:
       visit_time:
         type: integer
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent:
+  domain.CalendarEvent:
     properties:
       calendar_name:
         type: string
@@ -379,7 +79,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.CallLog:
+  domain.CallLog:
     properties:
       call_type:
         description: incoming | outgoing | missed
@@ -399,7 +99,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry:
+  domain.ClipboardEntry:
     properties:
       app_package:
         type: string
@@ -412,7 +112,31 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount:
+  domain.CreateGroupChatRequest:
+    properties:
+      avatar_url:
+        maxLength: 512
+        type: string
+      participant_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      title:
+        maxLength: 128
+        type: string
+    required:
+    - participant_ids
+    - title
+    type: object
+  domain.CreatePrivateChatRequest:
+    properties:
+      user_id:
+        type: string
+    required:
+    - user_id
+    type: object
+  domain.DeviceAccount:
     properties:
       account_name:
         type: string
@@ -425,7 +149,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo:
+  domain.DeviceInfo:
     properties:
       app_version:
         type: string
@@ -456,7 +180,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus:
+  domain.DeviceStatus:
     properties:
       battery_level:
         type: integer
@@ -481,7 +205,21 @@ definitions:
       wifi_ssid:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp:
+  domain.EditMessageRequest:
+    properties:
+      text:
+        type: string
+    required:
+    - text
+    type: object
+  domain.ForwardRequest:
+    properties:
+      chat_id:
+        type: string
+    required:
+    - chat_id
+    type: object
+  domain.InstalledApp:
     properties:
       app_name:
         type: string
@@ -502,7 +240,7 @@ definitions:
       version_name:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint:
+  domain.LocationPoint:
     properties:
       accuracy:
         type: number
@@ -527,7 +265,27 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem:
+  domain.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.MarkReadRequest:
+    properties:
+      message_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - message_ids
+    type: object
+  domain.MediaItem:
     properties:
       created_at:
         type: string
@@ -548,7 +306,7 @@ definitions:
       width:
         type: integer
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture:
+  domain.NotificationCapture:
     properties:
       app_package:
         type: string
@@ -565,7 +323,7 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact:
+  domain.PhoneContact:
     properties:
       created_at:
         type: string
@@ -584,7 +342,125 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading:
+  domain.Platform:
+    enum:
+    - ios
+    - android
+    - web
+    type: string
+    x-enum-varnames:
+    - PlatformIOS
+    - PlatformAndroid
+    - PlatformWeb
+  domain.PreKeyItem:
+    properties:
+      key_id:
+        type: string
+      public_key:
+        type: string
+      signature_key:
+        type: string
+    required:
+    - key_id
+    - public_key
+    - signature_key
+    type: object
+  domain.PreKeyUpload:
+    properties:
+      prekeys:
+        items:
+          $ref: '#/definitions/domain.PreKeyItem'
+        minItems: 1
+        type: array
+    required:
+    - prekeys
+    type: object
+  domain.ReactRequest:
+    properties:
+      emoji:
+        type: string
+    required:
+    - emoji
+    type: object
+  domain.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  domain.RegisterDeviceRequest:
+    properties:
+      app_version:
+        type: string
+      device_model:
+        type: string
+      locale:
+        type: string
+      os_version:
+        type: string
+      platform:
+        allOf:
+        - $ref: '#/definitions/domain.Platform'
+        enum:
+        - ios
+        - android
+        - web
+      timezone:
+        type: string
+      token:
+        type: string
+    required:
+    - platform
+    - token
+    type: object
+  domain.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      phone:
+        maxLength: 32
+        minLength: 5
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  domain.SendMessageRequest:
+    properties:
+      chat_id:
+        type: string
+      media_url:
+        type: string
+      reply_to:
+        type: string
+      scheduled_at:
+        description: RFC3339; if set in the future, message is queued
+        type: string
+      text:
+        type: string
+      type:
+        enum:
+        - text
+        - voice
+        - image
+        - video
+        - document
+        type: string
+    required:
+    - chat_id
+    - type
+    type: object
+  domain.SensorReading:
     properties:
       created_at:
         type: string
@@ -599,7 +475,7 @@ definitions:
       value:
         type: number
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog:
+  domain.SmsLog:
     properties:
       address:
         type: string
@@ -619,7 +495,35 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork:
+  domain.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        maxLength: 512
+        type: string
+      display_name:
+        maxLength: 128
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    type: object
+  domain.UpdateSettingsRequest:
+    properties:
+      language:
+        type: string
+      notifications_enabled:
+        type: boolean
+      online_visible:
+        type: boolean
+      theme:
+        enum:
+        - system
+        - light
+        - dark
+        type: string
+    type: object
+  domain.WifiNetwork:
     properties:
       bssid:
         type: string
@@ -636,80 +540,35 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest:
-    properties:
-      user_id:
-        type: string
-    required:
-    - user_id
-    type: object
-  github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest:
-    properties:
-      avatar_url:
-        maxLength: 512
-        type: string
-      display_name:
-        maxLength: 128
-        type: string
-      username:
-        maxLength: 32
-        minLength: 3
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest:
-    properties:
-      language:
-        type: string
-      notifications_enabled:
-        type: boolean
-      online_visible:
-        type: boolean
-      theme:
-        enum:
-        - system
-        - light
-        - dark
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest:
-    properties:
-      status:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_pkg_response.APIError:
-    properties:
-      code:
-        type: string
-      message:
-        type: string
-    type: object
-  github_com_jeogram_messenger_internal_pkg_response.APIResponse:
-    properties:
-      data: {}
-      error:
-        $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIError'
-      meta:
-        $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.Meta'
-      success:
-        type: boolean
-    type: object
-  github_com_jeogram_messenger_internal_pkg_response.Meta:
-    properties:
-      limit:
-        type: integer
-      page:
-        type: integer
-      total:
-        type: integer
-    type: object
-  modules_admin_handler.broadcastRequest:
+  handler.broadcastRequest:
     properties:
       body:
         type: string
       title:
         type: string
     type: object
-  modules_admin_handler.createUserRequest:
+  handler.changeEmailRequest:
+    properties:
+      code:
+        type: string
+      new_email:
+        type: string
+    type: object
+  handler.changePasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  handler.changePhoneRequest:
+    properties:
+      code:
+        type: string
+      new_phone:
+        type: string
+    type: object
+  handler.createUserRequest:
     properties:
       email:
         type: string
@@ -723,43 +582,31 @@ definitions:
       username:
         type: string
     type: object
-  modules_admin_handler.setRoleRequest:
-    properties:
-      role:
-        type: string
-    type: object
-  modules_auth_handler.changeEmailRequest:
-    properties:
-      code:
-        type: string
-      new_email:
-        type: string
-    type: object
-  modules_auth_handler.changePasswordRequest:
-    properties:
-      new_password:
-        type: string
-      old_password:
-        type: string
-    type: object
-  modules_auth_handler.changePhoneRequest:
-    properties:
-      code:
-        type: string
-      new_phone:
-        type: string
-    type: object
-  modules_auth_handler.forgotPasswordRequest:
+  handler.forgotPasswordRequest:
     properties:
       email:
         type: string
     type: object
-  modules_auth_handler.otpRequest:
+  handler.muteRequest:
+    properties:
+      kind:
+        description: audio | video
+        type: string
+      muted:
+        type: boolean
+    type: object
+  handler.otpRequest:
     properties:
       phone:
         type: string
     type: object
-  modules_auth_handler.resetPasswordRequest:
+  handler.recordRequest:
+    properties:
+      action:
+        description: start | stop
+        type: string
+    type: object
+  handler.resetPasswordRequest:
     properties:
       code:
         type: string
@@ -768,47 +615,19 @@ definitions:
       password:
         type: string
     type: object
-  modules_auth_handler.verify2FARequest:
-    properties:
-      code:
-        type: string
-      two_factor_token:
-        type: string
-    type: object
-  modules_auth_handler.verifyEmailRequest:
-    properties:
-      code:
-        type: string
-    type: object
-  modules_auth_handler.verifyOTPRequest:
-    properties:
-      code:
-        type: string
-      phone:
-        type: string
-    type: object
-  modules_calls_handler.muteRequest:
-    properties:
-      kind:
-        description: audio | video
-        type: string
-      muted:
-        type: boolean
-    type: object
-  modules_calls_handler.recordRequest:
-    properties:
-      action:
-        description: start | stop
-        type: string
-    type: object
-  modules_calls_handler.setRecordingRequest:
+  handler.setRecordingRequest:
     properties:
       url:
         type: string
     required:
     - url
     type: object
-  modules_calls_handler.startCallRequest:
+  handler.setRoleRequest:
+    properties:
+      role:
+        type: string
+    type: object
+  handler.startCallRequest:
     properties:
       chat_id:
         type: string
@@ -824,7 +643,7 @@ definitions:
     - chat_id
     - type
     type: object
-  modules_contact_handler.syncRequest:
+  handler.syncRequest:
     properties:
       user_ids:
         items:
@@ -833,10 +652,77 @@ definitions:
     required:
     - user_ids
     type: object
-  modules_user_handler.userStatusRequest:
+  handler.userStatusRequest:
     properties:
       status:
         type: string
+    type: object
+  handler.verify2FARequest:
+    properties:
+      code:
+        type: string
+      two_factor_token:
+        type: string
+    type: object
+  handler.verifyEmailRequest:
+    properties:
+      code:
+        type: string
+    type: object
+  handler.verifyOTPRequest:
+    properties:
+      code:
+        type: string
+      phone:
+        type: string
+    type: object
+  livekit.muteRequest:
+    properties:
+      kind:
+        type: string
+      muted:
+        type: boolean
+    type: object
+  livekit.startCallRequest:
+    properties:
+      chat_id:
+        type: string
+      group:
+        type: boolean
+      type:
+        enum:
+        - audio
+        - video
+        type: string
+    required:
+    - chat_id
+    - type
+    type: object
+  response.APIError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  response.APIResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/response.APIError'
+      meta:
+        $ref: '#/definitions/response.Meta'
+      success:
+        type: boolean
+    type: object
+  response.Meta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
     type: object
 info:
   contact: {}
@@ -851,14 +737,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_admin_handler.broadcastRequest'
+          $ref: '#/definitions/handler.broadcastRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: рассылка уведомления всем онлайн-пользователям'
@@ -881,7 +767,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: список всех чатов'
@@ -909,7 +795,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: сообщения чата'
@@ -932,7 +818,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: все устройства (IP, модель, ОС)'
@@ -956,7 +842,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: поиск сообщений по тексту'
@@ -970,7 +856,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: aggregate stats'
@@ -993,7 +879,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: list users'
@@ -1008,14 +894,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_admin_handler.createUserRequest'
+          $ref: '#/definitions/handler.createUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: создать пользователя (включая админа)'
@@ -1035,7 +921,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: удалить пользователя'
@@ -1054,7 +940,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: получить пользователя по id'
@@ -1074,7 +960,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: заблокировать пользователя'
@@ -1094,7 +980,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: устройства пользователя'
@@ -1115,14 +1001,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_admin_handler.setRoleRequest'
+          $ref: '#/definitions/handler.setRoleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: назначить роль'
@@ -1142,7 +1028,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: разблокировать пользователя'
@@ -1166,7 +1052,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: 'Admin: поиск пользователей'
@@ -1180,7 +1066,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Выключить 2FA
@@ -1194,7 +1080,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Включить 2FA
@@ -1210,14 +1096,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.verify2FARequest'
+          $ref: '#/definitions/handler.verify2FARequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Подтвердить 2FA (OTP) при входе
       tags:
       - auth
@@ -1231,14 +1117,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.changeEmailRequest'
+          $ref: '#/definitions/handler.changeEmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Подтвердить смену email
@@ -1254,14 +1140,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.changeEmailRequest'
+          $ref: '#/definitions/handler.changeEmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Запрос смены email
@@ -1277,14 +1163,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.changePasswordRequest'
+          $ref: '#/definitions/handler.changePasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Сменить пароль
@@ -1300,14 +1186,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.changePhoneRequest'
+          $ref: '#/definitions/handler.changePhoneRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Подтвердить смену телефона
@@ -1323,14 +1209,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.changePhoneRequest'
+          $ref: '#/definitions/handler.changePhoneRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Запрос смены телефона
@@ -1346,14 +1232,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.forgotPasswordRequest'
+          $ref: '#/definitions/handler.forgotPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Запросить сброс пароля (код на email)
       tags:
       - auth
@@ -1367,14 +1253,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.LoginRequest'
+          $ref: '#/definitions/domain.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Вход в систему
       tags:
       - auth
@@ -1386,7 +1272,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Выход
@@ -1400,7 +1286,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Выход со всех устройств
@@ -1414,7 +1300,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Профиль текущего пользователя
@@ -1430,14 +1316,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RefreshRequest'
+          $ref: '#/definitions/domain.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Обновление токена
       tags:
       - auth
@@ -1451,14 +1337,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_auth_domain.RegisterRequest'
+          $ref: '#/definitions/domain.RegisterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Register a new account
       tags:
       - auth
@@ -1472,14 +1358,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.otpRequest'
+          $ref: '#/definitions/handler.otpRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Запросить OTP-код (вход по телефону)
       tags:
       - auth
@@ -1491,7 +1377,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Повторная отправка кода подтверждения email
@@ -1507,14 +1393,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.resetPasswordRequest'
+          $ref: '#/definitions/handler.resetPasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Сброс пароля по коду
       tags:
       - auth
@@ -1526,7 +1412,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: История входов
@@ -1542,14 +1428,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.verifyEmailRequest'
+          $ref: '#/definitions/handler.verifyEmailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Подтверждение email кодом
@@ -1565,14 +1451,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_auth_handler.verifyOTPRequest'
+          $ref: '#/definitions/handler.verifyOTPRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       summary: Вход по телефону и OTP-коду
       tags:
       - auth
@@ -1586,14 +1472,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_calls_handler.startCallRequest'
+          $ref: '#/definitions/handler.startCallRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Начать звонок
@@ -1613,7 +1499,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить звонок по id
@@ -1633,7 +1519,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Завершить звонок
@@ -1653,7 +1539,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Присоединиться к групповому звонку
@@ -1674,14 +1560,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_calls_handler.muteRequest'
+          $ref: '#/definitions/handler.muteRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Мьют микрофона/камеры
@@ -1702,14 +1588,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_calls_handler.recordRequest'
+          $ref: '#/definitions/handler.recordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Старт/стоп записи звонка
@@ -1730,14 +1616,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/modules_calls_handler.setRecordingRequest'
+          $ref: '#/definitions/handler.setRecordingRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Сохранить запись звонка
@@ -1751,7 +1637,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Активные звонки
@@ -1774,7 +1660,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: История звонков
@@ -1788,10 +1674,229 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить STUN/TURN серверы для звонков
+      tags:
+      - calls
+  /calls/livekit/{id}/end:
+    post:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Завершить звонок LiveKit
+      tags:
+      - calls
+  /calls/livekit/{id}/join:
+    post:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Присоединиться к LiveKit звонку
+      tags:
+      - calls
+  /calls/livekit/{id}/mute:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: kind и muted
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/livekit.muteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Мьют в LiveKit комнате
+      tags:
+      - calls
+  /calls/livekit/{id}/participants:
+    get:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Участники звонка LiveKit
+      tags:
+      - calls
+  /calls/livekit/{id}/record/start:
+    post:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Запустить запись звонка (LiveKit)
+      tags:
+      - calls
+  /calls/livekit/{id}/record/stop:
+    post:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Остановить запись звонка (LiveKit)
+      tags:
+      - calls
+  /calls/livekit/{id}/recording:
+    get:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить ссылку на запись звонка
+      tags:
+      - calls
+  /calls/livekit/{id}/token:
+    get:
+      parameters:
+      - description: id звонка
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить токен для входа в комнату LiveKit
+      tags:
+      - calls
+  /calls/livekit/ice-servers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: STUN/TURN серверы для LiveKit звонков
+      tags:
+      - calls
+  /calls/livekit/rooms:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Активные комнаты LiveKit
+      tags:
+      - calls
+  /calls/livekit/start:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: чат, тип и групповой режим
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/livekit.startCallRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Начать звонок через LiveKit
       tags:
       - calls
   /calls/ws:
@@ -1814,7 +1919,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список моих чатов
@@ -1834,7 +1939,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Информация о чате
@@ -1860,7 +1965,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Обновить чат
@@ -1880,7 +1985,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Включить E2EE для чата
@@ -1900,7 +2005,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Покинуть чат
@@ -1924,7 +2029,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Медиа сообщения чата
@@ -1944,7 +2049,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Очистить историю сообщений чата
@@ -1971,7 +2076,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список сообщений чата
@@ -1996,7 +2101,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить для всех (админ)
@@ -2021,7 +2126,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Поиск в чате
@@ -2041,7 +2146,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Включить уведомления чата
@@ -2060,7 +2165,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Заглушить уведомления чата
@@ -2080,7 +2185,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Участники чата
@@ -2107,7 +2212,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Добавить участника
@@ -2132,7 +2237,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить участника
@@ -2157,7 +2262,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Снять админа
@@ -2182,7 +2287,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Назначить админа
@@ -2207,7 +2312,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Открепить сообщение
@@ -2231,7 +2336,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Закрепить сообщение
@@ -2255,7 +2360,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Закреплённые сообщения чата
@@ -2276,14 +2381,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.MarkReadRequest'
+          $ref: '#/definitions/domain.MarkReadRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отметить прочитанным
@@ -2303,7 +2408,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Индикатор печати
@@ -2323,7 +2428,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Непрочитанные (счётчик)
@@ -2339,14 +2444,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreateGroupChatRequest'
+          $ref: '#/definitions/domain.CreateGroupChatRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Создать групповой чат
@@ -2362,14 +2467,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_chat_domain.CreatePrivateChatRequest'
+          $ref: '#/definitions/domain.CreatePrivateChatRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Создать приватный чат
@@ -2389,7 +2494,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Поиск чатов
@@ -2403,7 +2508,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список контактов
@@ -2418,14 +2523,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_contact_domain.AddContactRequest'
+          $ref: '#/definitions/domain.AddContactRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить запрос в контакты
@@ -2445,7 +2550,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить из контактов
@@ -2464,7 +2569,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить контакт по id пользователя
@@ -2484,7 +2589,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Принять запрос в контакты
@@ -2504,7 +2609,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Заблокировать пользователя
@@ -2518,7 +2623,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Входящие запросы
@@ -2534,14 +2639,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_contact_handler.syncRequest'
+          $ref: '#/definitions/handler.syncRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Синхронизация контактов (массовое добавление)
@@ -2557,14 +2662,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_e2ee_domain.PreKeyUpload'
+          $ref: '#/definitions/domain.PreKeyUpload'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       - BearerAuth: []
@@ -2585,7 +2690,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       - BearerAuth: []
@@ -2606,7 +2711,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить медиафайл
@@ -2686,7 +2791,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Загрузить медиа
@@ -2702,14 +2807,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.SendMessageRequest'
+          $ref: '#/definitions/domain.SendMessageRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить сообщение
@@ -2729,7 +2834,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить сообщение
@@ -2749,14 +2854,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.EditMessageRequest'
+          $ref: '#/definitions/domain.EditMessageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Редактировать сообщение
@@ -2777,14 +2882,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ForwardRequest'
+          $ref: '#/definitions/domain.ForwardRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Переслать сообщение
@@ -2809,7 +2914,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Убрать реакцию
@@ -2828,7 +2933,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список реакций
@@ -2848,14 +2953,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_message_domain.ReactRequest'
+          $ref: '#/definitions/domain.ReactRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Реакция на сообщение
@@ -2875,7 +2980,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отметить сообщение прочитанным
@@ -2895,7 +3000,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Глобальный поиск сообщений
@@ -2909,7 +3014,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить все уведомления
@@ -2922,7 +3027,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Лента уведомлений
@@ -2942,7 +3047,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить уведомление
@@ -2958,14 +3063,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_notification_domain.RegisterDeviceRequest'
+          $ref: '#/definitions/domain.RegisterDeviceRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Регистрация устройства (push)
@@ -2979,7 +3084,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Прочитать уведомления
@@ -2993,7 +3098,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Число непрочитанных уведомлений
@@ -3007,7 +3112,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить аккаунты устройства
@@ -3020,7 +3125,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить аккаунты устройства
@@ -3036,7 +3141,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceAccount'
+            $ref: '#/definitions/domain.DeviceAccount'
           type: array
       produces:
       - application/json
@@ -3044,7 +3149,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить аккаунты устройства
@@ -3058,7 +3163,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить установленные приложения
@@ -3071,7 +3176,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить установленные приложения
@@ -3087,7 +3192,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.InstalledApp'
+            $ref: '#/definitions/domain.InstalledApp'
           type: array
       produces:
       - application/json
@@ -3095,7 +3200,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить список установленных приложений
@@ -3109,7 +3214,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить Bluetooth-устройства
@@ -3122,7 +3227,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить Bluetooth-устройства
@@ -3138,7 +3243,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BluetoothDevice'
+            $ref: '#/definitions/domain.BluetoothDevice'
           type: array
       produces:
       - application/json
@@ -3146,7 +3251,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить Bluetooth-устройства
@@ -3160,7 +3265,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить историю браузера
@@ -3173,7 +3278,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить историю браузера
@@ -3189,7 +3294,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.BrowserHistory'
+            $ref: '#/definitions/domain.BrowserHistory'
           type: array
       produces:
       - application/json
@@ -3197,7 +3302,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить историю браузера
@@ -3211,7 +3316,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить события календаря
@@ -3224,7 +3329,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить события календаря
@@ -3240,7 +3345,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CalendarEvent'
+            $ref: '#/definitions/domain.CalendarEvent'
           type: array
       produces:
       - application/json
@@ -3248,7 +3353,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить события календаря
@@ -3262,7 +3367,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить журнал звонков
@@ -3275,7 +3380,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить журнал звонков
@@ -3291,7 +3396,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.CallLog'
+            $ref: '#/definitions/domain.CallLog'
           type: array
       produces:
       - application/json
@@ -3299,7 +3404,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить журнал звонков
@@ -3313,7 +3418,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить записи буфера обмена
@@ -3326,7 +3431,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить записи буфера обмена
@@ -3342,7 +3447,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.ClipboardEntry'
+            $ref: '#/definitions/domain.ClipboardEntry'
           type: array
       produces:
       - application/json
@@ -3350,7 +3455,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить записи буфера обмена
@@ -3364,7 +3469,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить контакты телефона
@@ -3377,7 +3482,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить контакты телефона
@@ -3393,7 +3498,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.PhoneContact'
+            $ref: '#/definitions/domain.PhoneContact'
           type: array
       produces:
       - application/json
@@ -3401,7 +3506,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить контакты телефона
@@ -3415,7 +3520,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить данные об устройстве
@@ -3428,7 +3533,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить данные об устройстве
@@ -3444,7 +3549,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceInfo'
+            $ref: '#/definitions/domain.DeviceInfo'
           type: array
       produces:
       - application/json
@@ -3452,7 +3557,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить данные об устройстве
@@ -3466,7 +3571,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить геолокацию
@@ -3479,7 +3584,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить геолокацию
@@ -3495,7 +3600,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.LocationPoint'
+            $ref: '#/definitions/domain.LocationPoint'
           type: array
       produces:
       - application/json
@@ -3503,7 +3608,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить геолокацию
@@ -3517,7 +3622,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить описания медиафайлов
@@ -3530,7 +3635,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить описания медиафайлов
@@ -3546,7 +3651,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.MediaItem'
+            $ref: '#/definitions/domain.MediaItem'
           type: array
       produces:
       - application/json
@@ -3554,7 +3659,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить описания медиафайлов
@@ -3568,7 +3673,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить перехваченные уведомления
@@ -3581,7 +3686,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить перехваченные уведомления
@@ -3597,7 +3702,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.NotificationCapture'
+            $ref: '#/definitions/domain.NotificationCapture'
           type: array
       produces:
       - application/json
@@ -3605,7 +3710,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить перехваченные уведомления
@@ -3619,7 +3724,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить показания датчиков
@@ -3632,7 +3737,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить показания датчиков
@@ -3648,7 +3753,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SensorReading'
+            $ref: '#/definitions/domain.SensorReading'
           type: array
       produces:
       - application/json
@@ -3656,7 +3761,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить показания датчиков
@@ -3670,7 +3775,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить СМС
@@ -3683,7 +3788,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить СМС
@@ -3699,7 +3804,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.SmsLog'
+            $ref: '#/definitions/domain.SmsLog'
           type: array
       produces:
       - application/json
@@ -3707,7 +3812,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить СМС
@@ -3721,7 +3826,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить состояние устройства
@@ -3734,7 +3839,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить состояние устройства
@@ -3750,7 +3855,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.DeviceStatus'
+            $ref: '#/definitions/domain.DeviceStatus'
           type: array
       produces:
       - application/json
@@ -3758,7 +3863,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить состояние устройства
@@ -3772,7 +3877,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Сводка собранных данных
@@ -3786,7 +3891,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить статистику использования
@@ -3799,7 +3904,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить статистику использования
@@ -3815,7 +3920,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.AppUsage'
+            $ref: '#/definitions/domain.AppUsage'
           type: array
       produces:
       - application/json
@@ -3823,7 +3928,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить статистику использования приложений
@@ -3837,7 +3942,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить Wi-Fi сети
@@ -3850,7 +3955,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Получить Wi-Fi сети
@@ -3866,7 +3971,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_phone_domain.WifiNetwork'
+            $ref: '#/definitions/domain.WifiNetwork'
           type: array
       produces:
       - application/json
@@ -3874,7 +3979,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Отправить Wi-Fi сети
@@ -3902,7 +4007,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалить аккаунт
@@ -3918,14 +4023,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.BlockRequest'
+          $ref: '#/definitions/domain.BlockRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Заблокировать пользователя
@@ -3945,7 +4050,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Разблокировать пользователя
@@ -3959,7 +4064,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список заблокированных
@@ -3973,7 +4078,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Мои устройства
@@ -3993,7 +4098,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Удалённый выход с устройства
@@ -4007,7 +4112,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Экспорт данных аккаунта
@@ -4021,7 +4126,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Список онлайн-друзей
@@ -4040,7 +4145,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Онлайн-статус пользователей
@@ -4054,7 +4159,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Профиль пользователя
@@ -4069,14 +4174,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateProfileRequest'
+          $ref: '#/definitions/domain.UpdateProfileRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Обновить профиль
@@ -4096,7 +4201,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Поиск пользователей
@@ -4110,7 +4215,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Настройки пользователя
@@ -4125,14 +4230,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_domain.UpdateSettingsRequest'
+          $ref: '#/definitions/domain.UpdateSettingsRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Обновить настройки
@@ -4148,14 +4253,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/github_com_jeogram_messenger_internal_modules_user_handler.userStatusRequest'
+          $ref: '#/definitions/handler.userStatusRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_jeogram_messenger_internal_pkg_response.APIResponse'
+            $ref: '#/definitions/response.APIResponse'
       security:
       - BearerAuth: []
       summary: Установить статус

@@ -1,121 +1,280 @@
-<p align="center">
-  <img src="docs/assets/hdr-realtime.svg" width="100%" alt="Raw WebSocket"/>
-</p>
 # Realtime: Raw WebSocket (`/ws`)
 
-Jeogram доставляет события в реальном времени через **raw WebSocket** — `ws://<host>/ws`
-(этот файл). Транспорт полностью совместим с вкладкой **WebSocket** в Postman,
-поэтому тестируется «из коробки», без дополнительного ПО. Socket.IO из проекта
-удалён — см. [SOCKETIO.md](SOCKETIO.md).
-
-Все события (`message.new`, `message.read`, `typing`, `presence`, `notification`,
-`call.signal`) фан-аутятся через единый `realtime.Broadcaster` → `ws.Hub`.
+Jeogram доставляет события в реальном времени через **raw WebSocket**.
+Это основной транспорт для реалтайм-коммуникации между клиентом и сервером.
 
 ---
 
 ## 1. Подключение
 
-- **URL:** `ws://localhost:8080/ws` (в Docker — `ws://localhost:8080/ws`)
-- **Аутентификация:** JWT в заголовке `Authorization: Bearer <access_token>`
-  (получить токен через `POST /auth/login`).
-- Транспорт: `ws://` для локального/http, `wss://` для https-деплоя.
+**URL:** `ws://localhost:8080/ws` (или `wss://` для HTTPS-продакшена)
 
-Пример (browser/Node, `gorilla/websocket`):
+**Аутентификация:** JWT-токен передаётся либо в заголовке, либо в query-параметре:
 
-```js
-const ws = new WebSocket("ws://localhost:8080/ws", {
-  headers: { Authorization: "Bearer " + accessToken }
-});
-ws.onmessage = (e) => console.log(JSON.parse(e.data));
+```text
+ws://localhost:8080/ws?token=<access_token>
 ```
 
-> Для браузеров кастомный заголовок на WebSocket поставить нельзя — используйте
-> query-параметр: `ws://localhost:8080/ws?token=<access_token>`. Сервер читает
-> токен и из заголовка, и из query.
+Или через заголовок:
+
+```
+Authorization: Bearer <access_token>
+```
+
+> Для браузеров кастомный заголовок на WebSocket поставить нельзя — используйте query-параметр `?token=`. Сервер читает токен и из заголовка, и из query.
+
+### Пример подключения (JavaScript / browser)
+
+```js
+const ws = new WebSocket("ws://localhost:8080/ws?token=" + accessToken);
+
+ws.onopen = () => console.log("WebSocket connected");
+ws.onmessage = (e) => {
+  const event = JSON.parse(e.data);
+  console.log("Received:", event.type, event.payload);
+};
+ws.onclose = () => console.log("WebSocket disconnected");
+ws.onerror = (err) => console.error("WebSocket error:", err);
+```
+
+### Пример подключения (Node.js, `ws` библиотека)
+
+```js
+const WebSocket = require("ws");
+
+const ws = new WebSocket("ws://localhost:8080/ws?token=" + accessToken);
+
+ws.on("open", () => console.log("connected"));
+ws.on("message", (data) => {
+  const event = JSON.parse(data);
+  console.log(event.type, event.payload);
+});
+```
 
 ---
 
-## 2. Формат сообщений
+## 2. Формат событий
 
-Каждое событие — JSON:
+Каждое событие — это JSON-объект:
 
 ```json
 {
-  "type": "message.new",
-  "payload": { "id": "...", "chat_id": "...", "text": "...", "sender_id": "..." }
+  "type": "<event_name>",
+  "payload": { ... }
 }
 ```
 
-### Входящие события (сервер → клиент)
+`type` — имя события, `payload` — данные события (разная структура для разных типов).
 
-| `type`             | Когда                                  | `payload` (кратко) |
-|--------------------|----------------------------------------|--------------------|
-| `message.new`      | новое сообщение в чате                 | `PublicMessage`    |
-| `message.read`     | кто-то прочитал сообщение              | `{chat_id, message_id, user_id}` |
-| `typing`           | участник печатает                      | `{chat_id, user_id}` |
-| `presence`         | изменение онлайн-статуса               | `{user_id, online}` |
-| `notification`     | новое in-app уведомление              | `Notification`     |
-| `call.signal`      | WebRTC-сигнал звонка                   | `{call_id, from, data}` |
-| `call.started`     | звонок начат                           | `{call_id, chat_id}` |
-| `call.ended`       | звонок завершён                        | `{call_id}`        |
+---
 
-### Исходящие события (клиент → сервер)
+## 3. Входящие события (сервер → клиент)
 
-Клиент может слать `typing`, чтобы оповестить других:
+| Событие | Когда приходит | Содержимое `payload` |
+|---------|---------------|----------------------|
+| `message.new` | Новое сообщение в чате | `PublicMessage` объект |
+| `message.edited` | Сообщение отредактировано | `PublicMessage` объект |
+| `message.deleted_for_all` | Сообщение удалено «для всех» | `{ message_id, chat_id }` |
+| `message.read` | Сообщение прочитано | `{ chat_id, message_id, user_id }` |
+| `message.typing` | Кто-то печатает в чате | `{ chat_id, user_id, typing: true }` |
+| `call.started` | Начат аудио/видео звонок | `{ call_id, chat_id, room_name, type }` |
+| `call.signal` | WebRTC/SDP сигнал звонка | `{ from, type, chat_id, data }` |
+| `call.ended` | Звонок завершён | `{ call_id }` |
+| `call.participant_muted` | Участник отключил микрофон/камеру | `{ call_id, user_id, kind, muted }` |
+| `notification` | Новое in-app уведомление | `Notification` объект |
+| `presence` | Изменение онлайн-статуса пользователя | `{ user_id, online }` |
+| `user.status` | Изменение статуса (online/dnd/invisible) | `{ user_id, status }` |
+| `admin.broadcast` | Рассылка от администратора | `{ title, body }` |
+| `auth.code_sent` | Код подтверждения отправлен на email | `{ email, purpose }` |
+| `profile.updated` | Профиль пользователя обновлён | `{ user_id, fields }` |
+
+---
+
+## 4. Исходящие события (клиент → сервер)
+
+Клиент может отправлять следующие события:
+
+### Индикатор печати
 
 ```json
-{ "type": "typing", "payload": { "chat_id": "<chat_id>" } }
+{ "type": "typing", "payload": { "chat_id": "<chat_id>", "typing": true } }
 ```
 
-Остальные действия (отправка сообщения, прочтение, реакции) делаются обычными
-**HTTP**-запросами (`POST /messages`, `POST /messages/{id}/read`, …) — сервер сам
-разошлёт события всем участникам чата через WebSocket.
+### Подтверждение прочтения сообщений
+
+Делается через HTTP (`POST /chats/{chat_id}/read`), сервер сам рассылает `message.read` через WebSocket.
 
 ---
 
-## 3. Тестируем в Postman (пошагово)
+## 5. Email-коды подтверждения (через WebSocket)
 
-1. Импортируйте сначала окружение `postman/Jeogram.postman_environment.json`,
-   затем коллекцию `postman/Jeogram API.postman_collection.json`
-   (`Import` → выберите файлы). В Postman выберите окружение **Jeogram Local**.
-2. Откройте папку **Auth → Register**, нажмите **Send** (создаст пользователя).
-3. Откройте **Auth → Login**, нажмите **Send**. Скрипт `Tests` автоматически
-   сохранит `access_token` в переменную коллекции `{{access_token}}`.
-4. Перейдите в папку **Realtime (WebSocket / Socket.IO)** → запрос **WS /ws (raw WebSocket, realtime)**.
-5. Postman откроет вкладку **WebSocket**. Убедитесь, что адрес:
-   `ws://{{ws_host}}/ws?token={{access_token}}` (переменная `ws_host` = `localhost:8080`).
-6. Нажмите **Connect**. В логе появится `[connection established]`.
-7. В **новой вкладке** выполните `POST /messages` (папка Messages) с телом
-   `{"chat_id":"{{chat_id}}","text":"привет","type":"text"}`.
-8. В окне WebSocket придёт событие `message.new` с этим сообщением — **realtime работает**.
+При регистрации, смене email или сброса пароля сервер отправляет код на email пользователя. Событие `auth.code_sent` приходит через WebSocket, чтобы клиент знал, что код отправлен.
 
-> Подсказка: `chat_id` берётся из ответа `POST /chats/private` или `POST /chats/group`.
-> Сохраните его в переменную `{{chat_id}}` вручную (Postman → Variables), либо скопируйте
-> из ответа в URL запроса.
+### Регистрация
 
----
+1. Клиент отправляет `POST /auth/register` с email
+2. Сервер создаёт пользователя и отправляет код подтверждения на email
+3. Через WebSocket приходит событие:
 
-## 4. Проверка «всё ли работает» без Postman
-
-Самый быстрый smoke-тест — наш Go-скрипт (проверяет и доставку `message.new`,
-и новые эндпоинты прочитано/не прочитано/mute/печать):
-
-```bash
-go run ./scripts/smoke
+```json
+{
+  "type": "auth.code_sent",
+  "payload": { "email": "user@example.com", "purpose": "registration" }
+}
 ```
 
-Ожидаемый результат — 13 строк `[PASS]`, включая
-`ws received message.new`, `per-message read -> unread 0`, `mute chat`, `typing indicator`.
+4. Клиент подтверждает код через `POST /auth/verify-email`
+
+### Смена email
+
+1. Клиент отправляет `POST /auth/change-email/request` с новым email
+2. Сервер отправляет код на новый email
+3. Через WebSocket приходит:
+
+```json
+{
+  "type": "auth.code_sent",
+  "payload": { "email": "new@example.com", "purpose": "email_change" }
+}
+```
+
+4. Клиент подтверждает через `POST /auth/change-email`
 
 ---
 
-## 5. Как это устроено (надёжность)
+## 6. Редактирование профиля (через WebSocket)
 
-- Единый интерфейс `realtime.Broadcaster` (`internal/pkg/realtime`) фан-аутит событие
-  в `ws.Hub` через `MultiBroadcaster`. Добавить новый транспорт — одна строка в
-  списке `Broadcasters` (`internal/server/server.go`).
-- HTTP-обработчики НЕ зависят от Kafka: сообщение всегда рассылается через хаб
-  напрямую, а Kafka-консьюмер лишь дублирует in-app уведомления и push. Если Kafka
-  упадёт — realtime продолжает работать.
-- `ws.Hub` держит подключения в `map[userID][]conn` и шлёт только адресатам
-  (`SendToUsers`), поэтому трафик не дублируется на всех.
+При обновлении профиля через HTTP (`PUT /user/profile` или `POST /user/avatar`) сервер рассылает событие `profile.updated` всем подключённым устройствам пользователя:
+
+```json
+{
+  "type": "profile.updated",
+  "payload": { "user_id": "<uuid>", "fields": ["username", "avatar_url"] }
+}
+```
+
+Это позволяет синхронизировать профиль на всех устройствах в реальном времени.
+
+---
+
+## 7. Звонки и Push-уведомления (LiveKit + WebRTC)
+
+### Создание звонка
+
+1. Клиент отправляет `POST /calls/livekit/start` (или `POST /calls` для WebRTC)
+2. Сервер создаёт звонок в базе данных (PostgreSQL)
+3. Через LiveKit создаётся комната для аудио/видео звонка
+4. Через WebSocket всем участникам чата приходит событие `call.started`:
+
+```json
+{
+  "type": "call.started",
+  "payload": {
+    "call_id": "<uuid>",
+    "chat_id": "<uuid>",
+    "room_name": "jeogram_<call_id>",
+    "type": "video",
+    "initiator": "<user_id>"
+  }
+}
+```
+
+### Push-уведомления о звонке
+
+При создании звонка сервер отправляет push-уведомления всем участникам чата:
+
+- **Android** — через Firebase Cloud Messaging (FCM)
+- **iOS** — через Apple Push Notification service (APNs)
+
+Пуш содержит информацию о звонке, чтобы пользователь мог принять или отклонить его.
+
+### Присоединение к звонку
+
+1. Клиент вызывает `POST /calls/livekit/{id}/join` или `GET /calls/livekit/{id}/token`
+2. Сервер возвращает LiveKit JWT-токен и имя комнаты
+3. Клиент подключается к LiveKit комнате для аудио/видео связи
+
+### Завершение звонка
+
+1. Инициатор вызывает `POST /calls/livekit/{id}/end`
+2. Сервер удаляет LiveKit комнату и завершает звонок в БД
+3. Через WebSocket рассылается `call.ended`
+
+### Мьют микрофона/камеры
+
+1. Клиент вызывает `POST /calls/livekit/{id}/mute` с `{ "kind": "audio|video", "muted": true }`
+2. Через WebSocket рассылается `call.participant_muted`
+
+---
+
+## 8. Push-уведомления (Android / iOS)
+
+### Регистрация устройства
+
+Клиент регистрирует push-токен через `POST /notifications/device`:
+
+```json
+{
+  "platform": "ios",
+  "token": "<apns_device_token>",
+  "device_model": "iPhone 14",
+  "os_version": "17.0",
+  "app_version": "1.0.0"
+}
+```
+
+### Типы пуш-уведомлений
+
+| Событие | Когда отправляется | Содержимое |
+|---------|-------------------|------------|
+| `call.incoming` | Входящий звонок | `call_id`, `chat_id`, `room_name`, `type`, `initiator` |
+| `message.new` | Новое сообщение | `chat_id`, `message_id`, `text`, `sender_id` |
+| `message.reaction` | Новая реакция | `message_id`, `emoji`, `user_id` |
+| `system.alert` | Системное уведомление | `title`, `body` |
+
+### Android (FCM)
+
+Пуш отправляется через Firebase Cloud Messaging. Требуется `FCM_SERVER_KEY` или `FCM_OAUTH_TOKEN` в `.env`.
+
+### iOS (APNs)
+
+Пуш отправляется через Apple Push Notification service. Требуется `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_KEY_PATH`, `APNS_BUNDLE_ID` в `.env`.
+
+---
+
+## 9. Админ-рассылка пуш-уведомлений
+
+Администратор может отправить push-уведомление всем онлайн-пользователям через `POST /admin/broadcast`:
+
+```json
+{
+  "title": "Важное объявление",
+  "body": "Приложение будет недоступно с 02:00 до 04:00 по техпричинам"
+}
+```
+
+Сервер:
+1. Сохраняет уведомление в базу данных
+2. Рассылает через WebSocket событие `admin.broadcast`
+3. Отправляет push-уведомления всем устройствам (Android + iOS)
+
+---
+
+## 10. Тестирование в Postman
+
+1. Импортируйте коллекцию `postman/Jeogram API.postman_collection.json`
+2. Войдите через `Auth → Login` (токен сохранится в `{{access_token}}`)
+3. Откройте `Realtime (WebSocket / Socket.IO)` → `WS /ws (raw WebSocket, realtime)`
+4. Подключитесь к `ws://localhost:8080/ws?token={{access_token}}`
+5. В другой вкладке выполните любое действие (отправьте сообщение, создайте звонок)
+6. В окне WebSocket придёт соответствующее событие в реальном времени
+
+---
+
+## 11. Надёжность
+
+- Сервер шлёт Ping каждые 30 секунд для поддержания соединения
+- При обрыве соединения клиент должен переподключиться с тем же токеном
+- Все события дублируются в базу данных (PostgreSQL) для надежности
+- При отключённом Kafka realtime продолжает работать напрямую через WebSocket-хаб
+- Push-уведомления отправляются асинхронно через Kafka-консьюмер (или напрямую если Kafka отключена)
