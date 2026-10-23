@@ -51,8 +51,8 @@ func TestNewService(t *testing.T) {
 	if svc.apiSecret != "test-secret" {
 		t.Errorf("Expected apiSecret 'test-secret', got '%s'", svc.apiSecret)
 	}
-	if svc.serverURL != "ws://localhost:7800" {
-		t.Errorf("Expected serverURL 'ws://localhost:7800', got '%s'", svc.serverURL)
+	if svc.serverURL != "http://localhost:7800" {
+		t.Errorf("Expected serverURL 'http://localhost:7800', got '%s'", svc.serverURL)
 	}
 	if svc.rtc.RecordingEnabled != true {
 		t.Errorf("Expected RecordingEnabled=true, got %v", svc.rtc.RecordingEnabled)

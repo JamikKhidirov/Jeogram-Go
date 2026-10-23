@@ -245,7 +245,7 @@ func Load() (*Config, error) {
 		},
 		LiveKit: LiveKitConfig{
 			Enabled:    getEnvBool("LIVEKIT_ENABLED", false),
-			ServerURL:  getEnv("LIVEKIT_SERVER_URL", "ws://localhost:7800"),
+			ServerURL:  getEnv("LIVEKIT_SERVER_URL", "http://localhost:7880"),
 			PublicURL:  getEnv("LIVEKIT_PUBLIC_URL", "ws://localhost:7880"),
 			APIKey:     getEnv("LIVEKIT_API_KEY", "devkey"),
 			APISecret:  getEnv("LIVEKIT_API_SECRET", "secret"),

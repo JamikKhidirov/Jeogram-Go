@@ -39,10 +39,16 @@ type Service struct {
 }
 
 func NewService(cfg config.LiveKitConfig, rtc config.RTCConfig, repo *callrepo.CallRepository, chats *repository.ChatRepository, webhooks *webhook.Dispatcher) (*Service, error) {
+	apiBase := strings.TrimSuffix(cfg.ServerURL, "/")
+	if strings.HasPrefix(apiBase, "ws://") {
+		apiBase = "http://" + strings.TrimPrefix(apiBase, "ws://")
+	} else if strings.HasPrefix(apiBase, "wss://") {
+		apiBase = "https://" + strings.TrimPrefix(apiBase, "wss://")
+	}
 	s := &Service{
 		apiKey:     cfg.APIKey,
 		apiSecret:  cfg.APISecret,
-		serverURL:  strings.TrimSuffix(cfg.ServerURL, "/"),
+		serverURL:  apiBase,
 		publicURL:  cfg.PublicURL,
 		rtc:        rtc,
 		repo:       repo,

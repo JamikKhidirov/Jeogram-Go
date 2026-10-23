@@ -44,6 +44,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: jeogram-zookeeper
+    profiles: ["infra"]
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -53,6 +54,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: jeogram-kafka
+    profiles: ["infra"]
     depends_on:
       - zookeeper
     ports:
@@ -74,6 +76,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: jeogram-prometheus
+    profiles: ["infra"]
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -82,6 +85,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: jeogram-grafana
+    profiles: ["infra"]
     depends_on:
       - prometheus
     environment:
@@ -95,6 +99,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: jeogram-pgadmin
+    profiles: ["infra"]
     depends_on:
       - postgres
     environment:
@@ -113,6 +118,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -127,7 +136,9 @@ services:
       POSTGRES_PASSWORD: jeogram
       POSTGRES_DB: jeogram
       POSTGRES_SSLMODE: disable
-      REDIS_ENABLED: "false"
+      REDIS_ENABLED: "true"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       KAFKA_ENABLED: "false"
       JWT_ACCESS_SECRET: change-me-access-production
       JWT_REFRESH_SECRET: change-me-refresh-production

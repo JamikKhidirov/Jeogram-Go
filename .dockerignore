@@ -1,0 +1,31 @@
+# Git / CI
+.git
+.gitignore
+.github
+
+# Secrets — never bake local env into the image
+.env
+
+# Local binaries and runtime artefacts
+bin/
+*.exe
+*.db
+*.db-journal
+*.out
+*.err
+uploads/
+recordings/
+
+# Local tooling / infra files not needed at build time
+postman/
+scripts/
+e2e_test.ps1
+run_tests.bat
+docker-compose*.yml
+prometheus.yml
+traefik.yml
+k8s/
+
+# Docs/markdown (swagger sources live in docs/*.go, keep those)
+*.md
+!README.md

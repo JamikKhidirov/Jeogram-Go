@@ -133,6 +133,13 @@ cp .env.example .env          # обязательно заполните JWT_AC
 docker compose up --build -d
 ```
 
+По умолчанию поднимаются только необходимые сервисы: **PostgreSQL, Redis, LiveKit и app**.
+Kafka, Prometheus, Grafana и pgAdmin вынесены в профиль `infra`:
+
+```bash
+docker compose --profile infra up --build -d
+```
+
 ### Docker (облегчённый стек)
 
 ```bash
@@ -143,7 +150,9 @@ docker compose -f docker-compose.lite.yml up --build -d
 
 ```bash
 # A: поднять только инфраструктуру в Docker
-docker compose up -d postgres redis kafka
+docker compose up -d postgres redis
+# + Kafka (профиль infra)
+docker compose --profile infra up -d zookeeper kafka
 cp .env.example .env
 go run .
 
